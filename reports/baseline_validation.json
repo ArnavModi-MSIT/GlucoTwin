@@ -1,0 +1,176 @@
+{
+  "status": "development validation only; final test NOT scored",
+  "seed": 2026,
+  "ridge_alpha": 10.0,
+  "train_patients": 21,
+  "validation_patients": 6,
+  "train_rows": 53505,
+  "validation_rows": 15217,
+  "scores": {
+    "persistence": {
+      "rows": 15217,
+      "mae_mg_dl": 19.98869685220477,
+      "rmse_mg_dl": 31.517554573657463,
+      "mae_delta_vs_persistence": 0.0,
+      "patient_macro_mae_mg_dl": 19.948370647007852,
+      "slices": {
+        "type2_band": {
+          "rows": 5092,
+          "mae_mg_dl": 28.247054202670856,
+          "rmse_mg_dl": 41.24040510657335
+        },
+        "target_high": {
+          "rows": 2538,
+          "mae_mg_dl": 47.386130811662724,
+          "rmse_mg_dl": 60.02743659534395
+        },
+        "target_low": {
+          "rows": 39,
+          "mae_mg_dl": 20.256410256410255,
+          "rmse_mg_dl": 26.244413324919854
+        }
+      }
+    },
+    "slope": {
+      "rows": 15217,
+      "mae_mg_dl": 32.097879251588914,
+      "rmse_mg_dl": 48.982566167152314,
+      "mae_delta_vs_persistence": 12.109182399384142,
+      "patient_macro_mae_mg_dl": 32.071730801004485,
+      "slices": {
+        "type2_band": {
+          "rows": 5092,
+          "mae_mg_dl": 39.758584895073504,
+          "rmse_mg_dl": 59.001377916019095
+        },
+        "target_high": {
+          "rows": 2538,
+          "mae_mg_dl": 67.80490825171677,
+          "rmse_mg_dl": 85.72075456846123
+        },
+        "target_low": {
+          "rows": 39,
+          "mae_mg_dl": 29.66300366300367,
+          "rmse_mg_dl": 41.60277885900423
+        }
+      }
+    },
+    "ridge_clinical_only": {
+      "rows": 15217,
+      "mae_mg_dl": 27.93741013811623,
+      "rmse_mg_dl": 39.874737258521016,
+      "mae_delta_vs_persistence": 7.9487132859114595,
+      "patient_macro_mae_mg_dl": 27.927681991861693,
+      "slices": {
+        "type2_band": {
+          "rows": 5092,
+          "mae_mg_dl": 40.58057281671492,
+          "rmse_mg_dl": 54.85966971302649
+        },
+        "target_high": {
+          "rows": 2538,
+          "mae_mg_dl": 67.18997076438889,
+          "rmse_mg_dl": 80.93472076554916
+        },
+        "target_low": {
+          "rows": 39,
+          "mae_mg_dl": 62.98655282430583,
+          "rmse_mg_dl": 63.10048602800507
+        }
+      }
+    },
+    "ridge_cgm_only": {
+      "rows": 15217,
+      "mae_mg_dl": 19.69453166171255,
+      "rmse_mg_dl": 29.31779506688433,
+      "mae_delta_vs_persistence": -0.29416519049222245,
+      "patient_macro_mae_mg_dl": 19.673591779996002,
+      "slices": {
+        "type2_band": {
+          "rows": 5092,
+          "mae_mg_dl": 25.76355759369696,
+          "rmse_mg_dl": 38.467078161055
+        },
+        "target_high": {
+          "rows": 2538,
+          "mae_mg_dl": 47.34102593811711,
+          "rmse_mg_dl": 59.413351867840206
+        },
+        "target_low": {
+          "rows": 39,
+          "mae_mg_dl": 36.40672604733145,
+          "rmse_mg_dl": 38.14415188450415
+        }
+      }
+    },
+    "ridge_cgm_clinical": {
+      "rows": 15217,
+      "mae_mg_dl": 19.21135006262262,
+      "rmse_mg_dl": 28.41205189150073,
+      "mae_delta_vs_persistence": -0.7773467895821504,
+      "patient_macro_mae_mg_dl": 19.197692024725622,
+      "slices": {
+        "type2_band": {
+          "rows": 5092,
+          "mae_mg_dl": 26.64884895784451,
+          "rmse_mg_dl": 37.660412290198465
+        },
+        "target_high": {
+          "rows": 2538,
+          "mae_mg_dl": 45.333085498718425,
+          "rmse_mg_dl": 57.140787302046675
+        },
+        "target_low": {
+          "rows": 39,
+          "mae_mg_dl": 40.410436068565836,
+          "rmse_mg_dl": 41.5871346275443
+        }
+      }
+    },
+    "ridge_cgm_clinical_hr": {
+      "rows": 15217,
+      "mae_mg_dl": 18.998629431165217,
+      "rmse_mg_dl": 28.131509178559323,
+      "mae_delta_vs_persistence": -0.990067421039555,
+      "patient_macro_mae_mg_dl": 18.980353018458807,
+      "slices": {
+        "type2_band": {
+          "rows": 5092,
+          "mae_mg_dl": 26.242271188327887,
+          "rmse_mg_dl": 37.03065613662549
+        },
+        "target_high": {
+          "rows": 2538,
+          "mae_mg_dl": 44.85311946294423,
+          "rmse_mg_dl": 56.323434876592735
+        },
+        "target_low": {
+          "rows": 39,
+          "mae_mg_dl": 38.80318363502974,
+          "rmse_mg_dl": 40.078697574768135
+        }
+      }
+    }
+  },
+  "fit_predict_seconds": {
+    "ridge_clinical_only": 0.6048,
+    "ridge_cgm_only": 0.1114,
+    "ridge_cgm_clinical": 0.1165,
+    "ridge_cgm_clinical_hr": 0.1732
+  },
+  "total_seconds": 1.368,
+  "sampled_peak_process_rss_mib": 282.55,
+  "versions": {
+    "python": "3.10.11",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "sklearn": "1.7.2"
+  },
+  "limitations": [
+    "Exploratory reconstructed grid, not verified raw device samples",
+    "Only six validation patients",
+    "Clinical availability assumption",
+    "No clinical validation",
+    "Row-weighted metrics contain overlapping horizons"
+  ]
+}

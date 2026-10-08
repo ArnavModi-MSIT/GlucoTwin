@@ -1,0 +1,18 @@
+{
+  "persistence": {
+    "high_target_signed_error": -19.045705279747832,
+    "predicted_high_fraction_on_true_high": 0.6579984239558707
+  },
+  "ridge_fused": {
+    "high_target_signed_error": -39.646531411791,
+    "predicted_high_fraction_on_true_high": 0.5902285263987391
+  },
+  "boost_cgm_only": {
+    "high_target_signed_error": -42.835051437459015,
+    "predicted_high_fraction_on_true_high": 0.5263987391646966
+  },
+  "boost_fused": {
+    "high_target_signed_error": -53.23663905019686,
+    "predicted_high_fraction_on_true_high": 0.4432624113475177
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "status": "development validation only; final test NOT scored",
+  "parameters": {
+    "loss": "absolute_error",
+    "learning_rate": 0.05,
+    "max_iter": 120,
+    "max_leaf_nodes": 15,
+    "min_samples_leaf": 80,
+    "l2_regularization": 10.0,
+    "early_stopping": false,
+    "random_state": 2026
+  },
+  "scores": {
+    "boost_cgm_only": {
+      "rows": 15217,
+      "mae_mg_dl": 18.449217793638574,
+      "rmse_mg_dl": 29.719214114927304,
+      "fit_predict_seconds": 1.058,
+      "mae_improvement_vs_persistence": 1.5394790585661973,
+      "slices": {
+        "type2_band": {
+          "rows": 5092,
+          "mae_mg_dl": 26.393883216116826,
+          "rmse_mg_dl": 39.81473963704806
+        },
+        "target_high": {
+          "rows": 2538,
+          "mae_mg_dl": 49.903954221579106,
+          "rmse_mg_dl": 62.024341302166135
+        },
+        "target_low": {
+          "rows": 39,
+          "mae_mg_dl": 43.51053547320828,
+          "rmse_mg_dl": 43.942912845899436
+        }
+      },
+      "patient_macro_mae_mg_dl": 18.412687582157435,
+      "patients_beating_persistence": 6,
+      "patient_macro_delta_bootstrap_95pct_interval": [
+        -2.3818662783979874,
+        -0.7559732006184033
+      ]
+    },
+    "boost_cgm_clinical": {
+      "rows": 15217,
+      "mae_mg_dl": 18.785857283251623,
+      "rmse_mg_dl": 30.5445652702187,
+      "fit_predict_seconds": 0.465,
+      "mae_improvement_vs_persistence": 1.2028395689531486,
+      "slices": {
+        "type2_band": {
+          "rows": 5092,
+          "mae_mg_dl": 27.275219360915322,
+          "rmse_mg_dl": 41.522302480118604
+        },
+        "target_high": {
+          "rows": 2538,
+          "mae_mg_dl": 54.09964602501816,
+          "rmse_mg_dl": 65.73200327999187
+        },
+        "target_low": {
+          "rows": 39,
+          "mae_mg_dl": 43.32278024202616,
+          "rmse_mg_dl": 43.74316559219483
+        }
+      },
+      "patient_macro_mae_mg_dl": 18.741385007672246,
+      "patients_beating_persistence": 5,
+      "patient_macro_delta_bootstrap_95pct_interval": [
+        -2.2005964583815536,
+        -0.2730700009022649
+      ]
+    },
+    "boost_cgm_clinical_hr": {
+      "rows": 15217,
+      "mae_mg_dl": 18.9639003392308,
+      "rmse_mg_dl": 30.809728870915094,
+      "fit_predict_seconds": 0.627,
+      "mae_improvement_vs_persistence": 1.0247965129739711,
+      "slices": {
+        "type2_band": {
+          "rows": 5092,
+          "mae_mg_dl": 27.35347574252182,
+          "rmse_mg_dl": 41.811972062871774
+        },
+        "target_high": {
+          "rows": 2538,
+          "mae_mg_dl": 55.039298194080594,
+          "rmse_mg_dl": 66.53804238489978
+        },
+        "target_low": {
+          "rows": 39,
+          "mae_mg_dl": 43.04504756877354,
+          "rmse_mg_dl": 43.486029884227946
+        }
+      },
+      "patient_macro_mae_mg_dl": 18.918397414774194,
+      "patients_beating_persistence": 6,
+      "patient_macro_delta_bootstrap_95pct_interval": [
+        -1.7870699774454788,
+        -0.328503371830917
+      ]
+    }
+  },
+  "total_seconds": 2.492,
+  "sampled_peak_rss_mib": 250.76,
+  "threads": 4,
+  "versions": {
+    "python": "3.10.11",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "sklearn": "1.7.2"
+  },
+  "bootstrap_warning": "Only six validation patients; interval is exploratory and excludes model-selection uncertainty."
+}

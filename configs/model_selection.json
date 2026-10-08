@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-08",
+  "status": "provisional development selection; final test not scored",
+  "point_forecaster": "ridge_cgm_clinical_hr",
+  "artifact": "artifacts/ridge_cgm_clinical_hr.joblib",
+  "version": "baseline-v0.1",
+  "horizon_minutes": 60,
+  "decision": "Fused boosting MAE gain was 0.035 mg/dL, with worse RMSE and high-target errors; retain simpler fused Ridge.",
+  "classification": "not implemented; no calibrated probabilities",
+  "limitations": ["Reconstructed samples, not verified native logs", "Six validation patients", "Poor low-glucose performance", "Clinical availability assumed", "Not clinically validated"]
+}

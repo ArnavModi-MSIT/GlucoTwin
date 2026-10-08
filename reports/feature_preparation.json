@@ -1,0 +1,25 @@
+{
+  "feature_rows": 84095,
+  "patients": 33,
+  "seconds": 2.43,
+  "splits": {
+    "test": {
+      "eligible_rows": 15373,
+      "high_endpoint_rows": 3423,
+      "new_high_endpoint_rows": 675,
+      "valid_grid_upcrossings_after_warmup": 102
+    },
+    "train": {
+      "eligible_rows": 53505,
+      "high_endpoint_rows": 7308,
+      "new_high_endpoint_rows": 2956,
+      "valid_grid_upcrossings_after_warmup": 408
+    },
+    "validation": {
+      "eligible_rows": 15217,
+      "high_endpoint_rows": 2538,
+      "new_high_endpoint_rows": 868,
+      "valid_grid_upcrossings_after_warmup": 108
+    }
+  }
+}

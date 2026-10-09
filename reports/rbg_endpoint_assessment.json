@@ -1,0 +1,201 @@
+{
+  "status": "development endpoint assessment only; thresholds optimized on assessment; no clinical/test validation",
+  "role_patients": {
+    "train": 158,
+    "calibration": 17,
+    "assessment": 17,
+    "reserved_test": 34
+  },
+  "training_rows": 316000,
+  "assessment_rows": 973963,
+  "horizon_minutes": 30,
+  "sensor_delay_minutes": 5,
+  "events": {
+    "high": {
+      "training_prevalence": 0.3206424050632911,
+      "calibration_rows": 987808,
+      "calibration_positives": 322860,
+      "calibration_positive_patients_ge10": 17,
+      "calibration_support_pass": true,
+      "calibration_brier_gate": {
+        "all": false,
+        "at_risk": false
+      },
+      "calibration_pass": false,
+      "metrics": {
+        "all": {
+          "raw": {
+            "rows": 973963,
+            "positives": 306946,
+            "prevalence": 0.31515160226825867,
+            "average_precision": 0.929896416293373,
+            "brier": 0.06682788839486076
+          },
+          "sigmoid": {
+            "rows": 973963,
+            "positives": 306946,
+            "prevalence": 0.31515160226825867,
+            "average_precision": 0.929896416293373,
+            "brier": 0.06712877211722922
+          },
+          "train_prevalence": {
+            "rows": 973963,
+            "positives": 306946,
+            "prevalence": 0.31515160226825867,
+            "average_precision": 0.31515160226825867,
+            "brier": 0.21586121877134193
+          },
+          "latest_glucose_threshold": {
+            "rows": 973963,
+            "positives": 306946,
+            "prevalence": 0.31515160226825867,
+            "average_precision": 0.7403664675709827,
+            "brier": 0.10812217712582511
+          }
+        },
+        "at_risk": {
+          "raw": {
+            "rows": 666194,
+            "positives": 52242,
+            "prevalence": 0.07841859878653966,
+            "average_precision": 0.4730333162423344,
+            "brier": 0.05336814882660473
+          },
+          "sigmoid": {
+            "rows": 666194,
+            "positives": 52242,
+            "prevalence": 0.07841859878653966,
+            "average_precision": 0.4730333162423344,
+            "brier": 0.053612971900986156
+          },
+          "train_prevalence": {
+            "rows": 666194,
+            "positives": 52242,
+            "prevalence": 0.07841859878653966,
+            "average_precision": 0.07841859878653966,
+            "brier": 0.1309414944780926
+          },
+          "latest_glucose_threshold": {
+            "rows": 666194,
+            "positives": 52242,
+            "prevalence": 0.07841859878653966,
+            "average_precision": 0.07841859878653966,
+            "brier": 0.07841859878653966
+          }
+        }
+      },
+      "operating_score": "raw",
+      "at_risk_threshold_assessment": {
+        "rows": 666194,
+        "positives": 52242,
+        "prevalence": 0.07841859878653966,
+        "average_precision": 0.4730333162423344,
+        "brier": 0.05336814882660473,
+        "threshold": 0.3205614927671277,
+        "tn": 587995,
+        "fp": 25957,
+        "fn": 26285,
+        "tp": 25957,
+        "precision": 0.5,
+        "recall": 0.4968607633704682
+      },
+      "operating_gate_pass": false,
+      "probability_display_approved": false,
+      "flag_deployment_approved": false
+    },
+    "low": {
+      "training_prevalence": 0.03856645569620253,
+      "calibration_rows": 987808,
+      "calibration_positives": 43280,
+      "calibration_positive_patients_ge10": 17,
+      "calibration_support_pass": true,
+      "calibration_brier_gate": {
+        "all": false,
+        "at_risk": false
+      },
+      "calibration_pass": false,
+      "metrics": {
+        "all": {
+          "raw": {
+            "rows": 973963,
+            "positives": 32236,
+            "prevalence": 0.033097766547599855,
+            "average_precision": 0.3682542803565283,
+            "brier": 0.024814727530453762
+          },
+          "sigmoid": {
+            "rows": 973963,
+            "positives": 32236,
+            "prevalence": 0.033097766547599855,
+            "average_precision": 0.3682542803565283,
+            "brier": 0.024874365581588058
+          },
+          "train_prevalence": {
+            "rows": 973963,
+            "positives": 32236,
+            "prevalence": 0.033097766547599855,
+            "average_precision": 0.033097766547599855,
+            "brier": 0.03203221095816449
+          },
+          "latest_glucose_threshold": {
+            "rows": 973963,
+            "positives": 32236,
+            "prevalence": 0.033097766547599855,
+            "average_precision": 0.1671156951074814,
+            "brier": 0.04078799707997121
+          }
+        },
+        "at_risk": {
+          "raw": {
+            "rows": 941815,
+            "positives": 19907,
+            "prevalence": 0.021136847470044542,
+            "average_precision": 0.27058798671784656,
+            "brier": 0.017309273671961445
+          },
+          "sigmoid": {
+            "rows": 941815,
+            "positives": 19907,
+            "prevalence": 0.021136847470044542,
+            "average_precision": 0.27058798671784656,
+            "brier": 0.01731304079077527
+          },
+          "train_prevalence": {
+            "rows": 941815,
+            "positives": 19907,
+            "prevalence": 0.021136847470044542,
+            "average_precision": 0.021136847470044542,
+            "brier": 0.020993872391989955
+          },
+          "latest_glucose_threshold": {
+            "rows": 941815,
+            "positives": 19907,
+            "prevalence": 0.021136847470044542,
+            "average_precision": 0.021136847470044542,
+            "brier": 0.021136847470044542
+          }
+        }
+      },
+      "operating_score": "raw",
+      "at_risk_threshold_assessment": {
+        "rows": 941815,
+        "positives": 19907,
+        "prevalence": 0.021136847470044542,
+        "average_precision": 0.27058798671784656,
+        "brier": 0.017309273671961445,
+        "threshold": 0.8545155311873982,
+        "tn": 921864,
+        "fp": 44,
+        "fn": 19863,
+        "tp": 44,
+        "precision": 0.5,
+        "recall": 0.002210277791731552
+      },
+      "operating_gate_pass": false,
+      "probability_display_approved": false,
+      "flag_deployment_approved": false
+    }
+  },
+  "seconds": 28.4,
+  "sampled_peak_rss_mib": 814.3
+}

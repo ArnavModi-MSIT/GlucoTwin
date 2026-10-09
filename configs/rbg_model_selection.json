@@ -1,0 +1,39 @@
+{
+  "status": "provisional development selection; no clinical clearance or test evaluation",
+  "horizons": {
+    "30": {
+      "selected": "ridge_cgm",
+      "gate": {
+        "boost_cgm": {
+          "mae_improves": true,
+          "rmse_improves": true,
+          "high_not_worse": false,
+          "low_not_worse": false
+        },
+        "boost_cgm_profile": {
+          "mae_improves": true,
+          "rmse_improves": true,
+          "high_not_worse": false,
+          "low_not_worse": false
+        }
+      }
+    },
+    "60": {
+      "selected": "ridge_cgm",
+      "gate": {
+        "boost_cgm": {
+          "mae_improves": true,
+          "rmse_improves": true,
+          "high_not_worse": false,
+          "low_not_worse": false
+        },
+        "boost_cgm_profile": {
+          "mae_improves": true,
+          "rmse_improves": true,
+          "high_not_worse": false,
+          "low_not_worse": false
+        }
+      }
+    }
+  }
+}

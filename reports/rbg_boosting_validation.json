@@ -1,0 +1,430 @@
+{
+  "status": "development validation only; no reserved test predictions generated",
+  "parameters": {
+    "loss": "absolute_error",
+    "learning_rate": 0.05,
+    "max_iter": 120,
+    "max_leaf_nodes": 15,
+    "min_samples_leaf": 80,
+    "l2_regularization": 10.0,
+    "early_stopping": false,
+    "random_state": 2026
+  },
+  "sensor_delay_minutes": 5,
+  "horizons": {
+    "30": {
+      "training_rows": 316000,
+      "training_patients": 158,
+      "scores": {
+        "persistence": {
+          "all": {
+            "rows": 1961771,
+            "mae": 20.712266620313994,
+            "rmse": 29.183064958965335,
+            "bias": 0.09328102005789667,
+            "fraction_error_over30": 0.22612272278466752,
+            "patient_macro_mae": 20.63468610539156,
+            "patient_macro_mae_bootstrap95": [
+              19.487882600111117,
+              21.821931365658255
+            ]
+          },
+          "high": {
+            "rows": 629806,
+            "mae": 25.100132421729867,
+            "rmse": 34.846405493461944,
+            "bias": -7.441320025531672,
+            "fraction_error_over30": 0.2982791526279521,
+            "patient_macro_mae": 24.94496306251077,
+            "patient_macro_mae_bootstrap95": [
+              23.385781345647924,
+              26.85047839108635
+            ]
+          },
+          "low": {
+            "rows": 75516,
+            "mae": 19.764712113989088,
+            "rmse": 27.938803221722896,
+            "bias": 17.068753641612375,
+            "fraction_error_over30": 0.20835319667355262,
+            "patient_macro_mae": 21.370164843166577,
+            "patient_macro_mae_bootstrap95": [
+              19.58680033824023,
+              23.393012189163876
+            ]
+          },
+          "rapid_change": {
+            "rows": 465542,
+            "mae": 50.22811905263113,
+            "rmse": 54.36200696390461,
+            "bias": -5.142876475162284,
+            "fraction_error_over30": 0.9528699880998922,
+            "patient_macro_mae": 49.26201943790211,
+            "patient_macro_mae_bootstrap95": [
+              48.09499170078951,
+              50.47151470745311
+            ]
+          }
+        },
+        "slope": {
+          "all": {
+            "rows": 1961771,
+            "mae": 23.942873536873375,
+            "rmse": 35.33859204720771,
+            "bias": 0.06140863772820533,
+            "fraction_error_over30": 0.27481800882977675,
+            "patient_macro_mae": 23.82354388517492,
+            "patient_macro_mae_bootstrap95": [
+              22.403776881274055,
+              25.361161885542028
+            ]
+          },
+          "high": {
+            "rows": 629806,
+            "mae": 27.988217948239825,
+            "rmse": 40.27147724374093,
+            "bias": 5.02013670881468,
+            "fraction_error_over30": 0.33356462148661653,
+            "patient_macro_mae": 27.890995642718146,
+            "patient_macro_mae_bootstrap95": [
+              25.792417390206282,
+              30.742160575530107
+            ]
+          },
+          "low": {
+            "rows": 75516,
+            "mae": 20.977290819267,
+            "rmse": 31.346627685516303,
+            "bias": -4.053939782384152,
+            "fraction_error_over30": 0.2315270935960591,
+            "patient_macro_mae": 20.992517106673297,
+            "patient_macro_mae_bootstrap95": [
+              19.40973516001421,
+              22.63639172806459
+            ]
+          },
+          "rapid_change": {
+            "rows": 465542,
+            "mae": 42.031820437376695,
+            "rmse": 54.54186963221662,
+            "bias": -3.768286841518489,
+            "fraction_error_over30": 0.549694764382161,
+            "patient_macro_mae": 40.85152597988353,
+            "patient_macro_mae_bootstrap95": [
+              39.15438331155216,
+              42.78720521926879
+            ]
+          }
+        },
+        "boost_cgm": {
+          "all": {
+            "rows": 1961771,
+            "mae": 17.19974907134412,
+            "rmse": 24.743409591760525,
+            "bias": -1.3659244447448686,
+            "fraction_error_over30": 0.17201650957221817,
+            "patient_macro_mae": 17.132343757128936,
+            "patient_macro_mae_bootstrap95": [
+              16.198970228661388,
+              18.109389949716675
+            ]
+          },
+          "high": {
+            "rows": 629806,
+            "mae": 21.21909473729965,
+            "rmse": 30.08311837385548,
+            "bias": -9.74489624618228,
+            "fraction_error_over30": 0.23956583455857836,
+            "patient_macro_mae": 20.993716326168734,
+            "patient_macro_mae_bootstrap95": [
+              19.63358644380067,
+              22.691699249566906
+            ]
+          },
+          "low": {
+            "rows": 75516,
+            "mae": 22.672530390399483,
+            "rmse": 27.5722801266626,
+            "bias": 22.55582202376197,
+            "fraction_error_over30": 0.23943270300333705,
+            "patient_macro_mae": 23.029648603836304,
+            "patient_macro_mae_bootstrap95": [
+              21.883531910280556,
+              24.244077975524274
+            ]
+          },
+          "rapid_change": {
+            "rows": 465542,
+            "mae": 36.491686246444765,
+            "rmse": 43.28359996100363,
+            "bias": -6.197698393711604,
+            "fraction_error_over30": 0.5511575754711713,
+            "patient_macro_mae": 35.81884960337202,
+            "patient_macro_mae_bootstrap95": [
+              34.77547010297031,
+              36.915452955274944
+            ]
+          }
+        },
+        "boost_cgm_profile": {
+          "all": {
+            "rows": 1961771,
+            "mae": 17.20696007902649,
+            "rmse": 24.74925323874472,
+            "bias": -1.3489843061868925,
+            "fraction_error_over30": 0.1721169290401377,
+            "patient_macro_mae": 17.139612651360984,
+            "patient_macro_mae_bootstrap95": [
+              16.205934127325037,
+              18.11663964319216
+            ]
+          },
+          "high": {
+            "rows": 629806,
+            "mae": 21.214023978174033,
+            "rmse": 30.073578754110798,
+            "bias": -9.73925923974381,
+            "fraction_error_over30": 0.23947850607964993,
+            "patient_macro_mae": 20.989692652940153,
+            "patient_macro_mae_bootstrap95": [
+              19.64325235641612,
+              22.673836250521955
+            ]
+          },
+          "low": {
+            "rows": 75516,
+            "mae": 22.742230021282126,
+            "rmse": 27.624228564577813,
+            "bias": 22.634566564045226,
+            "fraction_error_over30": 0.24017426770485725,
+            "patient_macro_mae": 23.089165347150686,
+            "patient_macro_mae_bootstrap95": [
+              21.946873226409757,
+              24.32531685345711
+            ]
+          },
+          "rapid_change": {
+            "rows": 465542,
+            "mae": 36.498709723698475,
+            "rmse": 43.288644452772466,
+            "bias": -6.174122155404102,
+            "fraction_error_over30": 0.551103874623557,
+            "patient_macro_mae": 35.8252451863209,
+            "patient_macro_mae_bootstrap95": [
+              34.780767435420906,
+              36.914604708747525
+            ]
+          }
+        }
+      }
+    },
+    "60": {
+      "training_rows": 316000,
+      "training_patients": 158,
+      "scores": {
+        "persistence": {
+          "all": {
+            "rows": 1949902,
+            "mae": 32.52898863635198,
+            "rmse": 44.861623742564674,
+            "bias": 0.20285224590774306,
+            "fraction_error_over30": 0.3979528201930148,
+            "patient_macro_mae": 32.429532668169806,
+            "patient_macro_mae_bootstrap95": [
+              30.62339541912079,
+              34.23154717333176
+            ]
+          },
+          "high": {
+            "rows": 624533,
+            "mae": 40.663394888660804,
+            "rmse": 54.713843943247774,
+            "bias": -17.96572799195559,
+            "fraction_error_over30": 0.49416764206214886,
+            "patient_macro_mae": 40.60924793692196,
+            "patient_macro_mae_bootstrap95": [
+              38.28186184518478,
+              43.27007941638722
+            ]
+          },
+          "low": {
+            "rows": 75202,
+            "mae": 36.98031967234914,
+            "rmse": 50.772897861521116,
+            "bias": 35.17494215579373,
+            "fraction_error_over30": 0.45218212281588255,
+            "patient_macro_mae": 39.46860335854923,
+            "patient_macro_mae_bootstrap95": [
+              36.38893721664653,
+              42.94719527468962
+            ]
+          },
+          "rapid_change": {
+            "rows": 800738,
+            "mae": 60.49285409210004,
+            "rmse": 67.51141881884548,
+            "bias": -2.256749398679718,
+            "fraction_error_over30": 0.9690672854291915,
+            "patient_macro_mae": 59.51262978946461,
+            "patient_macro_mae_bootstrap95": [
+              57.69941956295686,
+              61.36837764908286
+            ]
+          }
+        },
+        "slope": {
+          "all": {
+            "rows": 1949902,
+            "mae": 45.807164854700176,
+            "rmse": 66.3703973056358,
+            "bias": 0.11639164474954748,
+            "fraction_error_over30": 0.49872711551657467,
+            "patient_macro_mae": 45.58964903214399,
+            "patient_macro_mae_bootstrap95": [
+              42.80856937240152,
+              48.56046177499434
+            ]
+          },
+          "high": {
+            "rows": 624533,
+            "mae": 53.96907704276723,
+            "rmse": 75.39861591210494,
+            "bias": 4.499562495985184,
+            "fraction_error_over30": 0.5754795983558916,
+            "patient_macro_mae": 53.729823897866645,
+            "patient_macro_mae_bootstrap95": [
+              50.09288905087639,
+              58.34606432213503
+            ]
+          },
+          "low": {
+            "rows": 75202,
+            "mae": 42.14305709483176,
+            "rmse": 63.48932877993585,
+            "bias": 3.1608744750349183,
+            "fraction_error_over30": 0.45046674290577376,
+            "patient_macro_mae": 40.93414654451258,
+            "patient_macro_mae_bootstrap95": [
+              37.39516731430503,
+              44.76105735301971
+            ]
+          },
+          "rapid_change": {
+            "rows": 800738,
+            "mae": 64.15030917685101,
+            "rmse": 85.64278612191666,
+            "bias": -2.2705504716256555,
+            "fraction_error_over30": 0.668330964685078,
+            "patient_macro_mae": 62.581783182480756,
+            "patient_macro_mae_bootstrap95": [
+              59.37437561820535,
+              66.21656074243434
+            ]
+          }
+        },
+        "boost_cgm": {
+          "all": {
+            "rows": 1949902,
+            "mae": 27.72521494776955,
+            "rmse": 38.66148901195468,
+            "bias": -2.7804086208468024,
+            "fraction_error_over30": 0.339057039789692,
+            "patient_macro_mae": 27.63626549646998,
+            "patient_macro_mae_bootstrap95": [
+              26.137870182384248,
+              29.193751449691103
+            ]
+          },
+          "high": {
+            "rows": 624533,
+            "mae": 37.03308202306195,
+            "rmse": 49.89182357667395,
+            "bias": -25.227357330260375,
+            "fraction_error_over30": 0.4630563957388961,
+            "patient_macro_mae": 36.71067448456523,
+            "patient_macro_mae_bootstrap95": [
+              34.654439486316846,
+              39.17572229167342
+            ]
+          },
+          "low": {
+            "rows": 75202,
+            "mae": 44.737024036761646,
+            "rmse": 50.99037116161034,
+            "bias": 44.73688775028956,
+            "fraction_error_over30": 0.7314167176404883,
+            "patient_macro_mae": 44.7304087791942,
+            "patient_macro_mae_bootstrap95": [
+              42.70840315686485,
+              46.969878755443155
+            ]
+          },
+          "rapid_change": {
+            "rows": 800738,
+            "mae": 45.69341983649116,
+            "rmse": 55.48014843306243,
+            "bias": -6.504769574594861,
+            "fraction_error_over30": 0.6460215451246225,
+            "patient_macro_mae": 44.940159542923936,
+            "patient_macro_mae_bootstrap95": [
+              43.32252509992487,
+              46.63398698037651
+            ]
+          }
+        },
+        "boost_cgm_profile": {
+          "all": {
+            "rows": 1949902,
+            "mae": 27.769574757005284,
+            "rmse": 38.68100622789192,
+            "bias": -2.6874898016776516,
+            "fraction_error_over30": 0.34036069505031535,
+            "patient_macro_mae": 27.68104248659753,
+            "patient_macro_mae_bootstrap95": [
+              26.195474452943124,
+              29.23837449142232
+            ]
+          },
+          "high": {
+            "rows": 624533,
+            "mae": 37.01593767829589,
+            "rmse": 49.82519108077451,
+            "bias": -25.249803605462443,
+            "fraction_error_over30": 0.4635591714128797,
+            "patient_macro_mae": 36.70120403396246,
+            "patient_macro_mae_bootstrap95": [
+              34.725096083068486,
+              39.13411946511889
+            ]
+          },
+          "low": {
+            "rows": 75202,
+            "mae": 45.04772840029906,
+            "rmse": 51.26261590555492,
+            "bias": 45.04772840029906,
+            "fraction_error_over30": 0.7433046993431026,
+            "patient_macro_mae": 45.04301554479534,
+            "patient_macro_mae_bootstrap95": [
+              42.932672659477184,
+              47.297761160579746
+            ]
+          },
+          "rapid_change": {
+            "rows": 800738,
+            "mae": 45.74614367817972,
+            "rmse": 55.50344220962817,
+            "bias": -6.372895747246116,
+            "fraction_error_over30": 0.6476587847710487,
+            "patient_macro_mae": 44.99009996442888,
+            "patient_macro_mae_bootstrap95": [
+              43.37625092785112,
+              46.68335177232003
+            ]
+          }
+        }
+      }
+    }
+  },
+  "seconds": 79.1,
+  "sampled_peak_rss_mib": 357.4
+}

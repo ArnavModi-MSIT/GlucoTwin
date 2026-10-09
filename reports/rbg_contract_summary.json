@@ -1,0 +1,32 @@
+{
+  "version": "rbg-v0.1",
+  "seed": 2026,
+  "patients": 226,
+  "split_counts": {
+    "train": 158,
+    "validation": 34,
+    "test": 34
+  },
+  "strata_counts": {
+    "train": {
+      "F_under45": 48,
+      "M_45plus": 43,
+      "M_under45": 37,
+      "F_45plus": 30
+    },
+    "validation": {
+      "F_under45": 11,
+      "M_45plus": 9,
+      "M_under45": 8,
+      "F_45plus": 6
+    },
+    "test": {
+      "F_under45": 11,
+      "M_45plus": 9,
+      "M_under45": 8,
+      "F_45plus": 6
+    }
+  },
+  "manifest_sha256": "255ef31964d1a5cf52d555b66d85cde0a28baf078ff98ef79688660bdc7f816e",
+  "status": "roles frozen; no model fit, target support or test predictions evaluated"
+}

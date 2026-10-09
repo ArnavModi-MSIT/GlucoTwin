@@ -16,3 +16,11 @@ Date: 8 October 2026. Scope: exploratory CGMacros reconstructed-grid benchmark a
 12. Final report must distinguish data-derived descriptive audit, development scores, final holdout scores and uncertainty about reconstructed native samples. Do not claim clinical validation or pristine untouched test data after the exploratory audit.
 
 Run final holdout once after the pipeline and validation choices are frozen. If a correctness defect requires rerunning, record the defect, repair and rerun rather than concealing test reuse.
+
+## Endpoint classifier assessment protocol (before fitting)
+
+Use one fixed logistic model (C=1, max_iter=1000, no class weights), train-only median imputation and standardization, CGM/clinical/HR features. For each HbA1c band, the lower validation patient ID is tuning and the higher ID is calibration. Sigmoid calibration fits a second logistic model to base-model decision scores on calibration patients only. Require at least 100 positives and negatives overall in calibration, with at least two patients each providing ten positive endpoint examples. These are engineering support checks, not sufficient evidence of clinical reliability.
+
+Assess reliability on tuning patients, separately for all endpoints and current glucose <=180. Probability display remains disabled unless calibrated Brier score is no worse than raw logistic and better than the constant training-prevalence baseline in both views. Reliability bins must also be reported. The three-patient assessment is preliminary; independent final-test reliability is still required.
+
+Choose the highest threshold tied for maximum F1 on at-risk tuning endpoints; report this operating point as tuning-optimized, not unbiased held-out alert performance. Do not fit or choose anything on final test patients. Both development groups were previously inspected for regression, which limits independence and must be disclosed. Future-classifier probabilities must not be presented as first-onset timing or intervention advice.

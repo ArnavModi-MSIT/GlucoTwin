@@ -6,6 +6,6 @@
   "version": "baseline-v0.1",
   "horizon_minutes": 60,
   "decision": "Fused boosting MAE gain was 0.035 mg/dL, with worse RMSE and high-target errors; retain simpler fused Ridge.",
-  "classification": "not implemented; no calibrated probabilities",
+  "classification": "Fixed logistic assessment complete; sigmoid calibration failed development gate. Probability display disabled.",
   "limitations": ["Reconstructed samples, not verified native logs", "Six validation patients", "Poor low-glucose performance", "Clinical availability assumed", "Not clinically validated"]
 }

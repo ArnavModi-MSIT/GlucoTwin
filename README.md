@@ -1,41 +1,51 @@
 # GlucoTwin
 
-CPU-based glucose forecasting research prototype combining historical clinical profiles with continuous glucose monitor and heart-rate data.
+A CPU-based glucose forecasting research prototype with a local **HTML, CSS and JavaScript dashboard** and Python inference service. No frontend build tools, GPU or external chart CDN are required.
 
-The current implementation predicts glucose **60 minutes ahead**. It includes dataset audits, a shared feature builder, patient-disjoint development partitions, persistence/Ridge/gradient-boosting comparisons and correctness checks. The dashboard and calibrated event classifier are not implemented yet.
+## Run the dashboard
 
-## Current results
-
-Exploratory CGMacros reconstructed-grid benchmark: 33 admitted participants, with 21 training, 6 validation and 6 reserved test patients.
-
-| Model | Validation MAE (mg/dL) | Validation RMSE (mg/dL) |
-|---|---:|---:|
-| Persistence | 19.99 | 31.52 |
-| Ridge: glucose + clinical profile + HR | 19.00 | 28.13 |
-| Boosting: glucose only | 18.45 | 29.72 |
-| Boosting: glucose + clinical profile + HR | 18.96 | 30.81 |
-
-Fused Ridge is the provisional point forecaster because fused boosting's small average-MAE gain accompanies worse high-glucose errors and RMSE. Neither model improves every error slice. Final test prediction scores have not been evaluated.
-
-These are development results on reconstructed samples, not clinical validation. The source interpolates CGM onto a one-minute grid. The inferred five-minute samples lack verified native measurement flags, and historical clinical-profile availability is assumed. See the [data contract](DATA_CONTRACT.md), [evaluation protocol](EVALUATION_PROTOCOL.md) and [boosting report](reports/BOOSTING_RESULTS.md).
-
-## Local setup
-
-Python 3.10 or later. From the repository root in PowerShell:
+Python 3.10 or later, from the repository root:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+python scripts/serve_dashboard.py
 ```
 
-Dependencies are pinned to the tested training environment. No GPU is required.
+Open **http://127.0.0.1:8000**. Local data, split manifests and trusted model artifacts must be prepared first; they are excluded from Git. For another local port, use `--port 8001`.
 
-## Data and reproduction
+Select a cohort and development patient, advance by 5/30/60 minutes, or restart the replay. The interface includes historical profile context, visible glucose history, future forecast markers, persistence comparisons, data coverage and a forecast ledger. Hover over history for readings; expand the chart for a larger view. Layout adapts to smaller screens.
 
-Obtain [CGMacros v1.0.0 from PhysioNet](https://physionet.org/content/cgmacros/1.0.0/). It is governed by **CC BY-NC-SA 4.0**, including attribution, noncommercial and share-alike conditions. Data licensing is separate from this repository's code. Cite the original dataset authors and follow the [data license](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+The Python service retains session state and runs the saved models. The browser receives visible history and only outcomes that have become available; it never receives a full future patient series. Sessions are local, isolated and expire after one hour of inactivity. The service binds to loopback and is a local research tool, not an internet-facing deployment.
 
-Raw records, clinical metadata, participant-level derived reports and model binaries are excluded from Git. The downloader fetches CSV members from the official public archive while skipping photographs. Reproduction requires network access for data acquisition:
+## Cohorts and models
+
+- **CGMacros:** fused Ridge using glucose history, historical clinical profile and heart rate; 60-minute forecasts. Clinical availability is assumed and CGM samples are reconstructed. Six validation patients appear in replay; six test patients remain reserved.
+- **RBG:** separate Type 1 diabetes benchmark with 158 training, 34 validation and 34 reserved test patients. CGM-only Ridge predicts 30/60 minutes ahead. Enrollment age/sex are shown as context because their inclusion gave essentially no forecast gain. Unverified labs are excluded.
+
+RBG inputs and outcome reveal follow a five-minute availability delay to account for source timestamp rounding. A forecast for 13:00 remains pending until 13:05. Issued forecasts remain fixed. Advancing skips intermediate issue times; it does not retroactively fill forecasts. Quality checks can withhold a forecast. Missing target observations remain missing.
+
+## Measured development results
+
+| Cohort / horizon | Persistence MAE | Ridge MAE |
+|---|---:|---:|
+| CGMacros / 60 min | 19.99 | 19.00 mg/dL |
+| RBG / 30 min | 20.71 | 17.59 mg/dL |
+| RBG / 60 min | 32.53 | 28.89 mg/dL |
+
+These are different populations and protocols, so they are not a controlled comparison. Individual errors can be much larger than average. RBG low-glucose errors worsened with Ridge. Fixed boosting improved overall error but failed the predeclared high/low slice requirements.
+
+Endpoint classifiers failed the preset operating and calibration gates. A frozen engineering episode backtest on 17 development patients found 78.1% recall among evaluable high episodes, a 15-minute median lead, and 3.58 false alarms per eligible monitoring day. Low-event detection remained poor. This does not overturn the failed endpoint gates. **Operational alerts and risk probabilities remain disabled.** No reserved-test prediction results have been evaluated.
+
+- [CGMacros data contract](DATA_CONTRACT.md) and [evaluation protocol](EVALUATION_PROTOCOL.md)
+- [RBG contract](docs/RBG_DATA_CONTRACT.md)
+- [RBG baseline results](reports/RBG_BASELINE_RESULTS.md) and [boosting comparison](reports/RBG_BOOSTING_RESULTS.md)
+- [Endpoint assessment](reports/RBG_ENDPOINT_ASSESSMENT.md), [precision–recall diagnostics](reports/RBG_ENDPOINT_DIAGNOSTICS.md), [nonlinear comparison](reports/RBG_BOOST_ENDPOINT_ASSESSMENT.md), [episode backtest](reports/RBG_EPISODE_ASSESSMENT.md)
+
+## Data and preparation
+
+[CGMacros v1.0.0](https://physionet.org/content/cgmacros/1.0.0/) is governed by **CC BY-NC-SA 4.0**. The downloader retrieves CSV members while skipping photographs. Preserve dataset attribution and terms separately from code licensing.
 
 ```powershell
 python download_cgmacros.py
@@ -44,12 +54,27 @@ python scripts/check_cgmacros_interpolation.py
 python scripts/freeze_cgmacros_contract.py
 python scripts/prepare_features.py
 python scripts/train_baselines.py
-python scripts/train_boosting.py
+```
+
+The existing RBG experiment requires the [DiaData raw release](https://zenodo.org/records/17285631), its clinical metadata, the locally audited RBG subset and frozen manifest. Data is under **CC BY-NC 4.0**, with applicable original-source attribution. Once those local prerequisites exist:
+
+```powershell
+python scripts/prepare_rbg.py
+python scripts/train_rbg_baselines.py
+python scripts/prepare_rbg_replay.py
+```
+
+Raw records, clinical metadata, patient-level reports, replay caches and model binaries stay local. Never load an untrusted joblib/pickle artifact. The saved models here are generated by the project's training scripts.
+
+## Verification
+
+```powershell
 python -m unittest discover -s tests -v
 ```
 
-Local preparation generates the split manifest, processed records and saved models. Reports contain measured results from actual runs. Avoid further final-test evaluation until model choices and inference behavior are frozen.
+Checks cover causal feature timing, exact targets, patient-disjoint roles, train-only imputation, saved inference parity, delayed outcome reveal, session isolation and exclusion of reserved test patients. Local HTTP tests require loopback socket access.
+
 
 ## Scope
 
-Research demonstration only. Not for diagnosis, treatment or insulin dosing. The study includes healthy, prediabetic and Type 2 participants; it does not establish performance in Type 1 diabetes or an Indian clinical population. Forecast threshold flags are not calibrated probabilities or verified onset warnings.
+Research demonstration only. No diagnosis, treatment or insulin dosing. Missing intervention inputs, source interpolation/rounding, assumed clinical availability and limited population coverage remain material limitations. Indian clinical performance and medical reliability have not been established. Code license has not yet been selected; dataset licenses do not grant a license to this code.

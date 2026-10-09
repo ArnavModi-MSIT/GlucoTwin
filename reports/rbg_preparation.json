@@ -1,0 +1,60 @@
+{
+  "status": "training/validation prepared; test target matrices absent",
+  "features": [
+    "cgm_current",
+    "cgm_mean_15m",
+    "cgm_std_15m",
+    "cgm_min_15m",
+    "cgm_max_15m",
+    "cgm_count_15m",
+    "cgm_change_15m",
+    "cgm_mean_30m",
+    "cgm_std_30m",
+    "cgm_min_30m",
+    "cgm_max_30m",
+    "cgm_count_30m",
+    "cgm_change_30m",
+    "cgm_mean_60m",
+    "cgm_std_60m",
+    "cgm_min_60m",
+    "cgm_max_60m",
+    "cgm_count_60m",
+    "cgm_change_60m",
+    "cgm_slope_30m",
+    "cgm_missing_fraction_60m",
+    "cgm_max_gap_60m",
+    "age_at_enrollment",
+    "sex_f"
+  ],
+  "patients": {
+    "train": 158,
+    "validation": 34
+  },
+  "rows": [
+    {
+      "horizon": 30,
+      "split": "train",
+      "eligible_rows": 9154966,
+      "saved_rows": 316000
+    },
+    {
+      "horizon": 30,
+      "split": "validation",
+      "eligible_rows": 1961771,
+      "saved_rows": 1961771
+    },
+    {
+      "horizon": 60,
+      "split": "train",
+      "eligible_rows": 9098372,
+      "saved_rows": 316000
+    },
+    {
+      "horizon": 60,
+      "split": "validation",
+      "eligible_rows": 1949902,
+      "saved_rows": 1949902
+    }
+  ],
+  "seconds": 190.4
+}

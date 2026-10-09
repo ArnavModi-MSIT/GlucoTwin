@@ -26,6 +26,9 @@
 !/reports/boosting_validation.json
 !/reports/feature_preparation.json
 !/reports/forecast_error_analysis.json
+!/reports/CLASSIFIER_ASSESSMENT.md
+!/reports/classifier_assessment.json
+!/reports/classifier_reliability.png
 
 # Secrets, environments, caches, local files and generated model/data artifacts.
 **/.env
@@ -52,3 +55,30 @@
 **/*.log
 **/*.tmp
 **/*.bak
+
+
+!/reports/rbg_contract_summary.json
+
+!/reports/rbg_preparation.json
+!/reports/rbg_baseline_validation.json
+!/reports/RBG_BASELINE_RESULTS.md
+
+!/reports/rbg_boosting_validation.json
+!/reports/RBG_BOOSTING_RESULTS.md
+
+!/configs/rbg_model_selection.json
+
+!/reports/rbg_endpoint_assessment.json
+!/reports/RBG_ENDPOINT_ASSESSMENT.md
+
+!/reports/rbg_endpoint_pr.png
+!/reports/rbg_endpoint_diagnostics.json
+!/reports/RBG_ENDPOINT_DIAGNOSTICS.md
+
+!/reports/rbg_boost_endpoint_assessment.json
+!/reports/RBG_BOOST_ENDPOINT_ASSESSMENT.md
+
+!/reports/rbg_episode_assessment.json
+!/reports/RBG_EPISODE_ASSESSMENT.md
+
+!/web/

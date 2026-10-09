@@ -1,0 +1,157 @@
+{
+  "status": "retrospective engineering episode backtest; prior endpoint gates still failed; no clinical/test validation",
+  "patients": 17,
+  "warning_window_minutes": [
+    5,
+    30
+  ],
+  "cooldown_minutes": 60,
+  "sustained_samples": 4,
+  "prior_normal_samples": 7,
+  "sensor_delay_minutes": 5,
+  "seconds": 26.9,
+  "events": {
+    "high": {
+      "logistic": {
+        "qualifying_episodes": 6711,
+        "evaluable_episodes": 6081,
+        "detected_episodes": 4752,
+        "alarms": 14678,
+        "false_alarms": 8483,
+        "unknown_alarms": 1443,
+        "redundant_alarms": 0,
+        "eligible_monitoring_days": 2366.28125,
+        "episode_recall": 0.7814504193389246,
+        "all_episode_recall": 0.7080911935628074,
+        "false_per_eligible_day": 3.584950013866695,
+        "precision_lower_bound": 0.3237498296770677,
+        "precision_upper_bound": 0.4220602261888541,
+        "median_lead_minutes": 15.0,
+        "lead_quartiles_minutes": [
+          10.0,
+          15.0,
+          20.0
+        ],
+        "patient_macro_recall": 0.780243115927726,
+        "patient_macro_false_per_eligible_day": 3.7324105357060553
+      },
+      "boost": {
+        "qualifying_episodes": 6711,
+        "evaluable_episodes": 6081,
+        "detected_episodes": 4626,
+        "alarms": 13844,
+        "false_alarms": 7867,
+        "unknown_alarms": 1351,
+        "redundant_alarms": 0,
+        "eligible_monitoring_days": 2366.28125,
+        "episode_recall": 0.7607301430685742,
+        "all_episode_recall": 0.689316048278945,
+        "false_per_eligible_day": 3.3246259293987137,
+        "precision_lower_bound": 0.3341519791967639,
+        "precision_upper_bound": 0.4317393816815949,
+        "median_lead_minutes": 15.0,
+        "lead_quartiles_minutes": [
+          10.0,
+          15.0,
+          20.0
+        ],
+        "patient_macro_recall": 0.7582426750589571,
+        "patient_macro_false_per_eligible_day": 3.4477097028791115
+      }
+    },
+    "low": {
+      "logistic": {
+        "qualifying_episodes": 2557,
+        "evaluable_episodes": 2392,
+        "detected_episodes": 16,
+        "alarms": 77,
+        "false_alarms": 45,
+        "unknown_alarms": 16,
+        "redundant_alarms": 0,
+        "eligible_monitoring_days": 3346.548611111111,
+        "episode_recall": 0.006688963210702341,
+        "all_episode_recall": 0.006257332811888932,
+        "false_per_eligible_day": 0.013446689479003036,
+        "precision_lower_bound": 0.2077922077922078,
+        "precision_upper_bound": 0.4155844155844156,
+        "median_lead_minutes": 10.0,
+        "lead_quartiles_minutes": [
+          5.0,
+          10.0,
+          11.25
+        ],
+        "patient_macro_recall": 0.007877906251863142,
+        "patient_macro_false_per_eligible_day": 0.013385578319605712
+      },
+      "boost": {
+        "qualifying_episodes": 2557,
+        "evaluable_episodes": 2392,
+        "detected_episodes": 46,
+        "alarms": 201,
+        "false_alarms": 132,
+        "unknown_alarms": 23,
+        "redundant_alarms": 0,
+        "eligible_monitoring_days": 3346.548611111111,
+        "episode_recall": 0.019230769230769232,
+        "all_episode_recall": 0.01798983183418068,
+        "false_per_eligible_day": 0.03944362247174224,
+        "precision_lower_bound": 0.22885572139303484,
+        "precision_upper_bound": 0.34328358208955223,
+        "median_lead_minutes": 5.0,
+        "lead_quartiles_minutes": [
+          5.0,
+          5.0,
+          10.0
+        ],
+        "patient_macro_recall": 0.01594854132292088,
+        "patient_macro_false_per_eligible_day": 0.03960112350477861
+      }
+    }
+  },
+  "patient_bootstrap_intervals": {
+    "high": {
+      "logistic": {
+        "recall_bootstrap95": [
+          0.75864170335713,
+          0.8029550016407839
+        ],
+        "false_per_eligible_day_bootstrap95": [
+          3.208318378634725,
+          3.9952084919168924
+        ]
+      },
+      "boost": {
+        "recall_bootstrap95": [
+          0.7381162576418736,
+          0.7818020658592487
+        ],
+        "false_per_eligible_day_bootstrap95": [
+          3.0069392057470687,
+          3.6689474899489736
+        ]
+      }
+    },
+    "low": {
+      "logistic": {
+        "recall_bootstrap95": [
+          0.002456478735406872,
+          0.011250129985319305
+        ],
+        "false_per_eligible_day_bootstrap95": [
+          0.005903248233706746,
+          0.02531950924967034
+        ]
+      },
+      "boost": {
+        "recall_bootstrap95": [
+          0.006632605487284014,
+          0.03254952964641843
+        ],
+        "false_per_eligible_day_bootstrap95": [
+          0.022681490592430527,
+          0.06120029421789322
+        ]
+      }
+    }
+  }
+}

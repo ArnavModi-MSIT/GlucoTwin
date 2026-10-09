@@ -1,0 +1,421 @@
+{
+  "status": "development validation only; no reserved test predictions generated",
+  "ridge_alpha": 10,
+  "sensor_delay_minutes": 5,
+  "horizons": {
+    "30": {
+      "training_rows": 316000,
+      "training_patients": 158,
+      "scores": {
+        "persistence": {
+          "all": {
+            "rows": 1961771,
+            "mae": 20.712266620313994,
+            "rmse": 29.183064958965335,
+            "bias": 0.09328102005789667,
+            "fraction_error_over30": 0.22612272278466752,
+            "patient_macro_mae": 20.63468610539156,
+            "patient_macro_mae_bootstrap95": [
+              19.487882600111117,
+              21.821931365658255
+            ]
+          },
+          "high": {
+            "rows": 629806,
+            "mae": 25.100132421729867,
+            "rmse": 34.846405493461944,
+            "bias": -7.441320025531672,
+            "fraction_error_over30": 0.2982791526279521,
+            "patient_macro_mae": 24.94496306251077,
+            "patient_macro_mae_bootstrap95": [
+              23.385781345647924,
+              26.85047839108635
+            ]
+          },
+          "low": {
+            "rows": 75516,
+            "mae": 19.764712113989088,
+            "rmse": 27.938803221722896,
+            "bias": 17.068753641612375,
+            "fraction_error_over30": 0.20835319667355262,
+            "patient_macro_mae": 21.370164843166577,
+            "patient_macro_mae_bootstrap95": [
+              19.58680033824023,
+              23.393012189163876
+            ]
+          },
+          "rapid_change": {
+            "rows": 465542,
+            "mae": 50.22811905263113,
+            "rmse": 54.36200696390461,
+            "bias": -5.142876475162284,
+            "fraction_error_over30": 0.9528699880998922,
+            "patient_macro_mae": 49.26201943790211,
+            "patient_macro_mae_bootstrap95": [
+              48.09499170078951,
+              50.47151470745311
+            ]
+          }
+        },
+        "slope": {
+          "all": {
+            "rows": 1961771,
+            "mae": 23.942873536873375,
+            "rmse": 35.33859204720771,
+            "bias": 0.06140863772820533,
+            "fraction_error_over30": 0.27481800882977675,
+            "patient_macro_mae": 23.82354388517492,
+            "patient_macro_mae_bootstrap95": [
+              22.403776881274055,
+              25.361161885542028
+            ]
+          },
+          "high": {
+            "rows": 629806,
+            "mae": 27.988217948239825,
+            "rmse": 40.27147724374093,
+            "bias": 5.02013670881468,
+            "fraction_error_over30": 0.33356462148661653,
+            "patient_macro_mae": 27.890995642718146,
+            "patient_macro_mae_bootstrap95": [
+              25.792417390206282,
+              30.742160575530107
+            ]
+          },
+          "low": {
+            "rows": 75516,
+            "mae": 20.977290819267,
+            "rmse": 31.346627685516303,
+            "bias": -4.053939782384152,
+            "fraction_error_over30": 0.2315270935960591,
+            "patient_macro_mae": 20.992517106673297,
+            "patient_macro_mae_bootstrap95": [
+              19.40973516001421,
+              22.63639172806459
+            ]
+          },
+          "rapid_change": {
+            "rows": 465542,
+            "mae": 42.031820437376695,
+            "rmse": 54.54186963221662,
+            "bias": -3.768286841518489,
+            "fraction_error_over30": 0.549694764382161,
+            "patient_macro_mae": 40.85152597988353,
+            "patient_macro_mae_bootstrap95": [
+              39.15438331155216,
+              42.78720521926879
+            ]
+          }
+        },
+        "ridge_cgm": {
+          "all": {
+            "rows": 1961771,
+            "mae": 17.585721561628276,
+            "rmse": 24.8036524653168,
+            "bias": 0.13908123943501233,
+            "fraction_error_over30": 0.16969156950530923,
+            "patient_macro_mae": 17.507050065433276,
+            "patient_macro_mae_bootstrap95": [
+              16.59084791646284,
+              18.458135620986713
+            ]
+          },
+          "high": {
+            "rows": 629806,
+            "mae": 20.772947088415116,
+            "rmse": 29.250628703261413,
+            "bias": -10.086684587774416,
+            "fraction_error_over30": 0.22753832132434432,
+            "patient_macro_mae": 20.532040063072653,
+            "patient_macro_mae_bootstrap95": [
+              19.227014485527487,
+              22.17895537404453
+            ]
+          },
+          "low": {
+            "rows": 75516,
+            "mae": 20.232520553998647,
+            "rmse": 25.939788385885105,
+            "bias": 18.173647151672018,
+            "fraction_error_over30": 0.1905026749298162,
+            "patient_macro_mae": 21.361721207113828,
+            "patient_macro_mae_bootstrap95": [
+              20.199176785525154,
+              22.712314602907963
+            ]
+          },
+          "rapid_change": {
+            "rows": 465542,
+            "mae": 36.611238421935994,
+            "rmse": 42.97352710953667,
+            "bias": -4.857861114403231,
+            "fraction_error_over30": 0.5583878575939443,
+            "patient_macro_mae": 35.947980263653925,
+            "patient_macro_mae_bootstrap95": [
+              35.04332040337955,
+              36.949292920617495
+            ]
+          }
+        },
+        "ridge_cgm_profile": {
+          "all": {
+            "rows": 1961771,
+            "mae": 17.586202162502396,
+            "rmse": 24.803764651846407,
+            "bias": 0.09583015983189758,
+            "fraction_error_over30": 0.1697802648729133,
+            "patient_macro_mae": 17.510240582858813,
+            "patient_macro_mae_bootstrap95": [
+              16.587624747612896,
+              18.459234678044037
+            ]
+          },
+          "high": {
+            "rows": 629806,
+            "mae": 20.792679243268598,
+            "rmse": 29.257717142738773,
+            "bias": -10.13607437538102,
+            "fraction_error_over30": 0.22795749802320078,
+            "patient_macro_mae": 20.55143117904663,
+            "patient_macro_mae_bootstrap95": [
+              19.284921946946312,
+              22.164628943275
+            ]
+          },
+          "low": {
+            "rows": 75516,
+            "mae": 20.26461891688762,
+            "rmse": 25.95973458008149,
+            "bias": 18.210375590384768,
+            "fraction_error_over30": 0.19055564383706763,
+            "patient_macro_mae": 21.348753760842715,
+            "patient_macro_mae_bootstrap95": [
+              20.158081065907197,
+              22.69290285951951
+            ]
+          },
+          "rapid_change": {
+            "rows": 465542,
+            "mae": 36.60632678808554,
+            "rmse": 42.9701492263679,
+            "bias": -4.874154921537655,
+            "fraction_error_over30": 0.5583706733227077,
+            "patient_macro_mae": 35.94874645681942,
+            "patient_macro_mae_bootstrap95": [
+              35.04397178397459,
+              36.94010317886577
+            ]
+          }
+        }
+      }
+    },
+    "60": {
+      "training_rows": 316000,
+      "training_patients": 158,
+      "scores": {
+        "persistence": {
+          "all": {
+            "rows": 1949902,
+            "mae": 32.52898863635198,
+            "rmse": 44.861623742564674,
+            "bias": 0.20285224590774306,
+            "fraction_error_over30": 0.3979528201930148,
+            "patient_macro_mae": 32.429532668169806,
+            "patient_macro_mae_bootstrap95": [
+              30.62339541912079,
+              34.23154717333176
+            ]
+          },
+          "high": {
+            "rows": 624533,
+            "mae": 40.663394888660804,
+            "rmse": 54.713843943247774,
+            "bias": -17.96572799195559,
+            "fraction_error_over30": 0.49416764206214886,
+            "patient_macro_mae": 40.60924793692196,
+            "patient_macro_mae_bootstrap95": [
+              38.28186184518478,
+              43.27007941638722
+            ]
+          },
+          "low": {
+            "rows": 75202,
+            "mae": 36.98031967234914,
+            "rmse": 50.772897861521116,
+            "bias": 35.17494215579373,
+            "fraction_error_over30": 0.45218212281588255,
+            "patient_macro_mae": 39.46860335854923,
+            "patient_macro_mae_bootstrap95": [
+              36.38893721664653,
+              42.94719527468962
+            ]
+          },
+          "rapid_change": {
+            "rows": 800738,
+            "mae": 60.49285409210004,
+            "rmse": 67.51141881884548,
+            "bias": -2.256749398679718,
+            "fraction_error_over30": 0.9690672854291915,
+            "patient_macro_mae": 59.51262978946461,
+            "patient_macro_mae_bootstrap95": [
+              57.69941956295686,
+              61.36837764908286
+            ]
+          }
+        },
+        "slope": {
+          "all": {
+            "rows": 1949902,
+            "mae": 45.807164854700176,
+            "rmse": 66.3703973056358,
+            "bias": 0.11639164474954748,
+            "fraction_error_over30": 0.49872711551657467,
+            "patient_macro_mae": 45.58964903214399,
+            "patient_macro_mae_bootstrap95": [
+              42.80856937240152,
+              48.56046177499434
+            ]
+          },
+          "high": {
+            "rows": 624533,
+            "mae": 53.96907704276723,
+            "rmse": 75.39861591210494,
+            "bias": 4.499562495985184,
+            "fraction_error_over30": 0.5754795983558916,
+            "patient_macro_mae": 53.729823897866645,
+            "patient_macro_mae_bootstrap95": [
+              50.09288905087639,
+              58.34606432213503
+            ]
+          },
+          "low": {
+            "rows": 75202,
+            "mae": 42.14305709483176,
+            "rmse": 63.48932877993585,
+            "bias": 3.1608744750349183,
+            "fraction_error_over30": 0.45046674290577376,
+            "patient_macro_mae": 40.93414654451258,
+            "patient_macro_mae_bootstrap95": [
+              37.39516731430503,
+              44.76105735301971
+            ]
+          },
+          "rapid_change": {
+            "rows": 800738,
+            "mae": 64.15030917685101,
+            "rmse": 85.64278612191666,
+            "bias": -2.2705504716256555,
+            "fraction_error_over30": 0.668330964685078,
+            "patient_macro_mae": 62.581783182480756,
+            "patient_macro_mae_bootstrap95": [
+              59.37437561820535,
+              66.21656074243434
+            ]
+          }
+        },
+        "ridge_cgm": {
+          "all": {
+            "rows": 1949902,
+            "mae": 28.888259126998623,
+            "rmse": 39.151974418443324,
+            "bias": 0.23091740848656048,
+            "fraction_error_over30": 0.3593349819631961,
+            "patient_macro_mae": 28.76872719035429,
+            "patient_macro_mae_bootstrap95": [
+              27.2836013359182,
+              30.249571235039657
+            ]
+          },
+          "high": {
+            "rows": 624533,
+            "mae": 36.115291120378664,
+            "rmse": 48.33875676451904,
+            "bias": -26.347581750584038,
+            "fraction_error_over30": 0.4596746689126115,
+            "patient_macro_mae": 35.74854216856115,
+            "patient_macro_mae_bootstrap95": [
+              33.851202342089486,
+              37.98555330528932
+            ]
+          },
+          "low": {
+            "rows": 75202,
+            "mae": 44.21144366632741,
+            "rmse": 51.92581358754911,
+            "bias": 43.88346640521746,
+            "fraction_error_over30": 0.6745299327145554,
+            "patient_macro_mae": 45.620520647834326,
+            "patient_macro_mae_bootstrap95": [
+              43.5568670721615,
+              47.94506497102625
+            ]
+          },
+          "rapid_change": {
+            "rows": 800738,
+            "mae": 46.670561365502905,
+            "rmse": 55.70475446590723,
+            "bias": -4.026980590808879,
+            "fraction_error_over30": 0.6811516376143008,
+            "patient_macro_mae": 45.857949761783374,
+            "patient_macro_mae_bootstrap95": [
+              44.35386411442476,
+              47.44126939212575
+            ]
+          }
+        },
+        "ridge_cgm_profile": {
+          "all": {
+            "rows": 1949902,
+            "mae": 28.890691233609612,
+            "rmse": 39.15058689694235,
+            "bias": 0.14976575147370388,
+            "fraction_error_over30": 0.3598755219493082,
+            "patient_macro_mae": 28.77681625590605,
+            "patient_macro_mae_bootstrap95": [
+              27.288300946179557,
+              30.256808966748856
+            ]
+          },
+          "high": {
+            "rows": 624533,
+            "mae": 36.16753350866218,
+            "rmse": 48.3536159979975,
+            "bias": -26.434871193458388,
+            "fraction_error_over30": 0.4611429660242133,
+            "patient_macro_mae": 35.79967824150534,
+            "patient_macro_mae_bootstrap95": [
+              33.96965786709505,
+              38.00570639862734
+            ]
+          },
+          "low": {
+            "rows": 75202,
+            "mae": 44.26024458402713,
+            "rmse": 51.94495984693468,
+            "bias": 43.93214629431398,
+            "fraction_error_over30": 0.6803010558229834,
+            "patient_macro_mae": 45.5893066630644,
+            "patient_macro_mae_bootstrap95": [
+              43.49070099942824,
+              47.99406389909632
+            ]
+          },
+          "rapid_change": {
+            "rows": 800738,
+            "mae": 46.655815676542296,
+            "rmse": 55.6920815849675,
+            "bias": -4.075237091985921,
+            "fraction_error_over30": 0.6810304993643364,
+            "patient_macro_mae": 45.84744509528665,
+            "patient_macro_mae_bootstrap95": [
+              44.35256628990173,
+              47.421107684864715
+            ]
+          }
+        }
+      }
+    }
+  },
+  "seconds": 21.5,
+  "sampled_peak_rss_mib": 373.6
+}

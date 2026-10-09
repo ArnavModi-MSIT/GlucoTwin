@@ -1,0 +1,133 @@
+{
+  "status": "descriptive development analysis; no model refit; threshold suggestions are not deployment approval",
+  "events": {
+    "high": {
+      "precision_tradeoffs": [
+        {
+          "minimum_precision": 0.2,
+          "threshold": 0.04884578122483718,
+          "precision": 0.20000870265213325,
+          "recall": 0.8798476321733472,
+          "tp": 45965,
+          "fp": 183850
+        },
+        {
+          "minimum_precision": 0.3,
+          "threshold": 0.13516515287093372,
+          "precision": 0.30007535910922456,
+          "recall": 0.7469660426476781,
+          "tp": 39023,
+          "fp": 91021
+        },
+        {
+          "minimum_precision": 0.5,
+          "threshold": 0.3205614927671277,
+          "precision": 0.5,
+          "recall": 0.4968607633704682,
+          "tp": 25957,
+          "fp": 25957
+        },
+        {
+          "minimum_precision": 0.7,
+          "threshold": 0.6495789897952655,
+          "precision": 0.7000084480865084,
+          "recall": 0.15860801653841736,
+          "tp": 8286,
+          "fp": 3551
+        },
+        {
+          "minimum_precision": 0.8,
+          "threshold": 0.996470564417683,
+          "precision": 0.8,
+          "recall": 0.0013782014471115194,
+          "tp": 72,
+          "fp": 18
+        }
+      ],
+      "best_precision_at_recall_ge60pct": {
+        "precision": 0.4148810863034185,
+        "recall": 0.6000535967229432,
+        "threshold": 0.24322939050295816
+      },
+      "patients_with_positives": 17,
+      "patients_with_no_true_positive": 0,
+      "patient_recall_quantiles": {
+        "0.0": 0.45715885756953517,
+        "0.25": 0.4794952681388013,
+        "0.5": 0.5077077747989276,
+        "0.75": 0.5247947454844006,
+        "1.0": 0.5556133056133056
+      },
+      "patient_macro_ap": 0.4731252905989103,
+      "assessment_ap": 0.4730333162423344,
+      "score_range": {
+        "minimum": 1.830668763873292e-11,
+        "maximum": 0.9999998439764727
+      }
+    },
+    "low": {
+      "precision_tradeoffs": [
+        {
+          "minimum_precision": 0.2,
+          "threshold": 0.0875544538297115,
+          "precision": 0.20005751927580492,
+          "recall": 0.7338122268548751,
+          "tp": 14608,
+          "fp": 58411
+        },
+        {
+          "minimum_precision": 0.3,
+          "threshold": 0.166559592085177,
+          "precision": 0.3000371333085778,
+          "recall": 0.4870648515597529,
+          "tp": 9696,
+          "fp": 22620
+        },
+        {
+          "minimum_precision": 0.5,
+          "threshold": 0.8545155311873982,
+          "precision": 0.5,
+          "recall": 0.002210277791731552,
+          "tp": 44,
+          "fp": 44
+        },
+        {
+          "minimum_precision": 0.7,
+          "threshold": 0.9958803098178146,
+          "precision": 0.75,
+          "recall": 0.00015070075852715125,
+          "tp": 3,
+          "fp": 1
+        },
+        {
+          "minimum_precision": 0.8,
+          "threshold": 0.9999915135602314,
+          "precision": 1.0,
+          "recall": 5.023358617571708e-05,
+          "tp": 1,
+          "fp": 0
+        }
+      ],
+      "best_precision_at_recall_ge60pct": {
+        "precision": 0.2576613077022542,
+        "recall": 0.6005927563168735,
+        "threshold": 0.1307639217819599
+      },
+      "patients_with_positives": 17,
+      "patients_with_no_true_positive": 5,
+      "patient_recall_quantiles": {
+        "0.0": 0.0,
+        "0.25": 0.0,
+        "0.5": 0.0013600816048962938,
+        "0.75": 0.0017543859649122807,
+        "1.0": 0.010526315789473684
+      },
+      "patient_macro_ap": 0.2414973024052991,
+      "assessment_ap": 0.27058798671784656,
+      "score_range": {
+        "minimum": 8.3629307487046375e-22,
+        "maximum": 0.9999915135602314
+      }
+    }
+  }
+}

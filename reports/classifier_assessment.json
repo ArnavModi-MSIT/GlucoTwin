@@ -1,0 +1,863 @@
+{
+  "status": "development assessment only; final test NOT scored",
+  "target": "glucose exactly +60 min >180 mg/dL",
+  "support": {
+    "train": {
+      "patients": 21,
+      "rows": 53505,
+      "positives": 7308,
+      "negative": 46197,
+      "at_risk_rows": 46163,
+      "at_risk_positives": 2956
+    },
+    "tuning": {
+      "patients": 3,
+      "rows": 7652,
+      "positives": 1242,
+      "negative": 6410,
+      "at_risk_rows": 6411,
+      "at_risk_positives": 336
+    },
+    "calibration": {
+      "patients": 3,
+      "rows": 7565,
+      "positives": 1296,
+      "negative": 6269,
+      "at_risk_rows": 6245,
+      "at_risk_positives": 532
+    }
+  },
+  "scores": {
+    "raw_logistic": {
+      "all_endpoints": {
+        "rows": 7652,
+        "positives": 1242,
+        "prevalence": 0.16231050705697858,
+        "average_precision": 0.8602715031586251,
+        "brier": 0.06229105577309781,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 4957,
+            "mean_probability": 0.02195163213374261,
+            "observed_fraction": 0.010691950776679443
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 273,
+            "mean_probability": 0.14875610178494172,
+            "observed_fraction": 0.0695970695970696
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 296,
+            "mean_probability": 0.24856090634365635,
+            "observed_fraction": 0.08783783783783784
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 340,
+            "mean_probability": 0.3521165085224943,
+            "observed_fraction": 0.1323529411764706
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 283,
+            "mean_probability": 0.4438380823356952,
+            "observed_fraction": 0.21554770318021202
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 247,
+            "mean_probability": 0.5504200386357896,
+            "observed_fraction": 0.3319838056680162
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 234,
+            "mean_probability": 0.6508494074098887,
+            "observed_fraction": 0.44871794871794873
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 248,
+            "mean_probability": 0.7489572551365966,
+            "observed_fraction": 0.5967741935483871
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 265,
+            "mean_probability": 0.8501899124301203,
+            "observed_fraction": 0.769811320754717
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 509,
+            "mean_probability": 0.9678344518359675,
+            "observed_fraction": 0.9803536345776032
+          }
+        ]
+      },
+      "at_risk_endpoints": {
+        "rows": 6411,
+        "positives": 336,
+        "prevalence": 0.05240992044922789,
+        "average_precision": 0.40492199976774695,
+        "brier": 0.04835688992570736,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 4945,
+            "mean_probability": 0.02183263271961011,
+            "observed_fraction": 0.010717896865520727
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 233,
+            "mean_probability": 0.14695840758957024,
+            "observed_fraction": 0.04721030042918455
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 277,
+            "mean_probability": 0.24917011714683002,
+            "observed_fraction": 0.07942238267148015
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 312,
+            "mean_probability": 0.3525454921213066,
+            "observed_fraction": 0.12179487179487179
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 242,
+            "mean_probability": 0.4428038065305892,
+            "observed_fraction": 0.2024793388429752
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 179,
+            "mean_probability": 0.5492361328504697,
+            "observed_fraction": 0.3407821229050279
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 125,
+            "mean_probability": 0.6450470711251083,
+            "observed_fraction": 0.368
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 57,
+            "mean_probability": 0.7419606601163029,
+            "observed_fraction": 0.49122807017543857
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 33,
+            "mean_probability": 0.8394883042191815,
+            "observed_fraction": 0.6060606060606061
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 8,
+            "mean_probability": 0.9408564230123169,
+            "observed_fraction": 1.0
+          }
+        ]
+      }
+    },
+    "sigmoid_calibrated": {
+      "all_endpoints": {
+        "rows": 7652,
+        "positives": 1242,
+        "prevalence": 0.16231050705697858,
+        "average_precision": 0.8602715031586251,
+        "brier": 0.07850181226689622,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 4579,
+            "mean_probability": 0.039466651127132234,
+            "observed_fraction": 0.009172308364271676
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 418,
+            "mean_probability": 0.1371183204534494,
+            "observed_fraction": 0.02631578947368421
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 191,
+            "mean_probability": 0.25273134855310414,
+            "observed_fraction": 0.08376963350785341
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 247,
+            "mean_probability": 0.35363027996534374,
+            "observed_fraction": 0.08097165991902834
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 278,
+            "mean_probability": 0.4541036343383262,
+            "observed_fraction": 0.10071942446043165
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 347,
+            "mean_probability": 0.5475196322318029,
+            "observed_fraction": 0.1930835734870317
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 281,
+            "mean_probability": 0.650109255767192,
+            "observed_fraction": 0.2918149466192171
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 326,
+            "mean_probability": 0.7515782165399398,
+            "observed_fraction": 0.44171779141104295
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 357,
+            "mean_probability": 0.8531397320562567,
+            "observed_fraction": 0.6554621848739496
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 628,
+            "mean_probability": 0.96494691343604,
+            "observed_fraction": 0.9522292993630573
+          }
+        ]
+      },
+      "at_risk_endpoints": {
+        "rows": 6411,
+        "positives": 336,
+        "prevalence": 0.05240992044922789,
+        "average_precision": 0.40492199976774695,
+        "brier": 0.06455985235176111,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 4577,
+            "mean_probability": 0.03944960608368132,
+            "observed_fraction": 0.00917631636443085
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 406,
+            "mean_probability": 0.13664493237705497,
+            "observed_fraction": 0.027093596059113302
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 161,
+            "mean_probability": 0.2511540226056046,
+            "observed_fraction": 0.062111801242236024
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 225,
+            "mean_probability": 0.3551555721437886,
+            "observed_fraction": 0.06666666666666667
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 255,
+            "mean_probability": 0.45371669137698584,
+            "observed_fraction": 0.09019607843137255
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 312,
+            "mean_probability": 0.5466663657954542,
+            "observed_fraction": 0.18269230769230768
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 215,
+            "mean_probability": 0.64840016284522,
+            "observed_fraction": 0.29767441860465116
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 174,
+            "mean_probability": 0.7446691507630814,
+            "observed_fraction": 0.367816091954023
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 67,
+            "mean_probability": 0.8457342546155935,
+            "observed_fraction": 0.4925373134328358
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 19,
+            "mean_probability": 0.9298460142783415,
+            "observed_fraction": 0.8947368421052632
+          }
+        ]
+      },
+      "at_risk_operating_point": {
+        "rows": 6411,
+        "positives": 336,
+        "prevalence": 0.05240992044922789,
+        "average_precision": 0.40492199976774695,
+        "brier": 0.06455985235176111,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 4577,
+            "mean_probability": 0.03944960608368132,
+            "observed_fraction": 0.00917631636443085
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 406,
+            "mean_probability": 0.13664493237705497,
+            "observed_fraction": 0.027093596059113302
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 161,
+            "mean_probability": 0.2511540226056046,
+            "observed_fraction": 0.062111801242236024
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 225,
+            "mean_probability": 0.3551555721437886,
+            "observed_fraction": 0.06666666666666667
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 255,
+            "mean_probability": 0.45371669137698584,
+            "observed_fraction": 0.09019607843137255
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 312,
+            "mean_probability": 0.5466663657954542,
+            "observed_fraction": 0.18269230769230768
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 215,
+            "mean_probability": 0.64840016284522,
+            "observed_fraction": 0.29767441860465116
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 174,
+            "mean_probability": 0.7446691507630814,
+            "observed_fraction": 0.367816091954023
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 67,
+            "mean_probability": 0.8457342546155935,
+            "observed_fraction": 0.4925373134328358
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 19,
+            "mean_probability": 0.9298460142783415,
+            "observed_fraction": 0.8947368421052632
+          }
+        ],
+        "threshold": 0.6128507536908003,
+        "tn": 5810,
+        "fp": 265,
+        "fn": 160,
+        "tp": 176,
+        "precision": 0.39909297052154197,
+        "recall": 0.5238095238095238,
+        "f1": 0.45302445302445304
+      },
+      "all_operating_point": {
+        "rows": 7652,
+        "positives": 1242,
+        "prevalence": 0.16231050705697858,
+        "average_precision": 0.8602715031586251,
+        "brier": 0.07850181226689622,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 4579,
+            "mean_probability": 0.039466651127132234,
+            "observed_fraction": 0.009172308364271676
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 418,
+            "mean_probability": 0.1371183204534494,
+            "observed_fraction": 0.02631578947368421
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 191,
+            "mean_probability": 0.25273134855310414,
+            "observed_fraction": 0.08376963350785341
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 247,
+            "mean_probability": 0.35363027996534374,
+            "observed_fraction": 0.08097165991902834
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 278,
+            "mean_probability": 0.4541036343383262,
+            "observed_fraction": 0.10071942446043165
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 347,
+            "mean_probability": 0.5475196322318029,
+            "observed_fraction": 0.1930835734870317
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 281,
+            "mean_probability": 0.650109255767192,
+            "observed_fraction": 0.2918149466192171
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 326,
+            "mean_probability": 0.7515782165399398,
+            "observed_fraction": 0.44171779141104295
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 357,
+            "mean_probability": 0.8531397320562567,
+            "observed_fraction": 0.6554621848739496
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 628,
+            "mean_probability": 0.96494691343604,
+            "observed_fraction": 0.9522292993630573
+          }
+        ],
+        "threshold": 0.6128507536908003,
+        "tn": 5912,
+        "fp": 498,
+        "fn": 188,
+        "tp": 1054,
+        "precision": 0.6791237113402062,
+        "recall": 0.8486312399355878,
+        "f1": 0.7544738725841088
+      }
+    },
+    "train_prevalence": {
+      "all_endpoints": {
+        "rows": 7652,
+        "positives": 1242,
+        "prevalence": 0.16231050705697858,
+        "average_precision": 0.16231050705697858,
+        "brier": 0.13662758924581586,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 7652,
+            "mean_probability": 0.13658536585365857,
+            "observed_fraction": 0.16231050705697858
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          }
+        ]
+      },
+      "at_risk_endpoints": {
+        "rows": 6411,
+        "positives": 336,
+        "prevalence": 0.05240992044922789,
+        "average_precision": 0.05240992044922789,
+        "brier": 0.05674862629676778,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 6411,
+            "mean_probability": 0.13658536585365857,
+            "observed_fraction": 0.05240992044922789
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          }
+        ]
+      }
+    },
+    "current_glucose_threshold": {
+      "all_endpoints": {
+        "rows": 7652,
+        "positives": 1242,
+        "prevalence": 0.16231050705697858,
+        "average_precision": 0.5764633126566615,
+        "brier": 0.08768949294302143,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 6411,
+            "mean_probability": 0.0,
+            "observed_fraction": 0.05240992044922789
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 1241,
+            "mean_probability": 1.0,
+            "observed_fraction": 0.7300564061240935
+          }
+        ]
+      },
+      "at_risk_endpoints": {
+        "rows": 6411,
+        "positives": 336,
+        "prevalence": 0.05240992044922789,
+        "average_precision": 0.05240992044922789,
+        "brier": 0.05240992044922789,
+        "reliability_bins": [
+          {
+            "lower": 0.0,
+            "upper": 0.1,
+            "rows": 6411,
+            "mean_probability": 0.0,
+            "observed_fraction": 0.05240992044922789
+          },
+          {
+            "lower": 0.1,
+            "upper": 0.2,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.2,
+            "upper": 0.3,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.3,
+            "upper": 0.4,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.4,
+            "upper": 0.5,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.5,
+            "upper": 0.6,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.6,
+            "upper": 0.7,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          },
+          {
+            "lower": 0.9,
+            "upper": 1.0,
+            "rows": 0,
+            "mean_probability": null,
+            "observed_fraction": null
+          }
+        ]
+      }
+    }
+  },
+  "calibration_gate_passed": false,
+  "gate_checks": {
+    "all_endpoints": false,
+    "at_risk_endpoints": false
+  },
+  "calibration_gate": "Calibration Brier no worse than raw and better than training-prevalence baseline, both all/at-risk tuning views",
+  "operating_threshold": 0.6128507536908003,
+  "threshold_rule": "maximize at-risk tuning F1; highest threshold breaks ties",
+  "seconds": 1.301,
+  "limitations": [
+    "Only three tuning and three calibration patients",
+    "Both validation groups previously inspected for regression",
+    "Threshold F1 optimized on reported tuning data",
+    "Overlapping endpoints are not independent episodes",
+    "Reconstructed CGM and assumed clinical availability",
+    "No final test probability reliability or clinical validation"
+  ]
+}

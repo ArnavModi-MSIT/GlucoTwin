@@ -1,9 +1,11 @@
+from local_only import local_only
 import unittest,json
 from pathlib import Path
 import numpy as np,pandas as pd,joblib
 from threadpoolctl import threadpool_limits
 ROOT=Path(__file__).resolve().parents[1]
 
+@local_only
 class RbgBoostEndpointTests(unittest.TestCase):
     def test_saved_models_reproduce_assessment_patient_flags(self):
         roles=json.loads((ROOT/'configs/rbg_classifier_roles.json').read_text())

@@ -1,3 +1,4 @@
+from local_only import local_only
 from pathlib import Path
 import json,sys,unittest
 import joblib,numpy as np,pandas as pd
@@ -6,6 +7,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from glucotwin.endpoint import endpoint_probability
 
+@local_only
 class ClassifierTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -1,8 +1,10 @@
+from local_only import local_only
 import unittest,json
 from pathlib import Path
 import numpy as np,joblib
 ROOT=Path(__file__).resolve().parents[1]
 
+@local_only
 class RbgArtifactTests(unittest.TestCase):
     def test_no_test_matrices_and_training_sampling(self):
         base=ROOT/'data/processed/rbg'

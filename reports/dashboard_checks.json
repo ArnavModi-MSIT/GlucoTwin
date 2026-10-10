@@ -1,0 +1,15 @@
+{
+  "scope": "local validation replay; no model refit or reserved-test scoring",
+  "patient_counts": {
+    "rbg": 34,
+    "cgmacros": 6
+  },
+  "requests": 324,
+  "checks": "chart cutoff, delayed reveal, immutable forecasts, error arithmetic, reset, invalid inputs, origin/host guards, test rejection, four concurrent clients, 100-step replay",
+  "request_latency_ms": {
+    "p50": 113.37,
+    "p95": 249.64,
+    "p99": 515.14,
+    "max": 872.11
+  }
+}

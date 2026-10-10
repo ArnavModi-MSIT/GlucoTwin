@@ -32,6 +32,10 @@ def run():
             opportunities=visible.loc[outside]
             for family in ['logistic','boost']:
                 artifact,kind=models[(family,event)]
+                if opportunities.empty:
+                    record=assess([],episodes,opportunities.index,glucose)
+                    records.append({'patient_id':pid,'family':family,'event':event,**record})
+                    continue
                 with threadpool_limits(limits=4):
                     X=opportunities[artifact['features']].to_numpy(dtype=np.float32)
                     prob=artifact['model'].predict_proba(X)[:,1]
@@ -66,7 +70,7 @@ def run():
             assert n==detected+total['false_alarms']+total['unknown_alarms']+total['redundant_alarms']
             total.update(episode_recall=detected/total['evaluable_episodes'] if total['evaluable_episodes'] else None,
                          all_episode_recall=detected/total['qualifying_episodes'] if total['qualifying_episodes'] else None,
-                         false_per_eligible_day=total['false_alarms']/total['eligible_monitoring_days'],
+                         false_per_eligible_day=total['false_alarms']/total['eligible_monitoring_days'] if total['eligible_monitoring_days'] else None,
                          precision_lower_bound=detected/n if n else None,precision_upper_bound=(detected+total['unknown_alarms'])/n if n else None,
                          median_lead_minutes=float(np.median(lead)) if lead else None,
                          lead_quartiles_minutes=np.quantile(lead,[.25,.5,.75]).tolist() if lead else [],

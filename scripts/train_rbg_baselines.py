@@ -25,7 +25,7 @@ def run():
             with np.load(file) as data:Xs.append(data['X']);ys.append(data['y'])
         X=np.concatenate(Xs);y=np.concatenate(ys);del Xs,ys
         fitted={}
-        for name,indices in {'ridge_cgm':list(range(len(columns)-2)),'ridge_cgm_profile':list(range(len(columns)))}.items():
+        for name,indices in {'ridge_cgm':[i for i,c in enumerate(columns) if c.startswith('cgm_')],'ridge_cgm_profile':list(range(len(columns)))}.items():
             model=Pipeline([('imputer',SimpleImputer(strategy='median',add_indicator=True,keep_empty_features=True)),('scale',StandardScaler()),('ridge',Ridge(alpha=10))])
             with threadpool_limits(limits=4):model.fit(X[:,indices],y)
             fitted[name]=(model,indices)

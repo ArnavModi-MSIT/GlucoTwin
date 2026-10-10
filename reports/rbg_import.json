@@ -1,0 +1,10 @@
+{
+  "source": "DiaData v3 record 17285631, raw SDBIII RBG",
+  "patients": 226,
+  "rows": 18126280,
+  "glucose_rows": 14700791,
+  "subset_sha256": "577f60ee31d77de367846c2a23e59e73d50985b6cd7c9c1c287fb7b4d5f6bc35",
+  "demographics_md5": "bfdad21f65f60d79eb6bf3d293916954",
+  "grid_check": "unique strictly increasing five-minute grid, including chunk boundaries",
+  "seconds": 53.1
+}

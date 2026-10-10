@@ -25,7 +25,7 @@ def run():
             with np.load(file) as data:Xs.append(data['X']);ys.append(data['y'])
         X=np.concatenate(Xs);y=np.concatenate(ys);del Xs,ys
         fitted={}
-        for name,indices in {'boost_cgm':list(range(len(columns)-2)),'boost_cgm_profile':list(range(len(columns)))}.items():
+        for name,indices in {'boost_cgm':[i for i,c in enumerate(columns) if c.startswith('cgm_')],'boost_cgm_profile':list(range(len(columns)))}.items():
             model=HistGradientBoostingRegressor(loss='absolute_error',learning_rate=.05,max_iter=120,max_leaf_nodes=15,min_samples_leaf=80,l2_regularization=10.,early_stopping=False,random_state=2026)
             with threadpool_limits(limits=4):model.fit(X[:,indices],y)
             fitted[name]=(model,indices)

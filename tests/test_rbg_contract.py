@@ -1,7 +1,9 @@
+from local_only import local_only
 import sys,unittest,json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 
+@local_only
 class RbgContractTests(unittest.TestCase):
     def test_patient_roles_and_baseline_profiles(self):
         data=json.loads((ROOT/'configs/rbg_splits.json').read_text())

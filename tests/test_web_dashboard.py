@@ -1,8 +1,10 @@
+from local_only import local_only
 import unittest,sys,json,threading,urllib.request,urllib.error,http.cookiejar
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'scripts'))
 import serve_dashboard as web
 
+@local_only
 class WebReplayTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -44,5 +46,14 @@ class WebReplayTests(unittest.TestCase):
         req=urllib.request.Request(self.url+'/api/reset',data=b'{}',headers={'Content-Type':'application/json','Origin':'https://example.com'})
         with self.assertRaises(urllib.error.HTTPError) as context:client.open(req)
         self.assertEqual(context.exception.code,403)
+
+    def test_patient_switch_replaces_browser_session(self):
+        client=self.client();pid=next(iter(web.catalog('rbg')))
+        self.request(client,'/api/session',{'cohort':'rbg','patient_id':pid})
+        count=len(web.service.sessions)
+        for _ in range(3):
+            result=self.request(client,'/api/session',{'cohort':'rbg','patient_id':pid})
+            self.assertEqual(len(result['ledger']),2)
+            self.assertEqual(len(web.service.sessions),count)
 
 if __name__=='__main__':unittest.main()

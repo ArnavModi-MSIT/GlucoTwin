@@ -62,6 +62,8 @@ def run():
         at_risk=A[:,current_idx]<=180 if event=='high' else A[:,current_idx]>=70
         positive_patients=sum(int(cy[cpid==pid].sum())>=10 for pid in roles['calibration'])
         support=int(cy.sum())>=100 and int((1-cy).sum())>=100 and positive_patients>=5
+        if not support:
+            raise RuntimeError(f'{event}: insufficient calibration support; no calibrator fitted')
         model=Pipeline([('imputer',SimpleImputer(strategy='median',add_indicator=True,keep_empty_features=True)),('scale',StandardScaler()),('classifier',LogisticRegression(C=1,max_iter=1000))])
         with threadpool_limits(limits=4):
             model.fit(X,y);raw=model.predict_proba(A)[:,1]

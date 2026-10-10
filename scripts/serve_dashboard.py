@@ -3,12 +3,13 @@ from pathlib import Path
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from http.cookies import SimpleCookie
 from functools import lru_cache
-import argparse,json,sys,uuid,time,threading,math
+import argparse,json,sys,uuid,time,threading,math,logging
 import numpy as np,pandas as pd,joblib
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
 from glucotwin.features import profile_features
 from glucotwin.replay import issue_forecast,reveal_outcomes
 from glucotwin.rbg_replay import issue_rbg_forecasts,reveal_rbg_outcomes
+from glucotwin.artifacts import validate_replay_artifact
 
 @lru_cache(maxsize=2)
 def catalog(cohort):
@@ -18,8 +19,16 @@ def catalog(cohort):
 
 @lru_cache(maxsize=2)
 def models(cohort):
-    if cohort=='rbg':return {h:joblib.load(ROOT/f'artifacts/rbg_ridge_cgm_{h}.joblib') for h in [30,60]}
-    return {60:joblib.load(ROOT/'artifacts/ridge_cgm_clinical_hr.joblib')}
+    if cohort=='rbg':
+        selection=json.loads((ROOT/'configs/rbg_model_selection.json').read_text())
+        if any(selection['horizons'][str(h)]['selected']!='ridge_cgm' for h in (30,60)):
+            raise ValueError('Unsupported replay model selection')
+        return {h:validate_replay_artifact(joblib.load(ROOT/f'artifacts/rbg_ridge_cgm_{h}.joblib'),cohort,h) for h in (30,60)}
+    if cohort!='cgmacros':raise ValueError('Unknown cohort')
+    selection=json.loads((ROOT/'configs/model_selection.json').read_text())
+    if selection.get('artifact')!='artifacts/ridge_cgm_clinical_hr.joblib' or selection.get('horizon_minutes')!=60:
+        raise ValueError('Unsupported replay model selection')
+    return {60:validate_replay_artifact(joblib.load(ROOT/'artifacts/ridge_cgm_clinical_hr.joblib'),cohort,60)}
 
 @lru_cache(maxsize=4)
 def records(cohort,pid):
@@ -85,14 +94,19 @@ class Replay:
         comparison={'evaluated':len(completed),'ridge_mae':float(completed.ridge_error.mean()) if len(completed) else None,'persistence_mae':float(completed.persistence_error.mean()) if len(completed) else None}
         return clean({'cohort':self.cohort,'patient_label':label(self.patient['patient_id']),'issue_time':now,'data_cutoff':cutoff,'sensor_delay_minutes':5 if rbg else 0,'profile':profile,'profile_note':note,'latest':latest,'coverage':coverage,'forecasts':current,'chart':chart,'ledger':shown.to_dict('records'),'comparison':comparison,'at_end':self.position==len(self.clock)-1})
 
-def label(pid):return 'Patient '+str(int(float(str(pid).removesuffix('_RBG'))))
+def label(pid):
+    value=str(pid).removesuffix('_RBG')
+    try:value=str(int(float(value)))
+    except (ValueError,OverflowError):pass
+    return 'Patient '+value
 
 class Service:
     def __init__(self):self.sessions={};self.lock=threading.RLock()
-    def create(self,cohort,pid):
+    def create(self,cohort,pid,previous_key=None):
         replay=Replay(cohort,pid);key=uuid.uuid4().hex
         with self.lock:
             now=time.monotonic();self.sessions={k:v for k,v in self.sessions.items() if now-v[1]<3600}
+            self.sessions.pop(previous_key,None)
             if len(self.sessions)>=32:raise ValueError('Too many active replay sessions')
             self.sessions[key]=(replay,now)
         return key,replay.snapshot()
@@ -106,7 +120,16 @@ class Service:
 
 service=Service()
 class Handler(BaseHTTPRequestHandler):
+    def setup(self):
+        super().setup()
+        self.connection.settimeout(5)
     def log_message(self,*args):pass
+    def end_headers(self):
+        self.send_header('X-Content-Type-Options','nosniff')
+        self.send_header('X-Frame-Options','DENY')
+        self.send_header('Referrer-Policy','no-referrer')
+        self.send_header('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
+        super().end_headers()
     def local_host(self):
         return self.headers.get('Host') in {f'127.0.0.1:{self.server.server_port}',f'localhost:{self.server.server_port}'}
     def respond(self,status,value,cookie=None):
@@ -134,22 +157,36 @@ class Handler(BaseHTTPRequestHandler):
         if self.headers.get('Content-Type','').split(';')[0]!='application/json':return self.respond(400,{'error':'Expected JSON'})
         try:
             length=int(self.headers.get('Content-Length','0'))
-            if not 0<length<=4096:raise ValueError('Invalid request size')
-            body=json.loads(self.rfile.read(length));action={'/api/session':'create','/api/advance':'advance','/api/reset':'reset'}.get(self.path)
+            if not 0<length<=4096:
+                # Drain small rejected bodies so closing the socket does not
+                # discard the JSON error response on Windows. Never parse them.
+                if 0<length<=65536:self.rfile.read(length)
+                raise ValueError('Invalid request size')
+            raw=self.rfile.read(length)
+            if len(raw)!=length:raise ValueError('Incomplete request')
+            body=json.loads(raw)
+            if not isinstance(body,dict):raise ValueError('Expected JSON object')
+            action={'/api/session':'create','/api/advance':'advance','/api/reset':'reset'}.get(self.path)
             if not action:return self.respond(404,{'error':'Not found'})
             self.action(action,body)
-        except (ValueError,TypeError):self.respond(400,{'error':'Invalid request'})
+        except (ValueError,TypeError,TimeoutError):self.respond(400,{'error':'Invalid request'})
     def action(self,action,body):
         try:
             if action=='create':
                 cohort=body.get('cohort');pid=body.get('patient_id')
+                if cohort not in ('rbg','cgmacros'):raise ValueError('Unknown cohort')
                 if cohort=='cgmacros':pid=int(pid)
                 if pid not in catalog(cohort):raise ValueError('Patient unavailable for replay')
-                key,snapshot=service.create(cohort,pid);return self.respond(200,snapshot,key)
+                cookie=SimpleCookie(self.headers.get('Cookie',''))
+                previous=cookie['glucotwin_session'].value if 'glucotwin_session' in cookie else None
+                key,snapshot=service.create(cohort,pid,previous);return self.respond(200,snapshot,key)
             cookie=SimpleCookie(self.headers.get('Cookie',''));key=cookie['glucotwin_session'].value if 'glucotwin_session' in cookie else ''
             self.respond(200,service.operate(key,action,body.get('minutes')))
         except FileNotFoundError:self.respond(400,{'error':'Prepare local data and saved models first. See README.'})
         except (ValueError,KeyError,TypeError) as exc:self.respond(400,{'error':str(exc)})
+        except Exception:
+            logging.exception('Replay request failed')
+            self.respond(500,{'error':'Replay failed; check the local server log'})
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--port',type=int,default=8000);args=parser.parse_args()

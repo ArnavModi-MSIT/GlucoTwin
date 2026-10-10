@@ -5,6 +5,9 @@
 !/LICENSE
 !/requirements.txt
 !/pyproject.toml
+!/.github/
+/.github/*
+!/.github/workflows/
 !/DATA_CONTRACT.md
 !/EVALUATION_PROTOCOL.md
 !/download_cgmacros.py
@@ -82,3 +85,6 @@
 !/reports/RBG_EPISODE_ASSESSMENT.md
 
 !/web/
+
+!/reports/rbg_import.json
+!/reports/dashboard_checks.json

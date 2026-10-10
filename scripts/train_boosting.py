@@ -20,6 +20,7 @@ def score(actual,pred):
             'rmse_mg_dl':float(np.sqrt(mean_squared_error(actual,pred)))}
 
 def run():
+    (ROOT/"artifacts").mkdir(exist_ok=True)
     started=time.perf_counter()
     stop=threading.Event(); rss=[psutil.Process().memory_info().rss]
     def monitor():

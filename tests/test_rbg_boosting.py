@@ -1,9 +1,11 @@
+from local_only import local_only
 import unittest,json
 from pathlib import Path
 import joblib,numpy as np,pandas as pd
 from threadpoolctl import threadpool_limits
 ROOT=Path(__file__).resolve().parents[1]
 
+@local_only
 class RbgBoostTests(unittest.TestCase):
     def test_saved_model_matches_reported_patient_error(self):
         base=ROOT/'data/processed/rbg'

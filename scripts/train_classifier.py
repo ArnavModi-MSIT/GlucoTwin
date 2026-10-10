@@ -45,6 +45,7 @@ def choose_threshold(y,p):
     return float(threshold[best])
 
 def run():
+    (ROOT/"artifacts").mkdir(exist_ok=True)
     started=time.perf_counter()
     data=pd.read_csv(ROOT/'data/processed/cgmacros_features.csv')
     manifest=json.loads((ROOT/'configs/cgmacros_splits.json').read_text())

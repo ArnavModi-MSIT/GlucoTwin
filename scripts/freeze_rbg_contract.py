@@ -6,9 +6,9 @@ from sklearn.model_selection import train_test_split
 ROOT=Path(__file__).resolve().parents[1]
 
 def freeze():
-    bio=pd.read_csv(ROOT/'dataset-verification/diadata-Demographics.csv')
+    bio=pd.read_csv(ROOT/'data/raw/diadata/Demographics.csv')
     bio=bio[bio.Database.eq('RBG')].copy()
-    audit=json.loads((ROOT/'dataset-verification/rbg-patient-audit.json').read_text())
+    audit=json.loads((ROOT/'data/raw/diadata/rbg_import_audit.json').read_text())
     assert bio.PtID.is_unique and set(bio.PtID)==set(audit)
     bio['age']=pd.to_numeric(bio.AgeAtEnrollment,errors='raise')
     assert bio.age.between(18,100).all() and bio.Sex.isin(['M','F']).all()
@@ -26,7 +26,10 @@ def freeze():
     manifest={'version':'rbg-v0.1','seed':2026,'sensor_delay_minutes':5,'horizons_minutes':[30,60],
               'profile_availability':'enrollment age/sex assumed available at artificial enrollment origin; no labs',
               'participants':rows}
-    (ROOT/'configs/rbg_splits.json').write_text(json.dumps(manifest,indent=2))
+    path=ROOT/'configs/rbg_splits.json'
+    if path.exists() and json.loads(path.read_text())!=manifest:
+        raise ValueError('Existing frozen split differs; refusing to overwrite patient roles')
+    path.write_text(json.dumps(manifest,indent=2),encoding='utf-8')
     summary={'version':'rbg-v0.1','seed':2026,'patients':len(rows),'split_counts':pd.Series(assignments).value_counts().to_dict(),
              'strata_counts':{role:part.stratum.value_counts().to_dict() for role,part in [('train',train),('validation',val),('test',test)]},
              'manifest_sha256':hashlib.sha256(json.dumps(manifest,indent=2).encode()).hexdigest(),

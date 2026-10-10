@@ -6,6 +6,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from glucotwin.features import make_features
+from local_only import local_only
 
 PROFILE = {'age':40.,'gender_f':0.,'bmi':26.,'hba1c_pct':6.,'fasting_glucose':100.}
 
@@ -45,6 +46,7 @@ class FeatureTests(unittest.TestCase):
         expected = make_features(self.frame,PROFILE,0).loc[self.times[120]]
         pd.testing.assert_series_equal(actual,expected)
 
+    @local_only
     def test_prepared_targets_and_patient_splits(self):
         frame = pd.read_csv(ROOT/'data/processed/cgmacros_features.csv')
         self.assertTrue(frame.groupby('patient_id').split.nunique().eq(1).all())

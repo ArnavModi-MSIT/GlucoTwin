@@ -1,3 +1,4 @@
+from local_only import local_only
 import sys,unittest
 from pathlib import Path
 import numpy as np
@@ -6,6 +7,7 @@ import joblib
 
 ROOT=Path(__file__).resolve().parents[1]
 
+@local_only
 class ArtifactTests(unittest.TestCase):
     def test_saved_boosting_reproduces_validation_predictions(self):
         data=pd.read_csv(ROOT/'data/processed/cgmacros_features.csv')

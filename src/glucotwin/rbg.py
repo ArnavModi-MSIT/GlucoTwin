@@ -7,7 +7,7 @@ from glucotwin.features import make_features, STATIC
 def rbg_features(frame, patient):
     source=pd.DataFrame({'Timestamp':pd.to_datetime(frame.ts),'Dexcom GL':pd.to_numeric(frame.GlucoseCGM,errors='coerce'),'HR':np.nan})
     profile={c:np.nan for c in STATIC}
-    base=make_features(source,profile,0)
+    base=make_features(source,profile,0,include_hr=False)
     result=base[[c for c in base if c.startswith('cgm_')]+['history_eligible']].copy()
     # Feature time s is shifted to its availability/issue time t=s+5.
     complete=(base.index>=source.Timestamp.iloc[0]+pd.Timedelta(minutes=60))

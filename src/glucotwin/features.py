@@ -5,7 +5,7 @@ import pandas as pd
 STATIC = ['age', 'gender_f', 'bmi', 'hba1c_pct', 'fasting_glucose']
 HR = [f'hr_{stat}_{minutes}m' for minutes in (15, 30, 60) for stat in ('mean', 'std', 'fraction')]
 
-def make_features(frame, profile, phase):
+def make_features(frame, profile, phase, include_hr=True):
     """For replay pass only the visible prefix. Returns features on the 5-minute grid."""
     data = frame.copy()
     data.columns = data.columns.str.strip()
@@ -44,8 +44,8 @@ def make_features(frame, profile, phase):
     previous = np.concatenate([np.full((len(grid),1),-1),previous[:,:-1]],axis=1)
     gaps = np.where(windows & (previous>=0), (positions-previous)*5, 0)
     result['cgm_max_gap_60m'] = gaps.max(axis=1)
-    for length in (15, 30, 60):
-        heart = pd.to_numeric(data['HR'], errors='coerce')
+    heart = pd.to_numeric(data['HR'], errors='coerce') if include_hr else None
+    for length in (15, 30, 60) if include_hr else ():
         rolling = heart.rolling(f'{length}min',closed='both',min_periods=1)
         result[f'hr_mean_{length}m'] = rolling.mean().reindex(grid)
         result[f'hr_std_{length}m'] = rolling.std().reindex(grid)

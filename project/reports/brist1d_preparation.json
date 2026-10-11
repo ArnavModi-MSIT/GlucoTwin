@@ -1,0 +1,24 @@
+{
+  "version": "brist1d-input-ablation-v1",
+  "development_patients": 16,
+  "reserved_patients_prepared": 0,
+  "features": 140,
+  "arm_feature_counts": {
+    "cgm_only": 41,
+    "cgm_profile": 48,
+    "cgm_profile_insulin": 62,
+    "cgm_profile_insulin_carbs": 72,
+    "fused": 140
+  },
+  "source_glucose": 673748,
+  "potential_issue_times": 673748,
+  "history_eligible": 663232,
+  "excluded_missing_device_rows": 1,
+  "target_rows": {
+    "30": 625755,
+    "60": 612635
+  },
+  "seconds": 44.71,
+  "protocol_sha256": "0133ea5112e658a53f278cde629562cdd07f96ed1c81d032fd187d9d799e7fa2",
+  "note": "Targets are exact measured values at issue+horizon, not cutoff+horizon; no resampling or future imputation."
+}

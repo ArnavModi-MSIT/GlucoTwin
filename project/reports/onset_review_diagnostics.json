@@ -1,0 +1,363 @@
+{
+  "scope": "post-hoc descriptive diagnostics of frozen development predictions; no new fitting or cutoff selection",
+  "day_denominator": "at-risk five-minute opportunity coverage, not calendar days",
+  "studies": {
+    "v1": {
+      "methods": {
+        "fused": {
+          "qualifying_episodes": 366,
+          "evaluable_episodes": 336,
+          "detected_episodes": 193,
+          "alarms": 330,
+          "false_alarms": 133,
+          "unknown_alarms": 4,
+          "redundant_alarms": 0,
+          "eligible_monitoring_days": 205.2256944444444,
+          "episode_recall": 0.5744047619047619,
+          "precision_lower_bound": 0.5848484848484848,
+          "false_per_eligible_day": 0.6480669994078336,
+          "median_lead_minutes": 10.0,
+          "patients_with_evaluable_episodes": 27,
+          "lead_quantiles_minutes": {
+            "0.25": 5.0,
+            "0.5": 10.0,
+            "0.75": 10.0
+          },
+          "recall_by_minimum_lead": {
+            "10": 0.2916666666666667,
+            "15": 0.13095238095238096,
+            "20": 0.07142857142857142,
+            "25": 0.02976190476190476
+          },
+          "unmatched_alarms": 137,
+          "unmatched_per_eligible_day": 0.6675577362321294
+        },
+        "cgm_only": {
+          "qualifying_episodes": 366,
+          "evaluable_episodes": 336,
+          "detected_episodes": 201,
+          "alarms": 325,
+          "false_alarms": 122,
+          "unknown_alarms": 2,
+          "redundant_alarms": 0,
+          "eligible_monitoring_days": 205.2256944444444,
+          "episode_recall": 0.5982142857142857,
+          "precision_lower_bound": 0.6184615384615385,
+          "false_per_eligible_day": 0.5944674731410203,
+          "median_lead_minutes": 5.0,
+          "patients_with_evaluable_episodes": 27,
+          "lead_quantiles_minutes": {
+            "0.25": 5.0,
+            "0.5": 5.0,
+            "0.75": 10.0
+          },
+          "recall_by_minimum_lead": {
+            "10": 0.22321428571428573,
+            "15": 0.07738095238095238,
+            "20": 0.03571428571428571,
+            "25": 0.011904761904761904
+          },
+          "unmatched_alarms": 124,
+          "unmatched_per_eligible_day": 0.6042128415531682
+        },
+        "slope_rule": {
+          "qualifying_episodes": 366,
+          "evaluable_episodes": 336,
+          "detected_episodes": 144,
+          "alarms": 285,
+          "false_alarms": 137,
+          "unknown_alarms": 4,
+          "redundant_alarms": 0,
+          "eligible_monitoring_days": 205.2256944444444,
+          "episode_recall": 0.42857142857142855,
+          "precision_lower_bound": 0.5052631578947369,
+          "false_per_eligible_day": 0.6675577362321294,
+          "median_lead_minutes": 5.0,
+          "patients_with_evaluable_episodes": 27,
+          "lead_quantiles_minutes": {
+            "0.25": 5.0,
+            "0.5": 5.0,
+            "0.75": 10.0
+          },
+          "recall_by_minimum_lead": {
+            "10": 0.17559523809523808,
+            "15": 0.07142857142857142,
+            "20": 0.044642857142857144,
+            "25": 0.026785714285714284
+          },
+          "unmatched_alarms": 141,
+          "unmatched_per_eligible_day": 0.6870484730564251
+        }
+      },
+      "cutoff_support": [
+        {
+          "fold": 1,
+          "cutoff": 0.39463904991345466,
+          "operating_criteria_met_with_support_waived": false,
+          "full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "patients_with_evaluable_episodes": 3,
+          "evaluable_episodes": 51
+        },
+        {
+          "fold": 2,
+          "cutoff": 0.4379896708273507,
+          "operating_criteria_met_with_support_waived": false,
+          "full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "patients_with_evaluable_episodes": 3,
+          "evaluable_episodes": 44
+        },
+        {
+          "fold": 3,
+          "cutoff": 0.33985653928302717,
+          "operating_criteria_met_with_support_waived": false,
+          "full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "patients_with_evaluable_episodes": 3,
+          "evaluable_episodes": 48
+        }
+      ]
+    },
+    "gpu_v2": {
+      "methods": {
+        "fused": {
+          "qualifying_episodes": 366,
+          "evaluable_episodes": 336,
+          "detected_episodes": 229,
+          "alarms": 434,
+          "false_alarms": 201,
+          "unknown_alarms": 4,
+          "redundant_alarms": 0,
+          "eligible_monitoring_days": 205.2256944444444,
+          "episode_recall": 0.6815476190476191,
+          "precision_lower_bound": 0.5276497695852534,
+          "false_per_eligible_day": 0.9794095254208613,
+          "median_lead_minutes": 10.0,
+          "patients_with_evaluable_episodes": 27,
+          "lead_quantiles_minutes": {
+            "0.25": 5.0,
+            "0.5": 10.0,
+            "0.75": 15.0
+          },
+          "recall_by_minimum_lead": {
+            "10": 0.36607142857142855,
+            "15": 0.17857142857142858,
+            "20": 0.09523809523809523,
+            "25": 0.047619047619047616
+          },
+          "unmatched_alarms": 205,
+          "unmatched_per_eligible_day": 0.9989002622451572
+        },
+        "cgm_only": {
+          "qualifying_episodes": 366,
+          "evaluable_episodes": 336,
+          "detected_episodes": 219,
+          "alarms": 369,
+          "false_alarms": 149,
+          "unknown_alarms": 1,
+          "redundant_alarms": 0,
+          "eligible_monitoring_days": 205.2256944444444,
+          "episode_recall": 0.6517857142857143,
+          "precision_lower_bound": 0.5934959349593496,
+          "false_per_eligible_day": 0.7260299467050166,
+          "median_lead_minutes": 5.0,
+          "patients_with_evaluable_episodes": 27,
+          "lead_quantiles_minutes": {
+            "0.25": 5.0,
+            "0.5": 5.0,
+            "0.75": 10.0
+          },
+          "recall_by_minimum_lead": {
+            "10": 0.27380952380952384,
+            "15": 0.1130952380952381,
+            "20": 0.06845238095238096,
+            "25": 0.020833333333333332
+          },
+          "unmatched_alarms": 150,
+          "unmatched_per_eligible_day": 0.7309026309110906
+        },
+        "slope_rule": {
+          "qualifying_episodes": 366,
+          "evaluable_episodes": 336,
+          "detected_episodes": 144,
+          "alarms": 285,
+          "false_alarms": 137,
+          "unknown_alarms": 4,
+          "redundant_alarms": 0,
+          "eligible_monitoring_days": 205.2256944444444,
+          "episode_recall": 0.42857142857142855,
+          "precision_lower_bound": 0.5052631578947369,
+          "false_per_eligible_day": 0.6675577362321294,
+          "median_lead_minutes": 5.0,
+          "patients_with_evaluable_episodes": 27,
+          "lead_quantiles_minutes": {
+            "0.25": 5.0,
+            "0.5": 5.0,
+            "0.75": 10.0
+          },
+          "recall_by_minimum_lead": {
+            "10": 0.17559523809523808,
+            "15": 0.07142857142857142,
+            "20": 0.044642857142857144,
+            "25": 0.026785714285714284
+          },
+          "unmatched_alarms": 141,
+          "unmatched_per_eligible_day": 0.6870484730564251
+        }
+      },
+      "cutoff_support": [
+        {
+          "fold": 1,
+          "cutoff": 0.26683644294738834,
+          "operating_criteria_met_with_support_waived": true,
+          "full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "patients_with_evaluable_episodes": 3,
+          "evaluable_episodes": 51
+        },
+        {
+          "fold": 2,
+          "cutoff": 0.4894220405817034,
+          "operating_criteria_met_with_support_waived": false,
+          "full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "patients_with_evaluable_episodes": 3,
+          "evaluable_episodes": 44
+        },
+        {
+          "fold": 3,
+          "cutoff": 0.28183798849582675,
+          "operating_criteria_met_with_support_waived": false,
+          "full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "patients_with_evaluable_episodes": 3,
+          "evaluable_episodes": 48
+        }
+      ]
+    },
+    "methods_v3": {
+      "methods": {
+        "fused": {
+          "qualifying_episodes": 366,
+          "evaluable_episodes": 336,
+          "detected_episodes": 173,
+          "alarms": 321,
+          "false_alarms": 147,
+          "unknown_alarms": 1,
+          "redundant_alarms": 0,
+          "eligible_monitoring_days": 205.2256944444444,
+          "episode_recall": 0.5148809523809523,
+          "precision_lower_bound": 0.5389408099688473,
+          "false_per_eligible_day": 0.7162845782928687,
+          "median_lead_minutes": 10.0,
+          "patients_with_evaluable_episodes": 27,
+          "lead_quantiles_minutes": {
+            "0.25": 5.0,
+            "0.5": 10.0,
+            "0.75": 15.0
+          },
+          "recall_by_minimum_lead": {
+            "10": 0.3005952380952381,
+            "15": 0.16666666666666666,
+            "20": 0.06845238095238096,
+            "25": 0.047619047619047616
+          },
+          "unmatched_alarms": 148,
+          "unmatched_per_eligible_day": 0.7211572624989427
+        },
+        "cgm_only": {
+          "qualifying_episodes": 366,
+          "evaluable_episodes": 336,
+          "detected_episodes": 176,
+          "alarms": 261,
+          "false_alarms": 83,
+          "unknown_alarms": 2,
+          "redundant_alarms": 0,
+          "eligible_monitoring_days": 205.2256944444444,
+          "episode_recall": 0.5238095238095238,
+          "precision_lower_bound": 0.6743295019157088,
+          "false_per_eligible_day": 0.40443278910413677,
+          "median_lead_minutes": 5.0,
+          "patients_with_evaluable_episodes": 27,
+          "lead_quantiles_minutes": {
+            "0.25": 5.0,
+            "0.5": 5.0,
+            "0.75": 10.0
+          },
+          "recall_by_minimum_lead": {
+            "10": 0.23511904761904762,
+            "15": 0.10119047619047619,
+            "20": 0.03273809523809524,
+            "25": 0.01488095238095238
+          },
+          "unmatched_alarms": 85,
+          "unmatched_per_eligible_day": 0.4141781575162847
+        },
+        "slope_rule": {
+          "qualifying_episodes": 366,
+          "evaluable_episodes": 336,
+          "detected_episodes": 144,
+          "alarms": 285,
+          "false_alarms": 137,
+          "unknown_alarms": 4,
+          "redundant_alarms": 0,
+          "eligible_monitoring_days": 205.2256944444444,
+          "episode_recall": 0.42857142857142855,
+          "precision_lower_bound": 0.5052631578947369,
+          "false_per_eligible_day": 0.6675577362321294,
+          "median_lead_minutes": 5.0,
+          "patients_with_evaluable_episodes": 27,
+          "lead_quantiles_minutes": {
+            "0.25": 5.0,
+            "0.5": 5.0,
+            "0.75": 10.0
+          },
+          "recall_by_minimum_lead": {
+            "10": 0.17559523809523808,
+            "15": 0.07142857142857142,
+            "20": 0.044642857142857144,
+            "25": 0.026785714285714284
+          },
+          "unmatched_alarms": 141,
+          "unmatched_per_eligible_day": 0.6870484730564251
+        }
+      },
+      "cutoff_support": [
+        {
+          "fold": 1,
+          "cutoff": 0.295566170215607,
+          "operating_criteria_met_with_support_waived": false,
+          "full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "patients_with_evaluable_episodes": 3,
+          "evaluable_episodes": 51
+        },
+        {
+          "fold": 2,
+          "cutoff": 0.6001153516769413,
+          "operating_criteria_met_with_support_waived": false,
+          "full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "patients_with_evaluable_episodes": 3,
+          "evaluable_episodes": 44
+        },
+        {
+          "fold": 3,
+          "cutoff": 0.5749083194411173,
+          "operating_criteria_met_with_support_waived": false,
+          "full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "patients_with_evaluable_episodes": 3,
+          "evaluable_episodes": 48
+        }
+      ]
+    }
+  },
+  "frozen_v2_false_alarm_context": {
+    "verified_false_alarms": 201,
+    "with_any_high_reading_next30": 40,
+    "with_sustained_high_start_next30_without_prior_normal_rule": 5
+  },
+  "interpretation": "Other high excursions are secondary descriptions, not true positives under the frozen endpoint and not proof of contaminated labels."
+}

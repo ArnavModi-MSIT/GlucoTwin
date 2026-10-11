@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "report_sha256": "c1779138dd064becc019b2c8e9c1ea839f936f7622bcf37138815a9894afb666",
+  "protocol_sha256": "0133ea5112e658a53f278cde629562cdd07f96ed1c81d032fd187d9d799e7fa2",
+  "cache_manifest_sha256": "55a147f12cbb13e9015ff55ceda80e3f5009d098d6783c6b8d488bbeef5dc3a5",
+  "synthetic_tests_passed": 14,
+  "native_prefix_cadences_checked_minutes": [
+    5,
+    15
+  ],
+  "exact_target_probe_checks": 4,
+  "saved_models_checked": 80,
+  "prediction_probe_rows_per_model": 8,
+  "model_prediction_tolerance": {
+    "relative": 1e-06,
+    "absolute_mg_dl": 0.002
+  },
+  "aggregate_models_recomputed_per_horizon": 11,
+  "reserved_feature_matrices": 0,
+  "reserved_prediction_groups": 0,
+  "worst_ridge_60_abs_error_mg_dl": 1019.79727359375,
+  "worst_ridge_60_largest_linear_terms_mg_dl": {
+    "insulin_age_minutes": -819.0759887695312,
+    "missingindicator_insulin_sum_60m": -40.26702117919922,
+    "missingindicator_insulin_sum_15m": 29.206436157226562,
+    "insulin_fraction_60m": 20.232152938842773,
+    "insulin_count_60m": 19.58285140991211
+  }
+}

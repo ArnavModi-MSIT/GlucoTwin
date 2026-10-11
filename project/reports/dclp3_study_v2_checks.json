@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "execution_sha256": "ec0cfca0fbab03300487159abfbc3782675ef0dff51b337866f1788c514db739",
+  "model_artifacts_verified": 80,
+  "saved_prediction_probes": 1280,
+  "training_only_preprocessors_verified": 80,
+  "cohorts_verified": [
+    {
+      "cohort": "all_clinical",
+      "horizon": 30,
+      "patients": 134
+    },
+    {
+      "cohort": "pump_linked",
+      "horizon": 30,
+      "patients": 100
+    },
+    {
+      "cohort": "all_clinical",
+      "horizon": 60,
+      "patients": 134
+    },
+    {
+      "cohort": "pump_linked",
+      "horizon": 60,
+      "patients": 100
+    }
+  ],
+  "scoring_rows": {
+    "all_clinical_30": 6522958,
+    "pump_linked_30": 4900462,
+    "all_clinical_60": 6477018,
+    "pump_linked_60": 4864279
+  },
+  "reserved_participants_scored": 0,
+  "scope": "matched caches, sampled fit rows, trained preprocessing, inference parity, all overall/slice/treatment scores and paired intervals recomputed"
+}

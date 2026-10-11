@@ -1,0 +1,39 @@
+{
+  "version": "cgmacros-onset-gpu-v2",
+  "seed": 2026,
+  "event": "new sustained high glucose onset",
+  "high_threshold_mg_dl": 180,
+  "warning_window_minutes": [
+    5,
+    30
+  ],
+  "sustained_samples": 4,
+  "prior_normal_samples": 7,
+  "label_future_minutes": 45,
+  "cooldown_minutes": 60,
+  "outer_folds": 3,
+  "inner_folds": 3,
+  "threshold_patients_per_band": 1,
+  "thread_limit": 8,
+  "threshold_quantiles": 101,
+  "candidate_names": [
+    "xgb_600_d3",
+    "xgb_800_d5",
+    "xgb_1200_d3_balanced",
+    "xgb_800_d4_balanced"
+  ],
+  "model_selection_metric": "mean inner-fold average precision",
+  "threshold_selection": "maximum episode recall among gate-compliant thresholds; otherwise diagnostic maximum episode F1 under the false-alarm cap",
+  "engineering_gate": {
+    "minimum_evaluable_episodes": 30,
+    "minimum_patients_with_evaluable_episodes": 5,
+    "episode_recall": 0.6,
+    "precision_lower_bound": 0.5,
+    "maximum_false_alarms_per_eligible_day": 1.0,
+    "minimum_median_lead_minutes": 10
+  },
+  "probability_display_approved": false,
+  "operational_alerts_approved": false,
+  "rationale": "Fixed XGBoost comparison after v1; same development data and gates; exploratory, not an independent holdout",
+  "xgboost_version": "3.2.0"
+}

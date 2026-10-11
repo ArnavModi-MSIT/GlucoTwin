@@ -1,0 +1,18 @@
+{
+  "version": "brist1d-input-ablation-v1",
+  "protocol_sha256": "0133ea5112e658a53f278cde629562cdd07f96ed1c81d032fd187d9d799e7fa2",
+  "manifest_sha256": "ace1b088499451103b583b771a5a5f0768b4fb4cd236b8b8aa4e3436e4ffe390",
+  "seed": 2026,
+  "patients": 20,
+  "development": 16,
+  "reserved_test": 4,
+  "development_folds": 4,
+  "fit_per_fold": 12,
+  "evaluation_per_fold": 4,
+  "cadence_per_group": {
+    "5min": 3,
+    "15min": 1
+  },
+  "reserved_status": "quality-audited previously; no feature matrices or prediction scores generated",
+  "status": "roles and availability assumptions frozen before fitting"
+}

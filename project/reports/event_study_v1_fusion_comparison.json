@@ -1,0 +1,8 @@
+{
+  "description": "paired patient bootstrap; fused minus matched sensor-only episode recall",
+  "difference": -0.023809523809523836,
+  "bootstrap95": [
+    -0.12924074074074077,
+    0.06591585348748663
+  ]
+}

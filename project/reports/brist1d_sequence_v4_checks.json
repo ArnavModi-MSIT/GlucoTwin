@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "report_sha256": "cf4e0e06881fe6dd4683eaac32ada6229a11b100977e3dcc88551e5753b9d0e3",
+  "config_sha256": "bde56a5ff3feb096f91bf0924ffe451549831977200e27d75c32955f85b3abfb",
+  "reference_hashes_unchanged": true,
+  "synthetic_tests_passed": 31,
+  "real_native_prefix_sequence_probes": 6,
+  "inner_patient_stopping_and_epoch_selection_verified": true,
+  "final_train_only_scalers_recomputed_folds": 4,
+  "same_final_fit_sample_positions_verified_for_both_methods": true,
+  "neural_prediction_probe_rows": 256,
+  "matched_xgb_prediction_probe_rows": 256,
+  "prediction_absolute_tolerance_mg_dl": 0.002,
+  "aggregate_methods_recomputed_per_horizon": 4,
+  "same_original_evaluation_arrays_verified": true,
+  "reserved_sequence_matrices": 0,
+  "reserved_prediction_groups": 0,
+  "prediction_hashes": {
+    "data\\processed\\brist1d_v4\\outer_predictions\\30\\fold1.npz": "4aedc76a82a44e74d69d2dda42390421ba40d86a84b57db6a5b49c199ca4f023",
+    "data\\processed\\brist1d_v4\\outer_predictions\\60\\fold1.npz": "e40f7f0e0b6f28482a205692e96664d8e1b2aba187da7e9ac33b8b1bd8fb10b2",
+    "data\\processed\\brist1d_v4\\outer_predictions\\30\\fold2.npz": "ffef222d5b7f8451fda61b8c2c4f6b905d89f633dac982c840193741b5998a29",
+    "data\\processed\\brist1d_v4\\outer_predictions\\60\\fold2.npz": "1f7dcc1f4c7db568cff20b344b02a10233f92441895f61b7be6d9e170fb6ca4a",
+    "data\\processed\\brist1d_v4\\outer_predictions\\30\\fold3.npz": "39835265b1a766d7010968010019d81a56720710b5eb1e99f7f79fb609b33bcd",
+    "data\\processed\\brist1d_v4\\outer_predictions\\60\\fold3.npz": "66d03d7fbe51c9a00ae803fc1780cb218061940564ded20a3995becbdb3cb8bb",
+    "data\\processed\\brist1d_v4\\outer_predictions\\30\\fold4.npz": "81b6ca7bf0570b67a3830f657263c055e3a9773f6d3e1fcdc9762547e54bfa71",
+    "data\\processed\\brist1d_v4\\outer_predictions\\60\\fold4.npz": "52c8e5838adc46b86e7a36ec595297c328a0c9fbd7ab00cbb5f08c9c143ebf40"
+  }
+}

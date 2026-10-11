@@ -1,0 +1,95 @@
+{
+  "scope": "downloaded participant pilot only",
+  "participants_audited": 1,
+  "no_models_fitted": true,
+  "reports": [
+    {
+      "source_sha256": "a14cac5b11f2f2d2f010052109f772bef9711aa1c1617cded71bf3530aca56f0",
+      "rows": 136220,
+      "repeated_timestamp_rows_across_devices": 62038,
+      "channels": {
+        "bg": {
+          "observed_rows": 18975,
+          "distinct_timestamps": 18969,
+          "same_device_conflicting_timestamp_keys": 6,
+          "conflicting_timestamp_values": 6,
+          "retained_unambiguous_timestamps": 18963,
+          "positive_rows": 18975,
+          "zero_rows": 0,
+          "median_gap_minutes": 15.0,
+          "most_common_gap_minutes": 15.0,
+          "gaps_over15_minutes": 1562,
+          "device_sources": [
+            "FreeStyle Libre 2"
+          ]
+        },
+        "insulin": {
+          "observed_rows": 58362,
+          "distinct_timestamps": 58362,
+          "same_device_conflicting_timestamp_keys": 0,
+          "conflicting_timestamp_values": 0,
+          "retained_unambiguous_timestamps": 58362,
+          "positive_rows": 55230,
+          "zero_rows": 3132,
+          "median_gap_minutes": 5.0,
+          "most_common_gap_minutes": 5.0,
+          "gaps_over15_minutes": 0,
+          "device_sources": [
+            "Medtronic MiniMed 640G"
+          ]
+        },
+        "carbs": {
+          "observed_rows": 1038,
+          "distinct_timestamps": 1038,
+          "same_device_conflicting_timestamp_keys": 0,
+          "conflicting_timestamp_values": 0,
+          "retained_unambiguous_timestamps": 1038,
+          "positive_rows": 1038,
+          "zero_rows": 0,
+          "median_gap_minutes": 205.0,
+          "most_common_gap_minutes": 9.0,
+          "gaps_over15_minutes": 960,
+          "device_sources": [
+            "Medtronic MiniMed 640G"
+          ]
+        },
+        "hr": {
+          "observed_rows": 55997,
+          "distinct_timestamps": 55997,
+          "same_device_conflicting_timestamp_keys": 0,
+          "conflicting_timestamp_values": 0,
+          "retained_unambiguous_timestamps": 55997,
+          "positive_rows": 55997,
+          "zero_rows": 0,
+          "median_gap_minutes": 5.0,
+          "most_common_gap_minutes": 5.0,
+          "gaps_over15_minutes": 74,
+          "device_sources": [
+            "Fitbit Luxe"
+          ]
+        }
+      },
+      "past_observation_overlap": {
+        "insulin": {
+          "glucose_timestamps": 18963,
+          "with_past_observation_within_minutes": 5,
+          "matched": 18963,
+          "fraction": 1.0
+        },
+        "hr": {
+          "glucose_timestamps": 18963,
+          "with_past_observation_within_minutes": 5,
+          "matched": 18231,
+          "fraction": 0.9613985128935295
+        }
+      },
+      "interpretation": {
+        "availability": "Entry/upload timestamps not in schema; retrospective event timestamps do not prove prospective availability.",
+        "grid": "No interpolation or resampling; measured cadence reported per channel.",
+        "food_missingness": "Missing carbohydrate entries remain unreported, not zero.",
+        "glucose_units": "source mmol/L; conversion if needed is 18.0182 mg/dL per mmol/L",
+        "conflict_policy": "Exclude conflicting timestamps from descriptive overlap; no prediction inputs created."
+      }
+    }
+  ]
+}

@@ -1,0 +1,846 @@
+{
+  "protocol": {
+    "version": "cgmacros-regression-loss-guardrails-v5",
+    "seed": 2026,
+    "horizons_minutes": [
+      30,
+      60
+    ],
+    "candidates": [
+      "ridge_original",
+      "xgb_delta_extended",
+      "xgb_delta_squared",
+      "xgb_delta_huber"
+    ],
+    "selection": "minimum patient-macro MAE among methods passing tuning-only guardrails; otherwise Ridge",
+    "guardrails": {
+      "maximum_relative_worsening": 0.0,
+      "minimum_slice_rows": 30
+    },
+    "guardrail_metrics": [
+      "patient-macro RMSE",
+      "patient-macro P90 absolute error",
+      "high-target patient-macro MAE",
+      "low-target patient-macro MAE"
+    ],
+    "huber_slope_mg_dl": 10.0,
+    "severe_error_diagnostic_thresholds_mg_dl": [
+      40,
+      60
+    ],
+    "training_weights": "equal total weight per patient",
+    "data": "same 27 CGMacros development patients; six reserved patients excluded",
+    "interpretation": "exploratory new loss comparison; preserve v3/v4 unchanged; missing tuning slice support prevents candidate promotion",
+    "operational_alerts_approved": false
+  },
+  "status": "exploratory development comparison; no reserved-test evaluation",
+  "horizons": {
+    "30": {
+      "aggregate": {
+        "ridge_original": {
+          "rows": 68894,
+          "mae": 12.12506492813861,
+          "rmse": 18.12101537044529,
+          "mean_patient_mae": 12.131593568035393,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68894,
+              "mean_patient_mae": 12.131593568035393,
+              "mean_patient_rmse": 17.746146985257624,
+              "mean_patient_bias": -0.5266172227771558,
+              "mean_patient_p90_absolute_error": 28.356791090667258,
+              "mean_patient_p95_absolute_error": 38.485579414794984,
+              "mean_patient_p99_absolute_error": 61.7080396204211,
+              "mean_patient_fraction_error_gt40": 0.04708307072120451,
+              "mean_patient_fraction_error_gt60": 0.01343055393472861
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9911,
+              "mean_patient_mae": 28.015001142759637,
+              "mean_patient_rmse": 35.064014707965896,
+              "mean_patient_bias": -23.279440400407257,
+              "mean_patient_p90_absolute_error": 57.480439506519964,
+              "mean_patient_p95_absolute_error": 66.62177717734832,
+              "mean_patient_p99_absolute_error": 82.25313891926466,
+              "mean_patient_fraction_error_gt40": 0.2540896947899994,
+              "mean_patient_fraction_error_gt60": 0.11041201639682346
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 112,
+              "mean_patient_mae": 35.56597814953313,
+              "mean_patient_rmse": 37.67688140206374,
+              "mean_patient_bias": 35.25077033562244,
+              "mean_patient_p90_absolute_error": 47.51728571692751,
+              "mean_patient_p95_absolute_error": 50.07834549923792,
+              "mean_patient_p99_absolute_error": 51.78776706755175,
+              "mean_patient_fraction_error_gt40": 0.3093645484949833,
+              "mean_patient_fraction_error_gt60": 0.2222222222222222
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "xgb_delta_extended": {
+          "rows": 68894,
+          "mae": 11.733357547415938,
+          "rmse": 18.242900052419415,
+          "mean_patient_mae": 11.737296337289527,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68894,
+              "mean_patient_mae": 11.737296337289527,
+              "mean_patient_rmse": 17.73823440912474,
+              "mean_patient_bias": -2.6865694218402627,
+              "mean_patient_p90_absolute_error": 28.202289835611978,
+              "mean_patient_p95_absolute_error": 38.9386089324951,
+              "mean_patient_p99_absolute_error": 63.61449905678072,
+              "mean_patient_fraction_error_gt40": 0.049241196369152855,
+              "mean_patient_fraction_error_gt60": 0.01573903621348707
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9911,
+              "mean_patient_mae": 29.831237907077245,
+              "mean_patient_rmse": 37.29353667508545,
+              "mean_patient_bias": -25.58149590593421,
+              "mean_patient_p90_absolute_error": 60.3917498835811,
+              "mean_patient_p95_absolute_error": 69.87010944507738,
+              "mean_patient_p99_absolute_error": 86.87865171079278,
+              "mean_patient_fraction_error_gt40": 0.2950564535119587,
+              "mean_patient_fraction_error_gt60": 0.1389403968775591
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 112,
+              "mean_patient_mae": 37.426712291893914,
+              "mean_patient_rmse": 39.16114973846139,
+              "mean_patient_bias": 37.426712291893914,
+              "mean_patient_p90_absolute_error": 48.33818639119466,
+              "mean_patient_p95_absolute_error": 50.1566711001926,
+              "mean_patient_p99_absolute_error": 53.114232084486225,
+              "mean_patient_fraction_error_gt40": 0.34959432676823987,
+              "mean_patient_fraction_error_gt60": 0.1752136752136752
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "xgb_delta_squared": {
+          "rows": 68894,
+          "mae": 12.0840889661652,
+          "rmse": 18.051109548115488,
+          "mean_patient_mae": 12.090730021415277,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68894,
+              "mean_patient_mae": 12.090730021415277,
+              "mean_patient_rmse": 17.56241745357572,
+              "mean_patient_bias": -0.9452021546705474,
+              "mean_patient_p90_absolute_error": 27.935593188250508,
+              "mean_patient_p95_absolute_error": 37.79335677535443,
+              "mean_patient_p99_absolute_error": 60.16403820179125,
+              "mean_patient_fraction_error_gt40": 0.04600200624178266,
+              "mean_patient_fraction_error_gt60": 0.013273193787222217
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9911,
+              "mean_patient_mae": 29.236185957808864,
+              "mean_patient_rmse": 35.81662492950588,
+              "mean_patient_bias": -25.675288920760458,
+              "mean_patient_p90_absolute_error": 57.40336631492332,
+              "mean_patient_p95_absolute_error": 65.8677084746184,
+              "mean_patient_p99_absolute_error": 82.18756833111794,
+              "mean_patient_fraction_error_gt40": 0.2785593800311152,
+              "mean_patient_fraction_error_gt60": 0.10974297066875525
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 112,
+              "mean_patient_mae": 40.13046753173848,
+              "mean_patient_rmse": 41.71133813784649,
+              "mean_patient_bias": 40.13046753173848,
+              "mean_patient_p90_absolute_error": 50.60747892591688,
+              "mean_patient_p95_absolute_error": 52.66413684421116,
+              "mean_patient_p99_absolute_error": 55.36227819654677,
+              "mean_patient_fraction_error_gt40": 0.4114889136628267,
+              "mean_patient_fraction_error_gt60": 0.1752136752136752
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "xgb_delta_huber": {
+          "rows": 68894,
+          "mae": 11.73854238993129,
+          "rmse": 18.06544089699713,
+          "mean_patient_mae": 11.743222579627432,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68894,
+              "mean_patient_mae": 11.743222579627432,
+              "mean_patient_rmse": 17.57197436413541,
+              "mean_patient_bias": -2.22986262316549,
+              "mean_patient_p90_absolute_error": 27.898716566297747,
+              "mean_patient_p95_absolute_error": 38.33949904265224,
+              "mean_patient_p99_absolute_error": 62.45409687748657,
+              "mean_patient_fraction_error_gt40": 0.04745174411529312,
+              "mean_patient_fraction_error_gt60": 0.014262300137931314
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9911,
+              "mean_patient_mae": 29.649182249050977,
+              "mean_patient_rmse": 36.79978625894764,
+              "mean_patient_bias": -25.7409619432722,
+              "mean_patient_p90_absolute_error": 59.59711495858652,
+              "mean_patient_p95_absolute_error": 68.49790785047742,
+              "mean_patient_p99_absolute_error": 84.82950457537612,
+              "mean_patient_fraction_error_gt40": 0.28725180999905325,
+              "mean_patient_fraction_error_gt60": 0.12267452784802321
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 112,
+              "mean_patient_mae": 39.34996858668592,
+              "mean_patient_rmse": 40.935263422568916,
+              "mean_patient_bias": 39.34996858668592,
+              "mean_patient_p90_absolute_error": 49.2541990492079,
+              "mean_patient_p95_absolute_error": 51.31182255215114,
+              "mean_patient_p99_absolute_error": 53.86538605584039,
+              "mean_patient_fraction_error_gt40": 0.4025857797596928,
+              "mean_patient_fraction_error_gt60": 0.1752136752136752
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "persistence": {
+          "rows": 68894,
+          "mae": 13.261198362702123,
+          "rmse": 20.588356187070243,
+          "mean_patient_mae": 13.26883470227714,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68894,
+              "mean_patient_mae": 13.26883470227714,
+              "mean_patient_rmse": 20.105667626468158,
+              "mean_patient_bias": 0.045536243535343524,
+              "mean_patient_p90_absolute_error": 33.05925925925926,
+              "mean_patient_p95_absolute_error": 44.831481481481475,
+              "mean_patient_p99_absolute_error": 70.53777777777769,
+              "mean_patient_fraction_error_gt40": 0.0674275697992658,
+              "mean_patient_fraction_error_gt60": 0.021867568534634157
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9911,
+              "mean_patient_mae": 32.211967197968775,
+              "mean_patient_rmse": 40.24517386433566,
+              "mean_patient_bias": -20.67517669950813,
+              "mean_patient_p90_absolute_error": 65.30370370370372,
+              "mean_patient_p95_absolute_error": 75.23888888888888,
+              "mean_patient_p99_absolute_error": 91.96999999999996,
+              "mean_patient_fraction_error_gt40": 0.3301815575219192,
+              "mean_patient_fraction_error_gt60": 0.1721006860069661
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 112,
+              "mean_patient_mae": 35.92820158907116,
+              "mean_patient_rmse": 39.17704438017203,
+              "mean_patient_bias": 35.24559289341898,
+              "mean_patient_p90_absolute_error": 51.15555555555555,
+              "mean_patient_p95_absolute_error": 54.67777777777778,
+              "mean_patient_p99_absolute_error": 57.32777777777778,
+              "mean_patient_fraction_error_gt40": 0.3892078533382881,
+              "mean_patient_fraction_error_gt60": 0.2863247863247863
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "selected": {
+          "rows": 68894,
+          "mae": 12.12506492813861,
+          "rmse": 18.12101537044529,
+          "mean_patient_mae": 12.131593568035393,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68894,
+              "mean_patient_mae": 12.131593568035393,
+              "mean_patient_rmse": 17.746146985257624,
+              "mean_patient_bias": -0.5266172227771558,
+              "mean_patient_p90_absolute_error": 28.356791090667258,
+              "mean_patient_p95_absolute_error": 38.485579414794984,
+              "mean_patient_p99_absolute_error": 61.7080396204211,
+              "mean_patient_fraction_error_gt40": 0.04708307072120451,
+              "mean_patient_fraction_error_gt60": 0.01343055393472861
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9911,
+              "mean_patient_mae": 28.015001142759637,
+              "mean_patient_rmse": 35.064014707965896,
+              "mean_patient_bias": -23.279440400407257,
+              "mean_patient_p90_absolute_error": 57.480439506519964,
+              "mean_patient_p95_absolute_error": 66.62177717734832,
+              "mean_patient_p99_absolute_error": 82.25313891926466,
+              "mean_patient_fraction_error_gt40": 0.2540896947899994,
+              "mean_patient_fraction_error_gt60": 0.11041201639682346
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 112,
+              "mean_patient_mae": 35.56597814953313,
+              "mean_patient_rmse": 37.67688140206374,
+              "mean_patient_bias": 35.25077033562244,
+              "mean_patient_p90_absolute_error": 47.51728571692751,
+              "mean_patient_p95_absolute_error": 50.07834549923792,
+              "mean_patient_p99_absolute_error": 51.78776706755175,
+              "mean_patient_fraction_error_gt40": 0.3093645484949833,
+              "mean_patient_fraction_error_gt60": 0.2222222222222222
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        }
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "selected": "ridge_original",
+          "tuning_patient_mae": {
+            "ridge_original": 13.108002264293376,
+            "xgb_delta_extended": 14.332441693899561,
+            "xgb_delta_squared": 14.970501884941312,
+            "xgb_delta_huber": 14.821920015809496
+          },
+          "tuning_guardrails": {
+            "ridge_original": {
+              "meets_guardrails": false,
+              "reasons": [
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_extended": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_squared": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_huber": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            }
+          }
+        },
+        {
+          "fold": 2,
+          "selected": "ridge_original",
+          "tuning_patient_mae": {
+            "ridge_original": 11.976393860283247,
+            "xgb_delta_extended": 11.016704927014558,
+            "xgb_delta_squared": 11.210847915939178,
+            "xgb_delta_huber": 10.938101681278757
+          },
+          "tuning_guardrails": {
+            "ridge_original": {
+              "meets_guardrails": false,
+              "reasons": [
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_extended": {
+              "meets_guardrails": false,
+              "reasons": [
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_squared": {
+              "meets_guardrails": false,
+              "reasons": [
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_huber": {
+              "meets_guardrails": false,
+              "reasons": [
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            }
+          }
+        },
+        {
+          "fold": 3,
+          "selected": "ridge_original",
+          "tuning_patient_mae": {
+            "ridge_original": 13.228989040490035,
+            "xgb_delta_extended": 12.524385531730267,
+            "xgb_delta_squared": 12.878756065982358,
+            "xgb_delta_huber": 12.493783023809295
+          },
+          "tuning_guardrails": {
+            "ridge_original": {
+              "meets_guardrails": false,
+              "reasons": [
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_extended": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_squared": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_huber": {
+              "meets_guardrails": false,
+              "reasons": [
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "60": {
+      "aggregate": {
+        "ridge_original": {
+          "rows": 68722,
+          "mae": 17.965243596905054,
+          "rmse": 26.40324908964533,
+          "mean_patient_mae": 17.965747309322214,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68722,
+              "mean_patient_mae": 17.965747309322214,
+              "mean_patient_rmse": 25.50568280159791,
+              "mean_patient_bias": -1.1215801229638858,
+              "mean_patient_p90_absolute_error": 41.27290759060928,
+              "mean_patient_p95_absolute_error": 55.436602098778714,
+              "mean_patient_p99_absolute_error": 84.51109178438325,
+              "mean_patient_fraction_error_gt40": 0.10582531139527711,
+              "mean_patient_fraction_error_gt60": 0.04337790584994303
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9846,
+              "mean_patient_mae": 49.679855181509794,
+              "mean_patient_rmse": 56.66378229394172,
+              "mean_patient_bias": -47.44671467074487,
+              "mean_patient_p90_absolute_error": 84.31569146090841,
+              "mean_patient_p95_absolute_error": 93.85473614285645,
+              "mean_patient_p99_absolute_error": 110.93437348176514,
+              "mean_patient_fraction_error_gt40": 0.6053648044525987,
+              "mean_patient_fraction_error_gt60": 0.35869168040718863
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 114,
+              "mean_patient_mae": 52.209099346790865,
+              "mean_patient_rmse": 54.91556633762476,
+              "mean_patient_bias": 52.12894503836013,
+              "mean_patient_p90_absolute_error": 68.42635176704464,
+              "mean_patient_p95_absolute_error": 71.9869944010482,
+              "mean_patient_p99_absolute_error": 73.4210471029856,
+              "mean_patient_fraction_error_gt40": 0.6577582240625719,
+              "mean_patient_fraction_error_gt60": 0.3476190476190476
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "xgb_delta_extended": {
+          "rows": 68722,
+          "mae": 17.45927224281777,
+          "rmse": 27.323819693448748,
+          "mean_patient_mae": 17.455220513956082,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68722,
+              "mean_patient_mae": 17.455220513956082,
+              "mean_patient_rmse": 25.876433246610183,
+              "mean_patient_bias": -5.579171449436781,
+              "mean_patient_p90_absolute_error": 42.01328893590857,
+              "mean_patient_p95_absolute_error": 57.08779035497592,
+              "mean_patient_p99_absolute_error": 89.07695003368238,
+              "mean_patient_fraction_error_gt40": 0.11203303301467535,
+              "mean_patient_fraction_error_gt60": 0.05117346331211813
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9846,
+              "mean_patient_mae": 55.263614910904465,
+              "mean_patient_rmse": 62.320735713565035,
+              "mean_patient_bias": -53.80352610517745,
+              "mean_patient_p90_absolute_error": 90.7936429059064,
+              "mean_patient_p95_absolute_error": 101.43089386268896,
+              "mean_patient_p99_absolute_error": 118.75032977351432,
+              "mean_patient_fraction_error_gt40": 0.673085452190744,
+              "mean_patient_fraction_error_gt60": 0.4514842134077484
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 114,
+              "mean_patient_mae": 51.169588466159006,
+              "mean_patient_rmse": 52.40749192438537,
+              "mean_patient_bias": 51.169588466159006,
+              "mean_patient_p90_absolute_error": 62.794378492567276,
+              "mean_patient_p95_absolute_error": 65.59604415893554,
+              "mean_patient_p99_absolute_error": 67.4039599778917,
+              "mean_patient_fraction_error_gt40": 0.7159650333563378,
+              "mean_patient_fraction_error_gt60": 0.2724867724867725
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "xgb_delta_squared": {
+          "rows": 68722,
+          "mae": 18.39046002475122,
+          "rmse": 27.138634516911825,
+          "mean_patient_mae": 18.38709528602538,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68722,
+              "mean_patient_mae": 18.38709528602538,
+              "mean_patient_rmse": 25.72632179033806,
+              "mean_patient_bias": -1.9845727800379747,
+              "mean_patient_p90_absolute_error": 41.77983661227758,
+              "mean_patient_p95_absolute_error": 54.598855929904495,
+              "mean_patient_p99_absolute_error": 83.80097429346159,
+              "mean_patient_fraction_error_gt40": 0.11137178741027796,
+              "mean_patient_fraction_error_gt60": 0.04623968789131255
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9846,
+              "mean_patient_mae": 50.848328178366415,
+              "mean_patient_rmse": 57.30469409596179,
+              "mean_patient_bias": -49.372773748651795,
+              "mean_patient_p90_absolute_error": 83.73732782999676,
+              "mean_patient_p95_absolute_error": 94.04539955986871,
+              "mean_patient_p99_absolute_error": 111.08496314437299,
+              "mean_patient_fraction_error_gt40": 0.6488584930629818,
+              "mean_patient_fraction_error_gt60": 0.37455666365519497
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 114,
+              "mean_patient_mae": 56.27015399055315,
+              "mean_patient_rmse": 57.59164468312659,
+              "mean_patient_bias": 56.27015399055315,
+              "mean_patient_p90_absolute_error": 68.73569598727757,
+              "mean_patient_p95_absolute_error": 71.13928498162164,
+              "mean_patient_p99_absolute_error": 73.6735742272271,
+              "mean_patient_fraction_error_gt40": 0.8213480561306649,
+              "mean_patient_fraction_error_gt60": 0.34060846560846564
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "xgb_delta_huber": {
+          "rows": 68722,
+          "mae": 17.608037505312623,
+          "rmse": 27.351156688559374,
+          "mean_patient_mae": 17.60412063276765,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68722,
+              "mean_patient_mae": 17.60412063276765,
+              "mean_patient_rmse": 25.847946969470765,
+              "mean_patient_bias": -5.260238584451666,
+              "mean_patient_p90_absolute_error": 41.98824154889144,
+              "mean_patient_p95_absolute_error": 56.69184347082066,
+              "mean_patient_p99_absolute_error": 88.71723972461847,
+              "mean_patient_fraction_error_gt40": 0.11163144443004326,
+              "mean_patient_fraction_error_gt60": 0.05101976326366236
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9846,
+              "mean_patient_mae": 54.70264308550359,
+              "mean_patient_rmse": 61.59678108526787,
+              "mean_patient_bias": -53.30840185706266,
+              "mean_patient_p90_absolute_error": 89.65242871884946,
+              "mean_patient_p95_absolute_error": 100.45170500013562,
+              "mean_patient_p99_absolute_error": 117.36493677209921,
+              "mean_patient_fraction_error_gt40": 0.6743584244612048,
+              "mean_patient_fraction_error_gt60": 0.4405348584932876
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 114,
+              "mean_patient_mae": 52.55860208674138,
+              "mean_patient_rmse": 53.792809743335916,
+              "mean_patient_bias": 52.55860208674138,
+              "mean_patient_p90_absolute_error": 64.46493292914496,
+              "mean_patient_p95_absolute_error": 67.31537810431587,
+              "mean_patient_p99_absolute_error": 68.94223611619736,
+              "mean_patient_fraction_error_gt40": 0.7199390384172992,
+              "mean_patient_fraction_error_gt60": 0.2724867724867725
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "persistence": {
+          "rows": 68722,
+          "mae": 19.973749308809406,
+          "rmse": 30.707835942406724,
+          "mean_patient_mae": 19.976011531500724,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68722,
+              "mean_patient_mae": 19.976011531500724,
+              "mean_patient_rmse": 29.508904672911083,
+              "mean_patient_bias": 0.12222893194906942,
+              "mean_patient_p90_absolute_error": 49.97407407407408,
+              "mean_patient_p95_absolute_error": 66.09999999999998,
+              "mean_patient_p99_absolute_error": 96.96148148148151,
+              "mean_patient_fraction_error_gt40": 0.14549123244125428,
+              "mean_patient_fraction_error_gt60": 0.06848684043616564
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9846,
+              "mean_patient_mae": 53.70684889197079,
+              "mean_patient_rmse": 62.540668768587956,
+              "mean_patient_bias": -42.19435427491912,
+              "mean_patient_p90_absolute_error": 93.82962962962964,
+              "mean_patient_p95_absolute_error": 105.24999999999999,
+              "mean_patient_p99_absolute_error": 122.18629629629628,
+              "mean_patient_fraction_error_gt40": 0.6123081480582724,
+              "mean_patient_fraction_error_gt60": 0.4243358446680493
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 114,
+              "mean_patient_mae": 55.4961467678859,
+              "mean_patient_rmse": 59.348236349415096,
+              "mean_patient_bias": 55.40711985277202,
+              "mean_patient_p90_absolute_error": 75.53333333333333,
+              "mean_patient_p95_absolute_error": 79.8111111111111,
+              "mean_patient_p99_absolute_error": 81.50666666666666,
+              "mean_patient_fraction_error_gt40": 0.660858063031976,
+              "mean_patient_fraction_error_gt60": 0.3974867724867725
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        },
+        "selected": {
+          "rows": 68722,
+          "mae": 17.965243596905054,
+          "rmse": 26.40324908964533,
+          "mean_patient_mae": 17.965747309322214,
+          "patient_macro_slices": {
+            "all": {
+              "patients_with_rows": 27,
+              "rows": 68722,
+              "mean_patient_mae": 17.965747309322214,
+              "mean_patient_rmse": 25.50568280159791,
+              "mean_patient_bias": -1.1215801229638858,
+              "mean_patient_p90_absolute_error": 41.27290759060928,
+              "mean_patient_p95_absolute_error": 55.436602098778714,
+              "mean_patient_p99_absolute_error": 84.51109178438325,
+              "mean_patient_fraction_error_gt40": 0.10582531139527711,
+              "mean_patient_fraction_error_gt60": 0.04337790584994303
+            },
+            "high": {
+              "patients_with_rows": 27,
+              "rows": 9846,
+              "mean_patient_mae": 49.679855181509794,
+              "mean_patient_rmse": 56.66378229394172,
+              "mean_patient_bias": -47.44671467074487,
+              "mean_patient_p90_absolute_error": 84.31569146090841,
+              "mean_patient_p95_absolute_error": 93.85473614285645,
+              "mean_patient_p99_absolute_error": 110.93437348176514,
+              "mean_patient_fraction_error_gt40": 0.6053648044525987,
+              "mean_patient_fraction_error_gt60": 0.35869168040718863
+            },
+            "low": {
+              "patients_with_rows": 9,
+              "rows": 114,
+              "mean_patient_mae": 52.209099346790865,
+              "mean_patient_rmse": 54.91556633762476,
+              "mean_patient_bias": 52.12894503836013,
+              "mean_patient_p90_absolute_error": 68.42635176704464,
+              "mean_patient_p95_absolute_error": 71.9869944010482,
+              "mean_patient_p99_absolute_error": 73.4210471029856,
+              "mean_patient_fraction_error_gt40": 0.6577582240625719,
+              "mean_patient_fraction_error_gt60": 0.3476190476190476
+            }
+          },
+          "tail_interpretation": "mean of patient quantiles, not a pooled row quantile"
+        }
+      },
+      "folds": [
+        {
+          "fold": 1,
+          "selected": "ridge_original",
+          "tuning_patient_mae": {
+            "ridge_original": 19.938602226709556,
+            "xgb_delta_extended": 24.377433284776117,
+            "xgb_delta_squared": 25.664364758976774,
+            "xgb_delta_huber": 24.243830383879214
+          },
+          "tuning_guardrails": {
+            "ridge_original": {
+              "meets_guardrails": false,
+              "reasons": [
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_extended": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_squared": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_huber": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            }
+          }
+        },
+        {
+          "fold": 2,
+          "selected": "ridge_original",
+          "tuning_patient_mae": {
+            "ridge_original": 17.725625899991826,
+            "xgb_delta_extended": 16.44412427244756,
+            "xgb_delta_squared": 17.001587240845975,
+            "xgb_delta_huber": 16.287427731034942
+          },
+          "tuning_guardrails": {
+            "ridge_original": {
+              "meets_guardrails": false,
+              "reasons": [
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_extended": {
+              "meets_guardrails": false,
+              "reasons": [
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_squared": {
+              "meets_guardrails": false,
+              "reasons": [
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_huber": {
+              "meets_guardrails": false,
+              "reasons": [
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            }
+          }
+        },
+        {
+          "fold": 3,
+          "selected": "ridge_original",
+          "tuning_patient_mae": {
+            "ridge_original": 20.79813372258023,
+            "xgb_delta_extended": 19.949323458290028,
+            "xgb_delta_squared": 21.06975050497201,
+            "xgb_delta_huber": 20.140409739369566
+          },
+          "tuning_guardrails": {
+            "ridge_original": {
+              "meets_guardrails": false,
+              "reasons": [
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_extended": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_squared": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            },
+            "xgb_delta_huber": {
+              "meets_guardrails": false,
+              "reasons": [
+                "all rmse worsened",
+                "all p90_absolute_error worsened",
+                "high mae worsened",
+                "low insufficient tuning support"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "runtime_seconds": 37.511226600036025
+}

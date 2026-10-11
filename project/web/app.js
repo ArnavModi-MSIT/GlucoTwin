@@ -51,11 +51,11 @@ const evidence=$('evidence');evidence.replaceChildren();
 const statements=cohort==='rbg'?[
 'Active replay: profile-fused Ridge. Development split: 158 training patients, 34 validation, 34 reserved test. Row-weighted validation MAE: 17.59 mg/dL at 30 minutes and 28.89 at 60 minutes; persistence: 20.71 / 32.53. Reserved test patients have not been scored.',
 'Low-target validation MAE worsened: Ridge 20.26 / 44.26 mg/dL at 30 / 60 minutes versus persistence 19.76 / 36.98. Enrollment age and recorded sex added essentially no accuracy gain. No meal or insulin-dose inputs.',
-'Separate historical RBG logistic event backtest on 17 development patients: 78.1% recall (4,752 / 6,081 evaluable high-event episodes), conservative precision lower bound 32.4%, 15-minute median lead and 3.58 false alarms per eligible monitoring day. Endpoint gates failed; low-event detection was poor. These are not event outputs from this replay\'s Ridge model. Operational alerts and risk percentages remain disabled.'
+'RBG provides numerical forecasts only. Event research is available in the separate CGMacros panel. Operational alerts and risk percentages remain disabled.'
 ]:[
 'Active replay: clinical-profile + CGM + heart-rate Ridge. Development split: 21 training patients, six validation, six reserved test. Row-weighted 60-minute validation MAE: 19.00 mg/dL; persistence: 19.99. Reserved test patients have not been scored. Individual errors can be much larger.',
 'Low-target validation MAE worsened: Ridge 38.80 mg/dL versus persistence 20.26, based on only 39 target rows. Forecast targets overlap; these rows are not independent patient samples.',
-'CGM samples are reconstructed from interpolated source data, and clinical-profile availability is assumed. The separate logistic event-risk classifier failed its development probability-calibration gate; event probabilities remain disabled. Point forecasts use Ridge. No diagnosis, treatment or insulin dosing.'
+'CGM samples are reconstructed from interpolated source data, and clinical-profile availability is assumed. Numerical forecasts use Ridge; the separate event panel uses saved fused XGBoost models. Event scores are uncalibrated. No diagnosis, treatment or insulin dosing.'
 ];
 for(const statement of statements){const p=document.createElement('p');p.textContent=statement;evidence.append(p);}renderEvents(s);drawChart();
 }

@@ -1,5 +1,0 @@
-# Optional CPU neural research environment, separate from the dashboard.
-# Installation source: https://pytorch.org/get-started/previous-versions/
---extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.9.1+cpu
--r requirements-experiments.txt

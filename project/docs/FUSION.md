@@ -15,9 +15,9 @@ RBG receives only sensor measurements through issue time minus five minutes.
 Each issued forecast reports its exact `model_inputs` in the API.
 
 The RBG replay loads existing `ridge_cgm_profile` models trained on the original
-158 training patients. `replay_selected` identifies this demonstration choice;
-the original `selected` benchmark and aggregate results remain unchanged. No
-new fitting or reserved-test scoring is required by this change.
+158 training patients. The selection configuration identifies this active
+profile-fused model. No new fitting or reserved-test scoring is performed
+during replay.
 
 Fusion is an implementation fact, not evidence of useful clinical gain.
 RBG age/sex produced essentially no average improvement and slightly worsened

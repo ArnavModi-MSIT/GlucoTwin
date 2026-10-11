@@ -14,35 +14,21 @@ SETTINGS={'minimum_evaluable_episodes':30,'minimum_patients_with_evaluable_episo
           'episode_recall':.6,'precision_lower_bound':.5,'maximum_false_alarms_per_eligible_day':1.,'minimum_median_lead_minutes':10}
 
 class EventStudyTests(unittest.TestCase):
-    def test_feature_arms_have_matched_clock_and_independent_selection(self):
-        columns=['cgm_current','clock_sin','age','hr_mean_15m']
-        arms=run_event_study.matched_feature_arms(columns)
-        self.assertIn('clock_sin',arms['cgm_only']);self.assertIn('clock_sin',arms['fused'])
-        self.assertNotIn('age',arms['cgm_only']);self.assertNotIn('hr_mean_15m',arms['cgm_only'])
-        with patch.object(run_event_study,'inner_select',return_value=('candidate',{})) as select:
-            result=run_event_study.select_feature_arms({},[1,2],{},arms,['candidate'],{})
-        self.assertEqual(set(result),set(arms));self.assertEqual(select.call_count,4)
-        self.assertEqual([call.args[3] for call in select.call_args_list],list(arms.values()))
-        self.assertTrue(all(call.args[1]==[1,2] for call in select.call_args_list))
-
-    def test_episode_selection_separates_all_inner_roles(self):
-        ids=list(range(15)); bands={p:str(p//5) for p in ids}; records={p:{} for p in ids}
+    def test_inner_selection_keeps_patient_roles_separate(self):
+        ids=list(range(15));bands={p:str(p//5) for p in ids}
+        records={p:{'known':np.array([True,True]),'y':np.array([0,1])} for p in ids}
         seen=[]
-        def fake_fit(records, patients, columns, name):
-            seen.append({'fit':set(patients)}); return object()
-        def fake_predict(model, records, patients, columns):
-            return {p:np.array([.5]) for p in patients}
-        def fake_threshold(subset, scores, settings, quantiles):
-            seen[-1]['threshold']=set(subset); return .5,{},False
-        def fake_assess(subset, scores, cutoff):
-            seen[-1]['evaluation']=set(subset); return []
-        with patch.object(run_event_study,'fit',side_effect=fake_fit), patch.object(run_event_study,'predict',side_effect=fake_predict), patch.object(run_event_study,'choose_event_threshold',side_effect=fake_threshold), patch.object(run_event_study,'assess_scores',side_effect=fake_assess), patch.object(run_event_study,'summarize',return_value={'episode_recall':.5,'precision_lower_bound':.5,'false_per_eligible_day':.5}):
-            chosen,_=run_event_study.inner_select(records,ids,bands,[],['candidate'],{'seed':2026,'episode_selection':True,'engineering_gate':SETTINGS,'threshold_quantiles':11})
-        self.assertEqual(chosen,'candidate'); self.assertEqual(len(seen),3)
+        def fit(records,patients,columns,name):
+            seen.append({'fit':set(patients)});return object()
+        def predict(model,records,patients,columns):
+            seen[-1]['validation']=set(patients)
+            return {p:np.array([.1,.9]) for p in patients}
+        with patch.object(run_event_study,'fit',side_effect=fit),patch.object(run_event_study,'predict',side_effect=predict):
+            chosen,_=run_event_study.inner_select(records,ids,bands,[],['xgb_600_d3'])
+        self.assertEqual(chosen,'xgb_600_d3');self.assertEqual(len(seen),3)
         for role in seen:
-            a,b,c=role['fit'],role['threshold'],role['evaluation']
-            self.assertFalse(a&b or a&c or b&c)
-            self.assertEqual(a|b|c,set(ids)); self.assertEqual(len(b),3)
+            self.assertFalse(role['fit']&role['validation'])
+            self.assertEqual(role['fit']|role['validation'],set(ids))
 
     def test_empty_threshold_support_fails_explicitly(self):
         with self.assertRaisesRegex(ValueError,'No threshold-setting'):

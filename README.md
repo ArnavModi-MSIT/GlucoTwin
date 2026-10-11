@@ -42,11 +42,7 @@ The separate CGMacros event study detected **229/336 episodes (68.2% recall)**,
 with **52.8% conservative precision**, **0.98 false alarms per eligible day** and a
 **10-minute median lead**. Recall requiring at least ten minutes warning was
 **36.6%**. Cutoff-setting folds did not consistently pass; see the
-[event results](project/reports/EVENT_STUDY_GPU_V2.md).
-
-An [offline DCLP3 study](project/docs/DCLP3_STUDY_V2.md) achieved CGM-only XGBoost
-participant MAE of **17.53/27.47 mg/dL** at 30/60 minutes across 134 development
-participants. It is separate from the dashboard models.
+[current results](project/docs/RESULTS.md).
 
 **Research use only.** Low-glucose errors remain a weakness, and useful clinical
 fusion gains are not established. Reserved-test performance remains unscored.
@@ -86,10 +82,9 @@ prepared local-data and artifact checks.
 - [Architecture (PDF)](project/docs/delivery/GlucoTwin_Architecture.pdf)
 - [Presentation (PPTX)](project/docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](project/docs/delivery/GlucoTwin_Presentation.pdf)
 - [API](project/docs/API.md) · [Data contract](project/DATA_CONTRACT.md) · [Evaluation protocol](project/EVALUATION_PROTOCOL.md)
-- [Experiment history](project/docs/SCORE_IMPROVEMENT.md) · [Verification](project/docs/BUILD_TEST_REPORT.md)
+- [Model results](project/docs/RESULTS.md) · [Model preparation](project/docs/REPRODUCTION.md)
 
-Demonstration video preparation is deferred; remaining deliverables are tracked
-in [delivery readiness](project/docs/DELIVERY_READINESS.md).
+Demonstration video preparation is deferred.
 
 ## Team
 

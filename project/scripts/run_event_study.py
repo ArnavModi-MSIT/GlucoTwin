@@ -7,27 +7,13 @@ import numpy as np,pandas as pd,joblib,sklearn,psutil
 from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import HistGradientBoostingClassifier,ExtraTreesClassifier
 from sklearn.metrics import average_precision_score
 from threadpoolctl import threadpool_limits
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
 from glucotwin.features import make_features,profile_features
 from glucotwin.episodes import onsets
 from glucotwin.event_study import onset_labels,summarize,gate,assess_scores,choose_event_threshold
-from glucotwin.research_features import extend_history
 DEVICE='cpu'
-
-def matched_feature_arms(columns):
-    """Clinical ablations share all available CGM and clock inputs."""
-    sensor=[c for c in columns if c.startswith(('cgm_','clock_'))]
-    clinical=[c for c in columns if c in ('age','gender_f','bmi','hba1c_pct','fasting_glucose')]
-    heart=[c for c in columns if c.startswith('hr_')]
-    return {'cgm_only':sensor,'cgm_clinical':sensor+clinical,'cgm_hr':sensor+heart,'fused':sensor+clinical+heart}
-
-def select_feature_arms(records,ids,bands,arms,names,protocol):
-    return {name:inner_select(records,ids,bands,columns,names,protocol) for name,columns in arms.items()}
 
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -49,24 +35,14 @@ def freeze_roles(manifest,protocol):
     return entries,roles
 
 def model_for(name):
-    if name.startswith('xgb_'):
-        from xgboost import XGBClassifier
-        parts=name.split('_');trees=int(parts[1]);depth=int(parts[2][1:])
-        classifier=XGBClassifier(n_estimators=trees,max_depth=depth,learning_rate=.03,
-            min_child_weight=10,subsample=.8,colsample_bytree=.8,reg_lambda=10.,
-            tree_method='hist',device=DEVICE,objective='binary:logistic',eval_metric='logloss',
-            n_jobs=8,random_state=2026)
-    elif name.startswith('logistic'):
-        classifier=LogisticRegression(C=.1 if name=='logistic_c01' else 1.,max_iter=2000,random_state=2026)
-    elif name=='extra_trees_400':
-        classifier=ExtraTreesClassifier(n_estimators=400,min_samples_leaf=20,max_features=.8,n_jobs=8,random_state=2026)
-    else:
-        classifier=HistGradientBoostingClassifier(max_iter=200 if name=='hist_200_15' else 400,
-            max_leaf_nodes=31 if name=='hist_400_31' else 15,min_samples_leaf=40,
-            learning_rate=.04,l2_regularization=10.,early_stopping=False,random_state=2026)
-    steps=[('imputer',SimpleImputer(strategy='median',add_indicator=True,keep_empty_features=True))]
-    if name.startswith('logistic'):steps.append(('scale',StandardScaler()))
-    return Pipeline(steps+[('classifier',classifier)])
+    from xgboost import XGBClassifier
+    parts=name.split('_');trees=int(parts[1]);depth=int(parts[2][1:])
+    classifier=XGBClassifier(n_estimators=trees,max_depth=depth,learning_rate=.03,
+        min_child_weight=10,subsample=.8,colsample_bytree=.8,reg_lambda=10.,
+        tree_method='hist',device=DEVICE,objective='binary:logistic',eval_metric='logloss',
+        n_jobs=8,random_state=2026)
+    return Pipeline([('imputer',SimpleImputer(strategy='median',add_indicator=True,keep_empty_features=True)),
+                     ('classifier',classifier)])
 
 def matrix(records,ids,columns):
     parts=[];ys=[];groups=[]
@@ -92,41 +68,25 @@ def predict(model,records,ids,columns):
     with threadpool_limits(limits=8):
         return {pid:model.predict_proba(records[pid]['X'][columns])[:,1] if len(records[pid]['X']) else np.empty(0) for pid in ids}
 
-def inner_select(records,ids,bands,columns,names,protocol=None):
+def inner_select(records,ids,bands,columns,names):
     splits=list(StratifiedKFold(3,shuffle=True,random_state=2026).split(ids,[bands[p] for p in ids]))
     results={}
     for name in names:
         aps=[]
         for training,validation in splits:
             fit_ids=[ids[i] for i in training];val_ids=[ids[i] for i in validation]
-            threshold_ids=[]
-            if protocol and protocol.get('episode_selection'):
-                rng=np.random.default_rng(protocol['seed'])
-                for band in sorted(set(bands[p] for p in fit_ids)):
-                    threshold_ids.append(int(rng.choice([p for p in fit_ids if bands[p]==band])))
-                fit_ids=[p for p in fit_ids if p not in threshold_ids]
             model=fit(records,fit_ids,columns,name);scores=predict(model,records,val_ids,columns)
-            if threshold_ids:
-                tuning_scores=predict(model,records,threshold_ids,columns)
-                cutoff,_,_=choose_event_threshold({p:records[p] for p in threshold_ids},tuning_scores,protocol['engineering_gate'],protocol['threshold_quantiles'])
-                result=summarize(assess_scores({p:records[p] for p in val_ids},scores,cutoff))
-                recall=result['episode_recall'] or 0.;precision=result['precision_lower_bound']
-                f1=2*recall*precision/(recall+precision) if recall+precision else 0.
-                # Fixed penalty aligns selection with false-alarm burden; no outer labels.
-                aps.append(f1 / max(1., result['false_per_eligible_day'] or 0.))
-                continue
             labels=np.concatenate([records[p]['y'][records[p]['known']] for p in val_ids])
             values=np.concatenate([scores[p][records[p]['known']] for p in val_ids])
             aps.append(float(average_precision_score(labels,values)) if labels.sum() else 0.)
-        metric='episode_f1_false_alarm_penalized' if protocol and protocol.get('episode_selection') else 'average_precision'
-        results[name]={'mean_'+metric:float(np.mean(aps)),'fold_'+metric:aps}
+        results[name]={'mean_average_precision':float(np.mean(aps)),'fold_average_precision':aps}
         print('  inner',name,round(float(np.mean(aps)),4),flush=True)
-    # Candidate order is the deterministic tie break; outer evaluation is unseen.
-    chosen=max(names,key=lambda name:results[name]['mean_'+metric])
+    chosen=max(names,key=lambda name:results[name]['mean_average_precision'])
     return chosen,results
 
-def run(study='v1',device='cpu'):
+def run(study='gpu_v2',device='cpu'):
     global DEVICE
+    if study!='gpu_v2':raise ValueError('Only the active XGBoost protocol is supported')
     DEVICE=device
     if device=='cuda' and study!='gpu_v2':raise ValueError('CUDA is supported only for the XGBoost study')
     output_name='event_study_'+study
@@ -134,7 +94,7 @@ def run(study='v1',device='cpu'):
     protocol=json.loads(protocol_path.read_text());protocol_hash=sha(protocol_path)
     if device=='cuda' and not all(name.startswith('xgb_') for name in protocol['candidate_names']):
         raise ValueError('CUDA study requires XGBoost candidates')
-    if study in ('gpu_v2','methods_v3','fair_v4'):
+    if study=='gpu_v2':
         import xgboost
         if xgboost.__version__!=protocol['xgboost_version']:raise RuntimeError('Install the pinned experiment requirements first')
     manifest_path=ROOT/'configs/cgmacros_splits.json';manifest=json.loads(manifest_path.read_text())
@@ -150,7 +110,6 @@ def run(study='v1',device='cpu'):
         pid=patient['patient_id'];path=source/f'CGMacros-{pid:03d}/CGMacros-{pid:03d}.csv'
         hashes[str(pid)]=sha(path);frame=pd.read_csv(path)
         features=make_features(frame,profile_features(bio.loc[pid]),patient['phase_utc_minutes_mod_5'])
-        if protocol.get('extended_history'):features=extend_history(features)
         glucose=features.cgm_current.copy()
         eligible=features.history_eligible & (features.cgm_current<=180) & (features.index>=pd.Timestamp(patient['minimum_forecast_time']))
         X=features.loc[eligible].drop(columns='history_eligible').copy()
@@ -165,20 +124,18 @@ def run(study='v1',device='cpu'):
     def monitor():
         while not stop.wait(.1):rss.append(psutil.Process().memory_info().rss)
     thread=threading.Thread(target=monitor,daemon=True);thread.start()
-    arms=matched_feature_arms(columns) if protocol.get('independent_feature_selection') else {'fused':columns,'cgm_only':cgm}
+    arms={'fused':columns,'cgm_only':cgm}
     output_rows={name:[] for name in list(arms)+['slope_rule']};fold_reports=[]
     artifacts=ROOT/'artifacts';artifacts.mkdir(exist_ok=True)
     for fold,role in enumerate(roles):
         print('OUTER FOLD',fold+1,'fit',len(role['fit']),'threshold',len(role['threshold']),'evaluation',len(role['evaluation']),flush=True)
-        arm_selections=select_feature_arms(records,role['fit'],bands,arms,protocol['candidate_names'],protocol) if protocol.get('independent_feature_selection') else None
-        if arm_selections:chosen,selection=arm_selections['fused']
-        else:chosen,selection=inner_select(records,role['fit'],bands,columns,protocol['candidate_names'],protocol)
+        chosen,selection=inner_select(records,role['fit'],bands,columns,protocol['candidate_names'])
         report={'fold':fold+1,'selected_candidate':chosen,'inner_selection':selection,'methods':{}}
         for method,used in list(arms.items())+[('slope_rule',cgm)]:
             if method=='slope_rule':
                 model=None;scores={pid:(r['X'].cgm_current+30*r['X'].cgm_slope_30m.fillna(0)).to_numpy() for pid,r in records.items() if pid in role['threshold']+role['evaluation']}
             else:
-                method_candidate=arm_selections[method][0] if arm_selections else chosen
+                method_candidate=chosen
                 model=fit(records,role['fit'],used,method_candidate);scores=predict(model,records,role['threshold']+role['evaluation'],used)
             threshold_records={p:records[p] for p in role['threshold']}
             threshold_scores={p:scores[p] for p in role['threshold']}
@@ -192,8 +149,6 @@ def run(study='v1',device='cpu'):
             report['methods'][method].update(cutoff_operating_criteria_met_with_support_waived=tuning_pass,
                 cutoff_full_support_gate_met=gate(tuning,protocol['engineering_gate'],True),
                 cutoff_patients=len(role['threshold']))
-            if arm_selections and method!='slope_rule':
-                report['methods'][method].update(selected_candidate=arm_selections[method][0],inner_selection=arm_selections[method][1])
             print(' ',method,'threshold',round(threshold,4),'recall',report['methods'][method]['outer_evaluation']['episode_recall'],'precision',report['methods'][method]['outer_evaluation']['precision_lower_bound'],flush=True)
         fold_reports.append(report)
     stop.set();thread.join()
@@ -212,7 +167,7 @@ def run(study='v1',device='cpu'):
         'versions':{'python':sys.version.split()[0],'numpy':np.__version__,'pandas':pd.__version__,'sklearn':sklearn.__version__},
         'limitations':['Development patients previously inspected in earlier studies','Reconstructed sensor grid and assumed clinical availability','Patient count remains small','Unknown alarms lower precision bound','No calibration or medical validation']}
     if device=='cuda':study['gpu_execution_verified']=True
-    if study['version'].endswith(('gpu-v2','methods-v3','fair-v4')):
+    if study['version'].endswith('gpu-v2'):
         import xgboost
         study['versions']['xgboost']=xgboost.__version__
     (ROOT/'reports'/f'{output_name}.json').write_text(json.dumps(study,indent=2,allow_nan=False),encoding='utf-8')
@@ -221,5 +176,5 @@ def run(study='v1',device='cpu'):
     print('COMPLETE',json.dumps({'pooled':pooled,'gates':checks,'seconds':study['runtime_seconds'],'peak_rss_mib':study['sampled_peak_rss_mib']},indent=2),flush=True)
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--study',choices=['v1','gpu_v2','methods_v3','fair_v4'],default='v1');parser.add_argument('--device',choices=['cpu','cuda'],default='cpu');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--study',choices=['gpu_v2'],default='gpu_v2');parser.add_argument('--device',choices=['cpu','cuda'],default='cpu');args=parser.parse_args()
     run(args.study,args.device)

@@ -35,16 +35,16 @@ Mean absolute error (MAE), in mg/dL; lower is better:
 | RBG | 60 min | 32.53 | 28.89 |
 
 RBG values describe the original CGM-only benchmark; profile-fused replay has
-the same rounded MAEs. See [fusion details](docs/FUSION.md). Cohorts and
+the same rounded MAEs. See [fusion details](project/docs/FUSION.md). Cohorts and
 protocols differ, so these rows are not a controlled dataset comparison.
 
 The separate CGMacros event study detected **229/336 episodes (68.2% recall)**,
 with **52.8% conservative precision**, **0.98 false alarms per eligible day** and a
 **10-minute median lead**. Recall requiring at least ten minutes warning was
 **36.6%**. Cutoff-setting folds did not consistently pass; see the
-[event results](reports/EVENT_STUDY_GPU_V2.md).
+[event results](project/reports/EVENT_STUDY_GPU_V2.md).
 
-An [offline DCLP3 study](docs/DCLP3_STUDY_V2.md) achieved CGM-only XGBoost
+An [offline DCLP3 study](project/docs/DCLP3_STUDY_V2.md) achieved CGM-only XGBoost
 participant MAE of **17.53/27.47 mg/dL** at 30/60 minutes across 134 development
 participants. It is separate from the dashboard models.
 
@@ -56,7 +56,7 @@ Operational alerts, calibrated risk probabilities and treatment advice are disab
 
 Requires Python 3.10+, locally prepared datasets and trusted model artifacts.
 Data and models are excluded from Git; follow the
-[reproduction guide](docs/REPRODUCTION.md) before launching.
+[reproduction guide](project/docs/REPRODUCTION.md) before launching.
 
 From the repository root:
 
@@ -68,9 +68,9 @@ python -m venv .venv
 ```
 
 After preparation, Windows users can double-click
-[StartGlucoTwin.cmd](../StartGlucoTwin.cmd) to open `http://127.0.0.1:8000`.
+[StartGlucoTwin.cmd](StartGlucoTwin.cmd) to open `http://127.0.0.1:8000`.
 Press **Ctrl+C** in the server window to stop it. Optional event-model setup is
-documented in [event replay](docs/EVENT_REPLAY.md).
+documented in [event replay](project/docs/EVENT_REPLAY.md).
 
 Run tests from `project/`:
 
@@ -83,13 +83,13 @@ prepared local-data and artifact checks.
 
 ## Documentation
 
-- [Architecture (PDF)](docs/delivery/GlucoTwin_Architecture.pdf)
-- [Presentation (PPTX)](docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](docs/delivery/GlucoTwin_Presentation.pdf)
-- [API](docs/API.md) · [Data contract](DATA_CONTRACT.md) · [Evaluation protocol](EVALUATION_PROTOCOL.md)
-- [Experiment history](docs/SCORE_IMPROVEMENT.md) · [Verification](docs/BUILD_TEST_REPORT.md)
+- [Architecture (PDF)](project/docs/delivery/GlucoTwin_Architecture.pdf)
+- [Presentation (PPTX)](project/docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](project/docs/delivery/GlucoTwin_Presentation.pdf)
+- [API](project/docs/API.md) · [Data contract](project/DATA_CONTRACT.md) · [Evaluation protocol](project/EVALUATION_PROTOCOL.md)
+- [Experiment history](project/docs/SCORE_IMPROVEMENT.md) · [Verification](project/docs/BUILD_TEST_REPORT.md)
 
 Demonstration video preparation is deferred; remaining deliverables are tracked
-in [delivery readiness](docs/DELIVERY_READINESS.md).
+in [delivery readiness](project/docs/DELIVERY_READINESS.md).
 
 ## Team
 
@@ -103,7 +103,7 @@ in [delivery readiness](docs/DELIVERY_READINESS.md).
 
 ## License and data
 
-Original code is licensed under [MIT](LICENSE). Datasets and dependencies retain
+Original code is licensed under [MIT](project/LICENSE). Datasets and dependencies retain
 their own terms: [CGMacros](https://physionet.org/content/cgmacros/1.0.0/) uses
 CC BY-NC-SA 4.0; [DiaData v3](https://zenodo.org/records/17285631) uses CC BY-NC 4.0
 with original-source attribution. Raw records and model binaries stay local.

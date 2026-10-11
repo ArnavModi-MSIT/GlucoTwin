@@ -37,7 +37,7 @@ Separate DCLP3 numerical evidence: 134 development patients, four patient-disjoi
 
 | Item | Location / status |
 |---|---|
-| Project title, problem, healthcare use case, stack and models | [README](../README.md) |
+| Project title, problem, healthcare use case, stack and models | [README](../../README.md) |
 | Architecture in PDF | [Architecture](delivery/GlucoTwin_Architecture.pdf) |
 | Project presentation | [Editable deck](delivery/GlucoTwin_Presentation.pptx), [PDF deck](delivery/GlucoTwin_Presentation.pdf) |
 | Demonstration video | Deferred at the team's request; remains a requirement for final delivery |

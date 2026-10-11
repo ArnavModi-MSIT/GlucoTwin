@@ -23,7 +23,7 @@ if not errorlevel 1 (
     set "GLUCOTWIN_PYTHON=python"
     goto run_python
 )
-echo Python was not found. Install Python 3.10 or later, then follow project\README.md.
+echo Python was not found. Install Python 3.10 or later, then follow the repository README.md.
 goto failed
 
 :run_py

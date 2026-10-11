@@ -1,6 +1,7 @@
 # Publish the launcher and reviewed project files; other local files stay private.
 /*
 !/.gitignore
+!/README.md
 !/StartGlucoTwin.cmd
 !/.github/
 /.github/*
@@ -12,7 +13,6 @@
 !/project/DATA_CONTRACT.md
 !/project/EVALUATION_PROTOCOL.md
 !/project/LICENSE
-!/project/README.md
 !/project/docs/
 !/project/download_cgmacros.py
 !/project/notebooks/

@@ -64,3 +64,7 @@ The retained [aggregate model report](../reports/event_study_gpu_v2.json) also
 supplies cutoffs and fingerprints needed to verify the saved runtime models.
 Scores are uncalibrated ranking values. Clinical alerts, risk percentages and
 treatment advice remain disabled. See [event replay behavior](EVENT_REPLAY.md).
+
+The [cutoff-patient error audit](HIGH_EVENT_AUDIT.md) reproduces the saved cutoff
+counts and diagnoses false alarms and misses without changing this model or its
+reported validation results.

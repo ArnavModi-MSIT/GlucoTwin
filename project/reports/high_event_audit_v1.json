@@ -1,0 +1,157 @@
+{
+  "version": "high-event-cutoff-audit-v1",
+  "scope": "Cutoff patients only; no fitting, cutoff changes, outer-evaluation scoring or reserved sensor reads.",
+  "unique_patients": 8,
+  "patient_fold_exposures": 9,
+  "folds": [
+    {
+      "fold": 1,
+      "cutoff_patients": 3,
+      "metrics": {
+        "qualifying_episodes": 56,
+        "evaluable_episodes": 51,
+        "detected_episodes": 31,
+        "alarms": 46,
+        "false_alarms": 15,
+        "unknown_alarms": 0,
+        "redundant_alarms": 0,
+        "eligible_monitoring_days": 15.67013888888889,
+        "episode_recall": 0.6078431372549019,
+        "precision_lower_bound": 0.6739130434782609,
+        "false_per_eligible_day": 0.9572346554398404,
+        "median_lead_minutes": 10.0,
+        "patients_with_evaluable_episodes": 3
+      },
+      "alarm_categories": {
+        "false_no_high_reading_in_window": 10,
+        "matched": 31,
+        "false_before_later_onset": 2,
+        "false_high_readings_without_qualifying_onset": 3
+      },
+      "episode_categories": {
+        "detected": 31,
+        "missed_below_cutoff": 19,
+        "missed_with_cutoff_crossing_during_cooldown": 1,
+        "no_eligible_opportunity": 5
+      }
+    },
+    {
+      "fold": 2,
+      "cutoff_patients": 3,
+      "metrics": {
+        "qualifying_episodes": 49,
+        "evaluable_episodes": 44,
+        "detected_episodes": 24,
+        "alarms": 37,
+        "false_alarms": 12,
+        "unknown_alarms": 1,
+        "redundant_alarms": 0,
+        "eligible_monitoring_days": 22.84375,
+        "episode_recall": 0.5454545454545454,
+        "precision_lower_bound": 0.6486486486486487,
+        "false_per_eligible_day": 0.5253077975376197,
+        "median_lead_minutes": 5.0,
+        "patients_with_evaluable_episodes": 3
+      },
+      "alarm_categories": {
+        "matched": 24,
+        "false_high_readings_without_qualifying_onset": 4,
+        "false_no_high_reading_in_window": 8,
+        "unknown": 1
+      },
+      "episode_categories": {
+        "missed_below_cutoff": 20,
+        "detected": 24,
+        "no_eligible_opportunity": 5
+      }
+    },
+    {
+      "fold": 3,
+      "cutoff_patients": 3,
+      "metrics": {
+        "qualifying_episodes": 53,
+        "evaluable_episodes": 48,
+        "detected_episodes": 34,
+        "alarms": 54,
+        "false_alarms": 20,
+        "unknown_alarms": 0,
+        "redundant_alarms": 0,
+        "eligible_monitoring_days": 21.28472222222222,
+        "episode_recall": 0.7083333333333334,
+        "precision_lower_bound": 0.6296296296296297,
+        "false_per_eligible_day": 0.9396411092985318,
+        "median_lead_minutes": 5.0,
+        "patients_with_evaluable_episodes": 3
+      },
+      "alarm_categories": {
+        "matched": 34,
+        "false_no_high_reading_in_window": 13,
+        "false_high_readings_without_qualifying_onset": 6,
+        "false_before_later_onset": 1
+      },
+      "episode_categories": {
+        "detected": 34,
+        "missed_below_cutoff": 13,
+        "no_eligible_opportunity": 5,
+        "missed_with_cutoff_crossing_during_cooldown": 1
+      }
+    }
+  ],
+  "pooled_exposures": {
+    "qualifying_episodes": 158,
+    "evaluable_episodes": 143,
+    "detected_episodes": 89,
+    "alarms": 137,
+    "false_alarms": 47,
+    "unknown_alarms": 1,
+    "redundant_alarms": 0,
+    "eligible_monitoring_days": 59.79861111111111,
+    "episode_recall": 0.6223776223776224,
+    "precision_lower_bound": 0.6496350364963503,
+    "false_per_eligible_day": 0.7859714318894437,
+    "median_lead_minutes": 5.0,
+    "patients_with_evaluable_episodes": 9
+  },
+  "alarm_categories": {
+    "false_no_high_reading_in_window": 31,
+    "matched": 89,
+    "false_before_later_onset": 3,
+    "false_high_readings_without_qualifying_onset": 13,
+    "unknown": 1
+  },
+  "episode_categories": {
+    "detected": 89,
+    "missed_below_cutoff": 52,
+    "missed_with_cutoff_crossing_during_cooldown": 2,
+    "no_eligible_opportunity": 15
+  },
+  "fingerprints": {
+    "source_report": "c4174f85efaf2522101e067df7d920d065ade6de5c5fcb3cef78d6fadac66dd8",
+    "protocol": "2477485444624abca60bb8c2cf3cab3d0eb864615a2504b7b67f6dc494ffec8e",
+    "input_manifest": "5e6e3243bd46c06750263510ebe0985324d5937d3a1d2c61842f69feb8411fd1",
+    "audit_script": "52f721fe76afb4ce1d6f2a91bd1e5ffb7e21e97859260900197f7aec499892ed",
+    "audit_module": "9634cca30af6353361b2fdb6fbfcbc7d09739c334e49011818bcfcd0eb705baa",
+    "models": [
+      {
+        "fold": 1,
+        "sha256": "cbbebca0cd27ece3f3b9eec81a8b4cc29df3fc7185f641bdfd985e3bd2fee999"
+      },
+      {
+        "fold": 2,
+        "sha256": "61b7020eb3d8759342b7b3bc758ebcc73b8cca18abdfd5b6e4f614aaf582e9ab"
+      },
+      {
+        "fold": 3,
+        "sha256": "9a326c5695f44bc7d472fffbaf052d271510dcf6240f13f01ffe2f5e554eaee8"
+      }
+    ]
+  },
+  "limitations": [
+    "Cutoffs were selected on these same patients; these are diagnostic results, not validation.",
+    "A patient can contribute to multiple folds; pooled values describe patient-fold exposures.",
+    "Error categories use future outcomes retrospectively, never as model inputs or revised labels.",
+    "False-alarm category priority: recent onset in [-30,0], later onset in (30,60], high reading in [5,30], no high reading.",
+    "High readings without qualifying onset can be brief excursions or fail the prior-normal requirement.",
+    "The source profile table includes reserved rows; only cutoff profiles are selected. Reserved sensor files are never opened."
+  ]
+}

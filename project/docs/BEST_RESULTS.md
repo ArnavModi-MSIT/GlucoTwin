@@ -5,6 +5,9 @@ notable experimental results without replacing the application with a model
 chosen on one attractive metric. All results are development evaluations;
 reserved-test performance remains unscored. Synthetic-demo scores are excluded.
 
+The [high-event diagnostic audit](HIGH_EVENT_AUDIT.md) leaves this selection and
+all scores unchanged; its cutoff-patient counts are not a new best result.
+
 ## Working application
 
 | Path | Model | Reported result | Status |

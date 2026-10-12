@@ -33,6 +33,7 @@
 !/project/docs/EVENT_REPLAY.md
 !/project/docs/RESULTS.md
 !/project/docs/BEST_RESULTS.md
+!/project/docs/HIGH_EVENT_AUDIT.md
 !/project/docs/delivery/README.md
 !/project/docs/delivery/GlucoTwin_Architecture.pdf
 !/project/docs/delivery/GlucoTwin_Presentation.pdf
@@ -41,6 +42,7 @@
 /project/reports/*
 !/project/reports/event_study_gpu_v2.json
 !/project/reports/best_results_sources.json
+!/project/reports/high_event_audit_v1.json
 !/project/scripts/
 /project/scripts/*
 !/project/scripts/audit_cgmacros.py
@@ -56,6 +58,7 @@
 !/project/scripts/launch_dashboard.py
 !/project/scripts/serve_dashboard.py
 !/project/scripts/run_event_study.py
+!/project/scripts/audit_high_events.py
 !/project/src/
 /project/src/*
 !/project/src/glucotwin/
@@ -71,6 +74,7 @@
 !/project/src/glucotwin/event_study.py
 !/project/src/glucotwin/demo.py
 !/project/src/glucotwin/reporting.py
+!/project/src/glucotwin/event_audit.py
 !/project/tests/
 /project/tests/*
 !/project/tests/local_only.py
@@ -91,6 +95,7 @@
 !/project/tests/test_web_dashboard.py
 !/project/tests/test_event_study.py
 !/project/tests/test_demo.py
+!/project/tests/test_event_audit.py
 !/project/web/
 /project/web/*
 !/project/web/app.js

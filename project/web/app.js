@@ -47,6 +47,7 @@ async function playbackTick(){if(!playing)return;if(!busy)await action('/api/adv
 $('play').addEventListener('click',()=>{if(playing){stopPlayback();return;}if(!snapshot||snapshot.at_end||busy)return;playing=true;text('play',snapshot.sensor_feed?'Ⅱ Pause simulated feed':'Ⅱ Pause replay');if(snapshot.sensor_feed)renderSensorFeed(snapshot);playbackTimer=setTimeout(playbackTick,Number($('speed').value)||1000);});
 $('feed-receive').addEventListener('click',()=>{stopPlayback();action('/api/feed/sample',{missing:false});});
 $('feed-missing').addEventListener('click',()=>{stopPlayback();action('/api/feed/sample',{missing:true});});
+for(const id of ['ledger-horizon','ledger-outcome','ledger-order'])$(id).addEventListener('change',()=>{if(snapshot)renderLedger(snapshot);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPlayback();});
 document.querySelectorAll('[data-export]').forEach(a=>a.addEventListener('click',async e=>{e.preventDefault();stopPlayback();try{const response=await fetch(a.getAttribute('href'),{headers:{'X-GlucoTwin-Session':sessionToken}});if(!response.ok)throw Error('Export failed; select the patient again.');const blob=await response.blob(),url=URL.createObjectURL(blob),link=document.createElement('a'),format=new URL(a.href).searchParams.get('format');link.href=url;link.download=`glucotwin-${cohort}-session.${format}`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(err){text('error',err.message);$('error').hidden=false;}}));
 $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('chart-card').requestFullscreen();}catch(e){text('error','Fullscreen is unavailable in this browser.');$('error').hidden=false;}});
@@ -94,12 +95,7 @@ text('input-quality',`HR coverage, last hour: ${Number.isFinite(hrFraction)?`${n
 const profile=$('profile');profile.replaceChildren();
 for(const [label,value] of Object.entries(s.profile)){const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;row.append(dt,dd);profile.append(row);}
 text('delay-note',s.sensor_delay_minutes?'Inputs and outcomes obey a five-minute availability delay. Target readings remain pending until target time +5 minutes.':'Only observations through replay time are visible. Reconstructed CGM samples and assumed profile availability limit real-time claims.');
-const tbody=$('ledger');tbody.replaceChildren();
-for(const row of s.ledger){
-const tr=document.createElement('tr');
-const values=[short(row.issued_at),`${row.horizon} min`,short(row.target_time),short(row.available_at),row.status,number(row.prediction,1),number(row.persistence,1),row.outcome,number(row.actual,1),number(row.ridge_error,1),number(row.persistence_error,1)];
-values.forEach((value,i)=>{const td=document.createElement('td');if([5,6,8,9,10].includes(i))td.className='numeric';if(i===7){const tag=document.createElement('span');tag.className='outcome'+(row.outcome==='Observed'?' observed':'');tag.textContent=value;td.append(tag);}else td.textContent=value;tr.append(td);});tbody.append(tr);
-}
+renderLedger(s);
 const issued=s.ledger.filter(row=>Number.isFinite(row.prediction)).length;
 text('ledger-count',`Issued forecasts: ${issued} · Withheld attempts: ${s.ledger.length-issued}`);
 const summary=$('session-summary');summary.replaceChildren();
@@ -117,8 +113,68 @@ const statements=imported?[s.profile_note,'Imported files are not part of the re
 'CGM samples are reconstructed from interpolated source data, and clinical-profile availability is assumed. Numerical forecasts use Ridge; the separate event panel uses saved fused XGBoost models. Event scores are uncalibrated. No diagnosis, treatment or insulin dosing.'
 ];
 for(const statement of statements){const p=document.createElement('p');p.textContent=statement;evidence.append(p);}renderEvents(s);renderPatterns(s);
-globalThis.GlucoCare?.update(s,$('patient').value);renderPatientSummary(s);renderSensorFeed(s);drawChart();saveReplay();
+globalThis.GlucoCare?.update(s,$('patient').value);renderPatientSummary(s);renderSensorFeed(s);renderSensorQuality(s);drawChart();saveReplay();
 for(const link of sectionLinks)link.setAttribute('aria-disabled',String(!!$(link.dataset.section)?.hidden));
+}
+function visibleLedger(s){
+ return (s.ledger||[]).filter(r=>coord(r.issued_at)<=coord(s.issue_time)).map(r=>{
+  // Keep not-yet-available outcomes hidden even if a malformed payload supplies them.
+  if(!Number.isFinite(coord(r.available_at))||coord(r.available_at)>coord(s.issue_time))return {...r,outcome:Number.isFinite(r.prediction)?'Pending':'Not evaluated',actual:null,ridge_error:null,persistence_error:null};
+  return r;
+ });
+}
+function forecastStats(rows){
+ const horizons=[...new Set(rows.map(r=>r.horizon))].sort((a,b)=>a-b);
+ return horizons.map(horizon=>{
+  const evaluated=rows.filter(r=>r.horizon===horizon&&r.outcome==='Observed'&&[r.actual,r.prediction,r.persistence].every(Number.isFinite));
+  const errors=evaluated.map(r=>Math.abs(r.actual-r.prediction)).sort((a,b)=>a-b),baseline=evaluated.map(r=>Math.abs(r.actual-r.persistence));
+  const mean=a=>a.length?a.reduce((n,v)=>n+v,0)/a.length:null;
+  const percentile=(a,p)=>{if(!a.length)return null;const index=(a.length-1)*p,lower=Math.floor(index);return a[lower]+(a[Math.ceil(index)]-a[lower])*(index-lower);};
+  return {horizon,count:errors.length,mae:mean(errors),baseline_mae:mean(baseline),p90:percentile(errors,.9)};
+ });
+}
+function filterForecasts(rows,horizon='all',outcome='all',order='newest'){
+ const filtered=rows.filter(r=>(horizon==='all'||r.horizon===Number(horizon))&&(outcome==='all'||outcome==='withheld'&&!Number.isFinite(r.prediction)||outcome==='observed'&&r.outcome==='Observed'||outcome==='pending'&&Number.isFinite(r.prediction)&&r.outcome==='Pending'||outcome==='missing'&&Number.isFinite(r.prediction)&&r.outcome==='Missing observation'));
+ return filtered.sort((a,b)=>(order==='oldest'?1:-1)*(coord(a.issued_at)-coord(b.issued_at)));
+}
+function renderLedger(s){
+ const rows=visibleLedger(s),horizons=[...new Set(rows.map(r=>r.horizon))].sort((a,b)=>a-b),horizon=$('ledger-horizon'),previous=horizon.value||'all';
+ horizon.replaceChildren();for(const [value,label] of [['all','All horizons'],...horizons.map(h=>[String(h),`${h} minutes`])]){const option=document.createElement('option');option.value=value;option.textContent=label;horizon.append(option);}horizon.value=horizons.includes(Number(previous))?previous:'all';
+ const shown=filterForecasts(rows,horizon.value,$('ledger-outcome').value||'all',$('ledger-order').value||'newest'),tbody=$('ledger');tbody.replaceChildren();
+ for(const row of shown){const tr=document.createElement('tr'),values=[short(row.issued_at),`${row.horizon} min`,short(row.target_time),short(row.available_at),row.status,number(row.prediction,1),number(row.persistence,1),row.outcome,number(row.actual,1),number(row.ridge_error,1),number(row.persistence_error,1)];
+  values.forEach((value,i)=>{const td=document.createElement('td');if([5,6,8,9,10].includes(i))td.className='numeric';if(i===7){const tag=document.createElement('span');tag.className='outcome'+(row.outcome==='Observed'?' observed':'');tag.textContent=value;td.append(tag);}else td.textContent=value;tr.append(td);});tbody.append(tr);
+ }
+ if(!shown.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=11;td.textContent='No attempts match these filters.';tr.append(td);tbody.append(tr);}
+ text('ledger-visible',`Showing ${shown.length} of ${rows.length} attempts. Filters affect this table only; statistics and exports use the complete available session.`);
+ const cards=$('horizon-results');cards.replaceChildren();
+ for(const stat of forecastStats(rows)){const card=document.createElement('article'),title=document.createElement('h3');title.textContent=`${stat.horizon}-minute outcomes`;card.append(title);
+  const label=s.imported?(s.model_name.includes('Persistence')?'Persistence':'Transferred Ridge'):s.synthetic?'Demo rule':'Ridge';
+  for(const value of [`${stat.count} observed forecast pairs`,`${label} MAE: ${number(stat.mae,1)} mg/dL`,`Persistence MAE: ${number(stat.baseline_mae,1)} mg/dL`,`90th percentile absolute error: ${number(stat.p90,1)} mg/dL`,stat.count?`Model minus baseline MAE: ${number(stat.mae-stat.baseline_mae,1)} mg/dL (negative is lower error)`:'No available paired outcomes yet.']){const p=document.createElement('p');p.textContent=value;card.append(p);}cards.append(card);
+ }
+}
+function sensorQuality(s){
+ const cutoff=coord(s.data_cutoff),issue=coord(s.issue_time),step=300000;
+ if(!Number.isFinite(cutoff)||!Number.isFinite(issue)||cutoff>issue)return null;
+ const start=cutoff-360*60000,points=new Map(),supplied=[];
+ for(const p of s.chart||[]){const t=coord(p.time);if(Number.isFinite(t)&&t>=start&&t<=cutoff){supplied.push(t);if((cutoff-t)%step===0)points.set(t,p.glucose);}}
+ const first=supplied.length?Math.min(...supplied):Infinity,slots=[],gaps=[];
+ for(let i=0;i<73;i++){const at=start+i*step,observed=Number.isFinite(points.get(at)),reason=at<first?'Before supplied chart history':'No reading at checkpoint';slots.push({at,observed});
+  if(!observed){const previous=gaps.at(-1);if(previous&&previous.end===at-step&&previous.reason===reason){previous.end=at;previous.slots++;}else gaps.push({start:at,end:at,slots:1,reason});}
+ }
+ const latest=[...points].filter(([,v])=>Number.isFinite(v)).sort((a,b)=>b[0]-a[0])[0];
+ return {slots,gaps,observed:slots.filter(p=>p.observed).length,last_hour:slots.slice(-13).filter(p=>p.observed).length,longest_slots:gaps.length?Math.max(...gaps.map(g=>g.slots)):0,latest:latest?.[0]??null};
+}
+function renderSensorQuality(s){
+ const quality=sensorQuality(s);$('sensor-quality').hidden=!quality;if(!quality)return;
+ const wallCoordinate=t=>new Date(t).toISOString().slice(0,19);
+ text('quality-summary',`${quality.observed}/73 checkpoints observed over six hours · ${quality.last_hour}/13 in the last hour · longest unobserved run ${quality.longest_slots} checkpoint${quality.longest_slots===1?'':'s'}`);
+ text('quality-latest',quality.latest===null?'No observed checkpoint in this window.':`Latest observed checkpoint: ${wall(wallCoordinate(quality.latest))}. This does not replace a missing current reading.`);
+ text('quality-source',s.cohort==='cgmacros'?'CGMacros checkpoints use reconstructed source samples; this is not original sensor uptime.':'Availability is checked on the five-minute replay grid, including the cutoff. Each unobserved slot represents five minutes; leading/trailing runs can be partial.');
+ const svg=$('quality-svg');svg.replaceChildren();svg.setAttribute('viewBox','0 0 730 24');svg.setAttribute('aria-label',`${quality.observed} observed and ${73-quality.observed} unobserved five-minute checkpoints, oldest to newest.`);
+ for(const [i,p] of quality.slots.entries()){const block=svgNode('rect',{x:i*10,y:2,width:8,height:18,rx:2,fill:p.observed?'#147d72':'#d6dfe3'});block.append(svgNode('title',{},`${short(wallCoordinate(p.at))} · ${p.observed?'Observed':'Unobserved'}`));svg.append(block);}
+ const body=$('quality-gaps');body.replaceChildren();
+ for(const gap of quality.gaps){const tr=document.createElement('tr');for(const v of [short(wallCoordinate(gap.start)),short(wallCoordinate(gap.end)),String(gap.slots),`${gap.slots*5} min`,gap.reason]){const td=document.createElement('td');td.textContent=v;tr.append(td);}body.append(tr);}
+ if(!quality.gaps.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.textContent='All 73 checkpoints are observed.';tr.append(td);body.append(tr);}
 }
 function patientSummary(s){
  const cutoff=coord(s.data_cutoff),issue=coord(s.issue_time),points=new Map();

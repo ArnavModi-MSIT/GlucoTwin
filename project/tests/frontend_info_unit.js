@@ -55,7 +55,7 @@ const forecast=(horizon,prediction,status='Forecast issued')=>({
   model_inputs:[...cgmFeatures,'age_at_enrollment','sex_f']
 });
 const issued30=forecast(30,110),issued60=forecast(60,115);
-const completed={...issued30,outcome:'Observed',actual:100,ridge_error:10,persistence_error:20};
+const completed={...issued30,issued_at:'2024-01-02T11:55:00',target_time:'2024-01-02T12:25:00',available_at:time,outcome:'Observed',actual:100,ridge_error:10,persistence_error:20};
 const withheld=forecast(30,null,'Insufficient history');
 const rbg={
   cohort:'rbg',patient_label:'Patient example',issue_time:time,data_cutoff:'2024-01-02T12:25:00',
@@ -63,6 +63,7 @@ const rbg={
   forecasts:[issued30,issued60],ledger:[completed,issued60,withheld],
   comparison:{evaluated:1,ridge_mae:10,persistence_mae:20}
 };
+document.getElementById('ledger-order').value='oldest';
 context.render(rbg);
 assert.equal(element('ledger-count').textContent,'Issued forecasts: 2 · Withheld attempts: 1');
 assert.equal(element('ledger').children.length,3);
@@ -187,6 +188,42 @@ context.render({...rbg,cohort:'imported',synthetic:true,imported:true,model_name
 assert.ok(element('research-title').textContent.includes('Imported patient'));assert.ok(element('model-column').textContent.includes('Persistence'));
 assert.equal(element('event-research').hidden,true);assert.ok(!element('evidence').textContent.includes('158 training'));
 console.log('Imported-record labels and benchmark separation checks passed.');
+const completed60={...completed,horizon:60,prediction:140,persistence:120,actual:100,ridge_error:40,persistence_error:20};
+const statistics=context.forecastStats([completed,completed60,issued60,withheld,{...completed,actual:null}]);
+assert.equal(statistics[0].count,1);assert.equal(statistics[0].mae,10);assert.equal(statistics[0].baseline_mae,20);assert.equal(statistics[1].mae,40);assert.equal(statistics[1].p90,40);
+assert.equal(context.forecastStats([issued60])[0].mae,null);
+assert.equal(context.forecastStats([completed,{...completed,prediction:100},{...completed,prediction:140}])[0].p90,34);
+const mixed=[completed,completed60,issued60,withheld,{...issued30,outcome:'Missing observation'}];
+assert.equal(context.filterForecasts(mixed,'30','observed').length,1);
+assert.equal(context.filterForecasts(mixed,'all','withheld').length,1);
+assert.equal(context.filterForecasts(mixed,'all','missing').length,1);
+assert.equal(context.filterForecasts(mixed,'all','pending').length,1);
+assert.equal(context.filterForecasts(mixed,'all','all','newest')[0].issued_at,time);
+assert.equal(context.filterForecasts(mixed,'all','all','oldest')[0].issued_at,completed.issued_at);
+assert.equal(mixed[0],completed); // Filters never mutate the source ledger.
+const futureOutcome={...completed,available_at:'2024-01-02T13:00:00'};
+const safeLedger=context.visibleLedger({...rbg,ledger:[futureOutcome,{...completed,issued_at:'2024-01-02T13:00:00'}]});
+assert.equal(safeLedger.length,1);assert.equal(safeLedger[0].actual,null);assert.equal(safeLedger[0].outcome,'Pending');assert.equal(futureOutcome.actual,100);
+element('ledger-outcome').value='observed';element('ledger-horizon').value='30';context.renderLedger({...rbg,ledger:mixed});
+assert.equal(element('ledger').children.length,1);assert.match(element('ledger-visible').textContent,/Showing 1 of 5/);assert.equal(element('horizon-results').children.length,2);
+assert.match(element('horizon-results').textContent,/MAE: 40.0/); // Cards remain complete-session statistics.
+element('ledger-outcome').value='pending';element('ledger-horizon').value='30';context.renderLedger({...rbg,ledger:[completed]});
+assert.match(element('ledger').textContent,/No attempts match/);
+element('ledger-horizon').value='30';element('ledger-outcome').value='all';context.renderLedger({...rbg,ledger:[completed60]});assert.equal(element('ledger-horizon').value,'all');
+console.log('Forecast inspection checks passed: paired horizon metrics, status filters, ordering, immutable source and future withholding.');
+const cutoffMs=Date.parse(rbg.data_cutoff+'Z');
+const qualitySnapshot={...rbg,chart:Array.from({length:73},(_,i)=>({time:new Date(cutoffMs-(72-i)*300000).toISOString().slice(0,19),glucose:100}))};
+let quality=context.sensorQuality(qualitySnapshot);assert.equal(quality.observed,73);assert.equal(quality.last_hour,13);assert.equal(quality.gaps.length,0);
+const gapSnapshot={...qualitySnapshot,chart:qualitySnapshot.chart.filter((_,i)=>![20,21].includes(i)).map((p,i)=>p.time===rbg.data_cutoff?{...p,glucose:null}:p)};
+quality=context.sensorQuality(gapSnapshot);assert.equal(quality.observed,70);assert.equal(quality.last_hour,12);assert.equal(quality.longest_slots,2);assert.equal(quality.gaps[0].reason,'No reading at checkpoint');assert.equal(quality.gaps[1].slots,1);
+assert.equal(JSON.stringify(context.sensorQuality({...gapSnapshot,chart:[...gapSnapshot.chart,{time:'2024-01-02T13:00:00',glucose:999}]})),JSON.stringify(quality));
+quality=context.sensorQuality({...qualitySnapshot,chart:qualitySnapshot.chart.slice(60)});assert.equal(quality.gaps[0].reason,'Before supplied chart history');assert.equal(quality.observed,13);
+assert.equal(context.sensorQuality({...qualitySnapshot,data_cutoff:'2024-01-02T13:00:00'}),null);
+context.renderSensorQuality(gapSnapshot);assert.equal(element('quality-svg').children.length,73);assert.match(element('quality-summary').textContent,/70\/73.*12\/13/);assert.equal(element('quality-gaps').children.length,2);
+assert.equal(context.sensorQuality({...qualitySnapshot,chart:[]}).observed,0);
+const minuteSource={...qualitySnapshot,chart:Array.from({length:361},(_,i)=>({time:new Date(cutoffMs-(360-i)*60000).toISOString().slice(0,19),glucose:i===1?null:100}))};
+assert.equal(context.sensorQuality(minuteSource).observed,73); // Reconstructed one-minute source is inspected on the declared five-minute grid.
+console.log('Sensor quality checks passed: native-grid gaps, absent history, partial windows, future exclusion and missing current readings.');
 const summarySnapshot={...rbg,chart:Array.from({length:7},(_,i)=>({time:new Date(Date.UTC(2024,0,2,11,55+i*5)).toISOString().slice(0,19),glucose:100+i*2})),historical_patterns:{through:rbg.data_cutoff,daily:[{date:'2024-01-01',samples:10,expected:20,low_fraction:.1,reference_fraction:.7,high_fraction:.2},{date:'2024-01-02',samples:90,expected:100,low_fraction:0,reference_fraction:.9,high_fraction:.1}]}};
 let quick=context.patientSummary(summarySnapshot);
 assert.equal(quick.change,12);assert.equal(quick.samples,100);assert.equal(quick.expected,120);assert.equal(quick.low,.01);assert.equal(quick.reference,.88);assert.equal(quick.high,.11);

@@ -23,6 +23,15 @@ assert.deepEqual(care.pendingTasks('summary-tasks','2024-01-01T06:05:00'),{due:1
 assert.deepEqual(care.pendingTasks('summary-tasks','2024-01-01T06:00:00'),{due:0,upcoming:0});
 assert.deepEqual(care.pendingTasks('different-patient','2024-01-01T06:10:00'),{due:0,upcoming:0});
 console.log('Task summary checks passed: due/upcoming, completed states, rewind and patient scope.');
+assert.equal(care.taskEntries('summary-tasks','2024-01-01T06:05:00')[0].task_state,'due');
+assert.equal(care.taskEntries('summary-tasks','2024-01-01T06:10:00').length,1);
+assert.equal(care.taskEntries('summary-tasks','2024-01-01T06:10:00','completed')[0].id,summaryTask.id);
+assert.equal(care.taskEntries('summary-tasks','2024-01-01T06:05:00','completed').length,0);
+assert.equal(care.taskEntries('summary-tasks','2024-01-01T06:00:00','all').length,0);
+assert.equal(care.taskEntries('different-patient','2024-01-01T06:10:00','all').length,0);
+const taskCopy=care.taskEntries('summary-tasks','2024-01-01T06:10:00','all')[0];taskCopy.note='Changed copy';
+assert.ok(care.entries('summary-tasks').every(r=>r.note!=='Changed copy'));
+console.log('Task inbox checks passed: status filtering, order, replay timing, scope and immutable entries.');
 const exampleSnapshot={cohort:'demo',synthetic:true,demo_prefill:true,demo_seed_time:'2024-01-15T08:35:00',issue_time:'2024-01-15T08:35:00'};
 assert.equal(care.seedDemo('example',exampleSnapshot,'showcase'),true);
 assert.equal(care.entries('example').length,11);

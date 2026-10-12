@@ -141,3 +141,7 @@ and tooltips. A show/hide control changes marker visibility; the accessible list
 remains available. Adding, restoring or removing notes redraws annotations
 without changing sensor values, y-axis limits, forecast values or API inputs.
 Timing is descriptive and does not establish a treatment response.
+
+Patient review additions: issued numerical rows may include `explanation` with Ridge reference offset, grouped contributions, imputed fields and a reconstructed prediction. `historical_patterns.profile` contains the past-only fourteen-date descriptive summary and hourly quantiles. These fields enter JSON snapshots and HTML reports; they never reveal future target observations. The overview uses last-viewed browser snapshots, not a new live-data endpoint. Optional care-note persistence stays in browser local storage and is not sent to the API.
+
+Browser requests use a tab-specific `X-GlucoTwin-Session` header. Creating a session with an explicit empty header leaves other tab sessions intact; the response returns the new token in that header. Tokens stay in memory and are not placed in URLs. Cookie-only API clients remain supported. Browser exports fetch with the same header and download the resulting file, so the chosen patient is preserved even when another tab changes cohorts. Open the downloaded HTML report and print it to PDF if needed.

@@ -157,3 +157,11 @@ assert.ok(elements.get('uncertainty-ranges').children[0].textContent.includes('8
 context.renderUncertainty({synthetic:true,forecasts:[]});
 assert.ok(elements.get('uncertainty-note').textContent.includes('fictional'));
 console.log('Uncertainty renderer checks passed.');
+
+context.renderExplanations({...rbg,forecasts:[{horizon:30,explanation:{persistence:100,reference_offset:10,groups:{glucose:5,clinical:2,heart_rate:-1,missingness:0},reconstructed_prediction:116,imputed:['age'],note:'Arithmetic only'}}]});
+assert.ok(element('forecast-explanations').textContent.includes('116.0'));
+context.renderHistoryProfile({observed_days:3,complete_covered_days:3,samples:800,expected:1000,coverage:.8,mean:100,std:10,coefficient_variation_pct:10,overnight:{samples:50,expected:60,mean:90,below70_fraction:null},note:'History only',hours:[]});
+assert.ok(!element('profile-night').textContent.includes('below 70: 0.0%'));
+vm.runInContext("catalog={cohorts:{demo:[{id:'rise',label:'Rising glucose'}]}};",context);
+context.renderOverview();assert.equal(element('overview-rows').children.length,1);
+console.log('Overview, explanation and historical profile render checks passed.');

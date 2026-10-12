@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 import pandas as pd
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
-from glucotwin.patterns import historical_patterns
+from glucotwin.patterns import historical_patterns,descriptive_profile
 
 
 class PatternTests(unittest.TestCase):
@@ -51,6 +51,20 @@ class PatternTests(unittest.TestCase):
         self.assertEqual(a['observed_samples'],0)
         self.assertIsNone(a['daily'][0]['mean'])
         self.assertTrue(all(r['eligible_days']==0 for r in a['periods']))
+
+    def test_extended_profile_prefix_phase_and_missing_denominator(self):
+        times=pd.date_range('2024-01-01T00:03',periods=15*288,freq='5min')
+        values=np.full(len(times),100.)
+        cutoff=times[13*288-1]
+        a=descriptive_profile(times,values,cutoff)
+        self.assertEqual(a,descriptive_profile(times[times<=cutoff],values[times<=cutoff],cutoff))
+        self.assertEqual(a['mean'],100.);self.assertEqual(a['coefficient_variation_pct'],0.)
+        self.assertTrue(all(r['covered_days']>=3 and r['median']==100 for r in a['hours']))
+        values[10:]=np.nan
+        b=descriptive_profile(times,values,cutoff)
+        self.assertTrue(all(r['median'] is None for r in b['hours']))
+        self.assertEqual(b['samples'],10)
+        self.assertIsNone(descriptive_profile(times,np.full(len(times),np.nan),cutoff)['overnight']['below70_fraction'])
 
 
 if __name__=='__main__':unittest.main()

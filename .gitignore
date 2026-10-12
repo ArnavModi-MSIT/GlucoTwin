@@ -141,3 +141,8 @@
 !/project/tests/test_uncertainty.py
 !/project/reports/forecast_intervals_v1.json
 !/project/docs/UNCERTAINTY.md
+
+!/project/src/glucotwin/explain.py
+!/project/tests/test_explain.py
+
+!/project/docs/PATIENT_REVIEW.md

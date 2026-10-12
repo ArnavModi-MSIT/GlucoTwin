@@ -8,15 +8,18 @@ with a local dashboard for clinicians to review patient history and outcomes.
 ## Features
 
 - Linked clinical and sensor inputs in the fitted models.
+- Patient overview with last-viewed snapshots, search and replay navigation.
 - Patient replay with glucose history, sensor coverage, future forecasts and user-log timeline markers.
+- Ridge arithmetic explanations grouped into clinical, glucose, heart-rate and missingness contributions.
 - Fixed prediction ledgers, delayed outcome reveal and persistence comparisons.
 - Optional exploratory prediction ranges with measured assessment coverage and horizon-specific widths.
 - A separate event research panel with uncalibrated scores and fixed cutoffs.
-- Daily summaries and recurring time-of-day patterns from available history, with coverage checks.
-- Patient-specific meal/medication logs and a three-day user-entered meal/reminder plan, with JSON export and validated restore.
+- Daily summaries, recurring periods, and a fourteen-date historical percentile profile with variability and overnight summaries.
+- Patient-specific meal/medication logs and a three-day user-entered plan, with optional local saving, JSON export and validated restore.
+- Completed after-meal reviews retained beyond the visible timeline, with replay-time checks.
 - Synthetic scenarios that run without datasets or model downloads.
 - Automatic five-minute replay, issued-flag and revealed-onset chart markers.
-- CSV/JSON session exports, a printable replay report, and a combined review summary with user logs and the three-day plan.
+- CSV/JSON session exports, a downloadable printable replay report, and a combined review summary with user logs and the three-day plan.
 
 Dataset names: **RBG** identifies the REPLACE-BG type 1 diabetes study.
 **CGMacros** is the nutrition and diet-monitoring dataset, combining glucose,
@@ -101,6 +104,7 @@ prepared local-data and artifact checks.
 - [Presentation (PPTX)](project/docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](project/docs/delivery/GlucoTwin_Presentation.pdf)
 - [API](project/docs/API.md) · [Data contract](project/DATA_CONTRACT.md) · [Evaluation protocol](project/EVALUATION_PROTOCOL.md)
 - [Model results](project/docs/RESULTS.md) · [Model preparation](project/docs/REPRODUCTION.md)
+- [Patient review features](project/docs/PATIENT_REVIEW.md)
 - [Forecast uncertainty](project/docs/UNCERTAINTY.md)
 - [Best-results checkpoint](project/docs/BEST_RESULTS.md)
 

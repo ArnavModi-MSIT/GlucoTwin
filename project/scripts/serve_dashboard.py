@@ -170,8 +170,16 @@ class Handler(BaseHTTPRequestHandler):
         return self.headers.get('Host') in {f'127.0.0.1:{self.server.server_port}',f'localhost:{self.server.server_port}'}
     def respond(self,status,value,cookie=None):
         data=json.dumps(clean(value),allow_nan=False).encode();self.send_response(status);self.send_header('Content-Type','application/json');self.send_header('Cache-Control','no-store')
-        if cookie:self.send_header('Set-Cookie',f'glucotwin_session={cookie}; HttpOnly; SameSite=Strict; Path=/')
+        if cookie:
+            self.send_header('Set-Cookie',f'glucotwin_session={cookie}; HttpOnly; SameSite=Strict; Path=/')
+            self.send_header('X-GlucoTwin-Session',cookie)
         self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
+    def session_key(self):
+        # An explicit empty header creates a fresh tab session. Cookie-only
+        # clients retain the original API behavior for compatibility.
+        if 'X-GlucoTwin-Session' in self.headers:return self.headers['X-GlucoTwin-Session']
+        cookie=SimpleCookie(self.headers.get('Cookie',''))
+        return cookie['glucotwin_session'].value if 'glucotwin_session' in cookie else ''
     def do_GET(self):
         if not self.local_host():return self.respond(403,{'error':'Local host required'})
         if self.path=='/api/health':
@@ -189,8 +197,7 @@ class Handler(BaseHTTPRequestHandler):
             format_=parse_qs(urlsplit(self.path).query).get('format',['json'])[0]
             if format_ not in ('json','csv','html'):return self.respond(400,{'error':'Use json, csv or html'})
             try:
-                cookie=SimpleCookie(self.headers.get('Cookie',''))
-                key=cookie['glucotwin_session'].value if 'glucotwin_session' in cookie else ''
+                key=self.session_key()
                 snapshot=clean(service.operate(key,'snapshot'))
                 data=(json.dumps(snapshot,indent=2,allow_nan=False) if format_=='json' else csv_report(snapshot) if format_=='csv' else html_report(snapshot)).encode('utf-8')
                 self.send_response(200)
@@ -232,10 +239,9 @@ class Handler(BaseHTTPRequestHandler):
                 if cohort not in ('rbg','cgmacros','demo'):raise ValueError('Unknown cohort')
                 if cohort=='cgmacros':pid=int(pid)
                 if pid not in (SCENARIOS if cohort=='demo' else catalog(cohort)):raise ValueError('Patient unavailable for replay')
-                cookie=SimpleCookie(self.headers.get('Cookie',''))
-                previous=cookie['glucotwin_session'].value if 'glucotwin_session' in cookie else None
+                previous=self.session_key() or None
                 key,snapshot=service.create(cohort,pid,previous);return self.respond(200,snapshot,key)
-            cookie=SimpleCookie(self.headers.get('Cookie',''));key=cookie['glucotwin_session'].value if 'glucotwin_session' in cookie else ''
+            key=self.session_key()
             self.respond(200,service.operate(key,action,body.get('minutes')))
         except FileNotFoundError:self.respond(400,{'error':'Prepare local data and saved models first. See README.'})
         except (ValueError,KeyError,TypeError) as exc:self.respond(400,{'error':str(exc)})

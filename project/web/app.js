@@ -1,13 +1,14 @@
 'use strict';
 const $ = id => document.getElementById(id);
-let catalog, cohort='demo', snapshot, busy=false, playing=false, playbackTimer=null;
+const viewedPatients=new Map();
+let sessionToken='',catalog, cohort='demo', snapshot, busy=false, playing=false, playbackTimer=null;
 const number=(v,d=0)=>Number.isFinite(v)?v.toFixed(d):'—';
 const wall=t=>t?t.replace('T',' ').slice(0,16):'—';
 const short=t=>t?`${t.slice(8,10)} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+t.slice(5,7)-1]}, ${t.slice(11,16)}`:'—';
 const coord=t=>Date.parse(t+'Z'); // Use UTC solely as a plotting coordinate; retain supplied wall-time labels.
 const text=(id,value)=>{$(id).textContent=value;};
 function setBusy(value){busy=value;document.body.classList.toggle('busy',value);$('loading').hidden=!value;document.querySelectorAll('button,select').forEach(e=>e.disabled=value);if(playing)$('play').disabled=false;if(!value)globalThis.GlucoCare?.refreshControls();if(!value&&snapshot?.at_end){document.querySelectorAll('[data-step]').forEach(e=>e.disabled=true);$('play').disabled=true;}}
-async function api(path,body){const response=await fetch(path,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const value=await response.json();if(!response.ok)throw new Error(value.error||'Request failed');return value;}
+async function api(path,body){const headers={'X-GlucoTwin-Session':sessionToken};if(body!==undefined)headers['Content-Type']='application/json';const response=await fetch(path,body===undefined?{headers}:{method:'POST',headers,body:JSON.stringify(body)});const value=await response.json();if(!response.ok)throw new Error(value.error||'Request failed');const token=response.headers.get('X-GlucoTwin-Session');if(token)sessionToken=token;return value;}
 async function action(path,body){if(busy)return;setBusy(true);$('error').hidden=true;try{snapshot=await api(path,body);render(snapshot);if(snapshot.at_end)stopPlayback();}catch(e){stopPlayback();$('error').textContent=e.message;$('error').hidden=false;}finally{setBusy(false);}}
 function populate(){const select=$('patient');select.replaceChildren();for(const p of catalog.cohorts[cohort]||[]){const option=document.createElement('option');option.value=p.id;option.textContent=p.label;select.append(option);}document.querySelectorAll('[data-cohort]').forEach(b=>b.classList.toggle('active',b.dataset.cohort===cohort));}
 async function selectPatient(){stopPlayback();if(!$('patient').options.length){text('error',catalog.errors?.[cohort]||'No prepared patients available for this cohort.');$('error').hidden=false;return;}await action('/api/session',{cohort,patient_id:$('patient').value});}
@@ -19,7 +20,7 @@ function stopPlayback(){playing=false;clearTimeout(playbackTimer);playbackTimer=
 async function playbackTick(){if(!playing)return;if(!busy)await action('/api/advance',{minutes:5});if(playing)playbackTimer=setTimeout(playbackTick,Number($('speed').value)||1000);}
 $('play').addEventListener('click',()=>{if(playing){stopPlayback();return;}if(!snapshot||snapshot.at_end||busy)return;playing=true;text('play','Ⅱ Pause replay');playbackTimer=setTimeout(playbackTick,Number($('speed').value)||1000);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPlayback();});
-document.querySelectorAll('[data-export]').forEach(a=>a.addEventListener('click',stopPlayback));
+document.querySelectorAll('[data-export]').forEach(a=>a.addEventListener('click',async e=>{e.preventDefault();stopPlayback();try{const response=await fetch(a.getAttribute('href'),{headers:{'X-GlucoTwin-Session':sessionToken}});if(!response.ok)throw Error('Export failed; select the patient again.');const blob=await response.blob(),url=URL.createObjectURL(blob),link=document.createElement('a'),format=new URL(a.href).searchParams.get('format');link.href=url;link.download=`glucotwin-${cohort}-session.${format}`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(err){text('error',err.message);$('error').hidden=false;}}));
 $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('chart-card').requestFullscreen();}catch(e){text('error','Fullscreen is unavailable in this browser.');$('error').hidden=false;}});
 function render(s){
 cohort=s.cohort;
@@ -28,7 +29,8 @@ text('mode-label',demo?'Synthetic demonstration':'Research mode');
 text('research-title',demo?'Fictional patient · illustrative rule · no trained model':'Research estimates. Alerts and risk probabilities are disabled.');
 text('research-detail',demo?'Explore the workflow without downloading data. These trajectories and scores are not benchmark results.':'Development results do not establish medical reliability or support treatment decisions.');
 text('profile-tag',demo?'Synthetic patient · no real patient data':'Validation patient · test patients excluded');
-renderUncertainty(s);
+renderUncertainty(s);renderExplanations(s);
+viewedPatients.set(JSON.stringify([s.cohort,String($('patient').value)]),{issue_time:s.issue_time,latest:s.latest,coverage:s.coverage,status:s.forecasts[0]?.status});renderOverview();
 text('forecast30-note',demo?'Illustrative trend + fictional baseline':'Saved profile-fused Ridge');
 text('forecast60-note',demo?'Illustrative trend + fictional baseline':'Saved profile-fused Ridge');
 text('model-column',`${modelLabel} (mg/dL)`);text('error-column',`${modelLabel} absolute error (mg/dL)`);
@@ -123,7 +125,7 @@ function drawEventMarkers(svg,s,x,top,bottom,start,end){
 
 function renderPatterns(s){
 const p=s.historical_patterns;$('patterns-panel').hidden=!p;if(!p)return;
-text('patterns-note',p.note);text('patterns-provenance',`${s.synthetic?'Fictional demonstration history':'Dataset history'} · Available through ${wall(p.through)} · ${p.observed_samples} observed samples`);
+renderHistoryProfile(p.profile);text('patterns-note',p.note);text('patterns-provenance',`${s.synthetic?'Fictional demonstration history':'Dataset history'} · Available through ${wall(p.through)} · ${p.observed_samples} observed samples`);
 const periods=$('patterns-periods');periods.replaceChildren();
 for(const r of p.periods){const box=document.createElement('article'),title=document.createElement('strong'),detail=document.createElement('p'),support=document.createElement('small');title.textContent=`${String(r.start_hour).padStart(2,'0')}:00–${String(r.end_hour).padStart(2,'0')}:00`;detail.textContent=r.description;support.textContent=`${r.eligible_days} comparable days · High periods: ${r.high_days} · Low periods: ${r.low_days}`;box.append(title,detail,support);periods.append(box);}
 const body=$('patterns-days');body.replaceChildren();for(const r of [...p.daily].reverse()){const tr=document.createElement('tr');for(const v of [r.date,`${r.samples}/${r.expected}`,`${number(r.coverage*100,1)}%`,Number.isFinite(r.mean)?`${number(r.mean,1)} mg/dL`:'—',...['low_fraction','reference_fraction','high_fraction'].map(k=>Number.isFinite(r[k])?`${number(r[k]*100,1)}%`:'—')]){const td=document.createElement('td');td.textContent=v;tr.append(td);}body.append(tr);}
@@ -149,4 +151,37 @@ function renderUncertainty(s){
  const p=document.createElement('p');p.textContent=`+${f.horizon} min: ${number(f.interval_lower,1)}–${number(f.interval_upper,1)} mg/dL · Assessment coverage: ${number(100*f.interval_assessment_coverage,1)}% across ${f.interval_assessment_patients} patients · Width: ${number(f.interval_upper-f.interval_lower,1)} mg/dL`;area.append(p);
  if(Number.isFinite(f.interval_low_coverage)&&Number.isFinite(f.interval_high_coverage)){const detail=document.createElement('p');detail.textContent=`Assessment coverage by actual target: below 70 mg/dL ${number(100*f.interval_low_coverage,1)}%; above 180 mg/dL ${number(100*f.interval_high_coverage,1)}%. These slices are retrospective diagnostics.`;area.append(detail);}}
  if(!area.children.length){const p=document.createElement('p');p.textContent='No range available for the current forecast.';area.append(p);}
+}
+
+function renderExplanations(s){
+ const area=$('forecast-explanations');area.replaceChildren();
+ for(const f of s.forecasts||[]){const box=document.createElement('article'),title=document.createElement('h3');title.textContent=`+${f.horizon} minute forecast`;box.append(title);const e=f.explanation;
+ if(!e){const p=document.createElement('p');p.textContent=s.synthetic?'Fictional trend rule; no learned Ridge coefficients.':'Explanation unavailable for this forecast.';box.append(p);}else{
+ const table=document.createElement('table');for(const [label,value] of [['Latest available reading',e.persistence],['Model reference offset from latest reading',e.reference_offset],['Glucose-history contribution',e.groups.glucose],['Clinical-profile contribution',e.groups.clinical],['Heart-rate contribution',e.groups.heart_rate],['Missing-input indicator contribution',e.groups.missingness],['Reconstructed forecast',e.reconstructed_prediction]]){const tr=document.createElement('tr'),name=document.createElement('th'),v=document.createElement('td');name.textContent=label;v.textContent=`${number(value,1)} mg/dL`;tr.append(name,v);table.append(tr);}box.append(table);
+ const note=document.createElement('p');note.textContent=`${e.note} Missing inputs filled using training-set medians: ${e.imputed.length?e.imputed.join(', '):'none'}.`;box.append(note);}
+ area.append(box);}
+}
+function renderOverview(){
+ const body=$('overview-rows');body.replaceChildren();if(!catalog)return;
+ const query=($('overview-search').value||'').toLowerCase();
+ for(const [dataset,patients] of Object.entries(catalog.cohorts)){for(const patient of patients){if(!`${dataset} ${patient.label}`.toLowerCase().includes(query))continue;
+ const seen=viewedPatients.get(JSON.stringify([dataset,String(patient.id)])),tr=document.createElement('tr');
+ for(const v of [`${patient.label} · ${dataset==='rbg'?'REPLACE-BG':dataset==='demo'?'Synthetic': 'CGMacros'}`,seen?wall(seen.issue_time):'Not opened',seen?number(seen.latest,1):'—',seen?`${seen.coverage}/13`:'—',seen?.status||'Not reviewed']){const td=document.createElement('td');td.textContent=v;tr.append(td);}
+ const td=document.createElement('td'),button=document.createElement('button');button.type='button';button.textContent='Open replay';button.disabled=busy;button.onclick=async()=>{if(busy)return;stopPlayback();cohort=dataset;populate();$('patient').value=String(patient.id);await selectPatient();};td.append(button);tr.append(td);body.append(tr);}}
+}
+$('overview-search').addEventListener('input',renderOverview);
+
+function renderHistoryProfile(p){
+ const svg=$('profile-history-svg');svg.replaceChildren();svg.setAttribute('viewBox','0 0 760 240');
+ if(!p){text('profile-summary','Extended history unavailable.');text('profile-night','');text('profile-history-note','');return;}
+ text('profile-summary',`${p.observed_days} dates with readings · ${p.complete_covered_days} complete dates with at least 70% coverage · ${p.samples}/${p.expected} samples (${number(100*p.coverage,1)}%) in the displayed fourteen-date window · Mean ${number(p.mean,1)} mg/dL · Standard deviation ${number(p.std,1)} mg/dL · Coefficient of variation ${number(p.coefficient_variation_pct,1)}%.`);
+ text('profile-night',`Overnight 00:00–06:00: ${p.overnight.samples}/${p.overnight.expected} samples · Mean ${number(p.overnight.mean,1)} mg/dL · Observed readings below 70: ${Number.isFinite(p.overnight.below70_fraction)?number(100*p.overnight.below70_fraction,1):'—'}%. Missing readings are excluded from the percentage.`);
+ text('profile-history-note',p.note);
+ const available=p.hours.filter(r=>Number.isFinite(r.median));if(!available.length){svg.append(svgNode('text',{x:20,y:80,fill:'#6c7b87'},'At least three covered days per hour are needed.'));return;}
+ const lo=Math.floor((Math.min(...available.map(r=>r.p10))-10)/10)*10,hi=Math.ceil((Math.max(...available.map(r=>r.p90))+10)/10)*10;
+ const x=h=>45+h/23*690,y=v=>195-(v-lo)/(hi-lo)*165;
+ for(let i=0;i<=3;i++){const v=lo+(hi-lo)*i/3,py=y(v);svg.append(svgNode('line',{x1:45,x2:735,y1:py,y2:py,stroke:'#e2e9eb'}),svgNode('text',{x:5,y:py+4,fill:'#6c7b87','font-size':11},number(v)));}
+ for(const h of [0,6,12,18,23])svg.append(svgNode('text',{x:x(h),y:222,fill:'#6c7b87','font-size':11},`${String(h).padStart(2,'0')}:00`));
+ let segments=[],segment=[];for(const r of p.hours){if(Number.isFinite(r.median)){segment.push(r);}else if(segment.length){segments.push(segment);segment=[];}}if(segment.length)segments.push(segment);
+ for(const part of segments){for(const [low,high,color] of [['p10','p90','#e1eff7'],['p25','p75','#a7d0e5']]){if(part.length<2)continue;const points=[...part.map(r=>`${x(r.hour)},${y(r[low])}`),...part.slice().reverse().map(r=>`${x(r.hour)},${y(r[high])}`)].join(' ');svg.append(svgNode('polygon',{points,fill:color}));}const points=part.map(r=>`${x(r.hour)},${y(r.median)}`).join(' ');svg.append(svgNode('polyline',{points,fill:'none',stroke:'#2587ba','stroke-width':2}));for(const r of part){const dot=svgNode('circle',{cx:x(r.hour),cy:y(r.median),r:3,fill:'#2587ba'});dot.append(svgNode('title',{},`${r.hour}:00 · ${r.covered_days} covered days · Median ${number(r.median,1)} mg/dL`));svg.append(dot);}}
 }

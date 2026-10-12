@@ -116,3 +116,20 @@ care.add('meal-review',{kind:'meal_plan',at:'2024-01-01T08:00',note:'Planned onl
 assert.equal(care.mealReview(mealSnapshot,'meal-review').length,1);
 const reviewWithMeal=care.reviewHtml({...mealSnapshot,cohort:'demo',synthetic:true,patient_label:'Test',coverage:13,forecasts:[],profile:{}},'meal-review');
 assert.ok(reviewWithMeal.includes('After-meal observed glucose'));assert.ok(reviewWithMeal.includes('24/24'));
+
+const memoryStorage=new Map(),adapter={getItem:k=>memoryStorage.get(k)||null,setItem:(k,v)=>memoryStorage.set(k,v),removeItem:k=>memoryStorage.delete(k)};
+care.saveLocal(adapter,'meal-review',{cohort:'demo',pid:'rise'},mealSnapshot.issue_time);
+care.remove('meal-review',1);
+assert.ok(care.loadLocal(adapter,'meal-review',{cohort:'demo',pid:'rise'}));
+assert.throws(()=>care.loadLocal(adapter,'meal-review',{cohort:'demo',pid:'wrong'}));
+const lateMeal={...mealSnapshot,issue_time:'2024-01-01T18:05:00',data_cutoff:'2024-01-01T18:00:00',chart:[{time:'2024-01-01T12:00:00',glucose:100}]};
+assert.equal(care.mealReview(lateMeal,'meal-review')[0].retained,true);
+assert.equal(care.mealReview({...mealSnapshot,data_cutoff:'2024-01-01T09:55:00'},'meal-review')[0].difference,null);
+care.clearLocal(adapter,'meal-review');assert.equal(care.entries('meal-review').length,0);assert.equal(memoryStorage.size,0);
+console.log('Local persistence checks passed: validated restore, retained windows, rewind withholding, scope and clearing.');
+
+care.add('conflict',{kind:'meal',at:'2024-01-01T03:30',note:'Synthetic tab A'},mealSnapshot.issue_time);
+const storedVersion=care.saveLocal(adapter,'conflict',{cohort:'demo',pid:'rise'},mealSnapshot.issue_time,null);
+assert.throws(()=>care.saveLocal(adapter,'conflict',{cohort:'demo',pid:'rise'},mealSnapshot.issue_time,'stale version'));
+assert.ok(care.saveLocal(adapter,'conflict',{cohort:'demo',pid:'rise'},mealSnapshot.issue_time,storedVersion));
+console.log('Concurrent local-save conflict check passed.');

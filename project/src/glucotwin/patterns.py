@@ -3,6 +3,42 @@ import numpy as np
 import pandas as pd
 
 
+def descriptive_profile(times, values, cutoff):
+    """Fourteen study dates, hourly distributions across covered past days."""
+    cutoff=pd.Timestamp(cutoff);times=pd.DatetimeIndex(times)
+    values=np.asarray(values,dtype=float)
+    if len(times)!=len(values):raise ValueError('Times and readings must have the same length')
+    start=cutoff.normalize()-pd.Timedelta(days=13)
+    selected=(times>=start)&(times<=cutoff)
+    source=pd.Series(values[selected],index=times[selected]).sort_index()
+    if source.index.has_duplicates:raise ValueError('Duplicate historical timestamps')
+    phase_start=cutoff-((cutoff-start)//pd.Timedelta(minutes=5))*pd.Timedelta(minutes=5)
+    grid=pd.date_range(phase_start,cutoff,freq='5min')
+    g=source.reindex(grid).replace([np.inf,-np.inf],np.nan)
+    known=g.dropna();mean=float(known.mean()) if len(known) else None
+    std=float(known.std(ddof=0)) if len(known) else None
+    frame=pd.DataFrame(dict(value=g,date=grid.strftime('%Y-%m-%d'),hour=grid.hour))
+    complete_days=sum(len(part)==288 and part.value.notna().mean()>=.7 for _,part in frame.groupby('date'))
+    hours=[]
+    for hour in range(24):
+        covered=[part.value.dropna() for _,part in frame.loc[frame.hour==hour].groupby('date')
+                 if len(part)==12 and part.value.notna().sum()>=10]
+        enough=len(covered)>=3
+        readings=pd.concat(covered) if enough else pd.Series(dtype=float)
+        quantiles=np.quantile(readings,[.1,.25,.5,.75,.9]).tolist() if enough else [None]*5
+        hours.append(dict(hour=hour,covered_days=len(covered),samples=len(readings),
+                          **dict(zip(['p10','p25','median','p75','p90'],quantiles))))
+    night=frame.loc[frame.hour<6].value.dropna()
+    return dict(through=cutoff.isoformat(),start=phase_start.isoformat(),expected=len(grid),samples=len(known),
+                coverage=len(known)/len(grid),observed_days=int(frame.loc[frame.value.notna(),'date'].nunique()),
+                complete_covered_days=int(complete_days),mean=mean,std=std,
+                coefficient_variation_pct=100*std/mean if mean and mean>0 else None,
+                overnight=dict(samples=len(night),mean=float(night.mean()) if len(night) else None,
+                    below70_fraction=float((night<70).mean()) if len(night) else None,
+                    expected=int((frame.hour<6).sum())),hours=hours,
+                note='Past-only fourteen-date profile. Five-minute readings, no gap interpolation. Each hourly distribution needs at least three days, each with 10/12 readings in a complete hour. Historical percentiles are not forecast intervals or personalized targets.')
+
+
 def historical_patterns(times, values, cutoff):
     cutoff = pd.Timestamp(cutoff)
     times = pd.DatetimeIndex(times)
@@ -16,7 +52,7 @@ def historical_patterns(times, values, cutoff):
         raise ValueError('Duplicate historical timestamps')
     if source.empty:
         return dict(through=cutoff.isoformat(), daily=[], periods=[], observed_samples=0,
-                    note='No available historical readings.')
+                    note='No available historical readings.',profile=descriptive_profile(times,values,cutoff))
     first = max(start, source.index.min())
     first = cutoff - ((cutoff-first)//pd.Timedelta(minutes=5))*pd.Timedelta(minutes=5)
     grid = pd.date_range(first, cutoff, freq='5min')
@@ -52,4 +88,5 @@ def historical_patterns(times, values, cutoff):
                             'Insufficient comparable days' if n < 2 else 'No repeated pattern under this rule'))
     return dict(through=cutoff.isoformat(), daily=daily, periods=periods,
                 observed_samples=int(g.notna().sum()),
+                profile=descriptive_profile(times,values,cutoff),
                 note='Last seven study dates through data cutoff. Five-minute samples; gaps stay missing. Reference bands: below 70, 70–180 and above 180 mg/dL. Descriptive history, not a future forecast or individualized target.')

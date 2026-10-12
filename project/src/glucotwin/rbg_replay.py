@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 from glucotwin.rbg import rbg_features
+from glucotwin.explain import explain_ridge
 
 def issue_rbg_forecasts(frame,patient,artifacts,now):
     if patient['split']=='test':raise ValueError('Reserved test patients cannot be replayed')
@@ -22,6 +23,7 @@ def issue_rbg_forecasts(frame,patient,artifacts,now):
         elif eligible:
             result['prediction']=float(artifact['model'].predict(features.loc[[now],artifact['features']].to_numpy(dtype=np.float32))[0])
             result['persistence']=float(row.cgm_current);result['status']='Forecast issued'
+            result['explanation']=explain_ridge(artifact,features.loc[now,artifact['features']].to_numpy(),row.cgm_current)
         output.append(result)
     return output
 

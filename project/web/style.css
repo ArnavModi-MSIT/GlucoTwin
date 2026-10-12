@@ -25,3 +25,7 @@
 
 .annotation-toggle{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);margin-top:12px}.chart-annotations{margin-top:10px}.chart-annotations summary{font-size:11px;cursor:pointer}.chart-annotations p{font-size:11px;line-height:1.7;color:var(--muted);overflow-wrap:anywhere}.chart-tooltip{white-space:normal;max-width:260px;overflow-wrap:anywhere}svg [data-care-marker]:focus{outline:2px solid var(--accent)}
 .uncertainty-panel{padding:22px;margin-bottom:20px}.uncertainty-panel p{font-size:12px;line-height:1.7;color:var(--muted)}#uncertainty-ranges p:first-child{color:var(--ink);font-weight:600}
+
+.overview-panel,.explanation-panel{padding:22px;margin:18px 0}.overview-panel summary,.explanation-panel summary{cursor:pointer;font-weight:700}.overview-panel input{display:block;margin:8px 0;padding:9px;border:1px solid var(--line);border-radius:6px}.explanation-panel table{width:100%;border-collapse:collapse;margin:12px 0}.explanation-panel th,.explanation-panel td{padding:8px;border-bottom:1px solid var(--line);text-align:left}.explanation-panel p,.overview-panel p{font-size:12px;color:var(--muted)}.overview-panel .table-wrap{max-height:350px;overflow:auto}
+
+.history-profile{margin:20px 0}.history-profile summary{font-weight:700}.profile-history-chart svg{width:100%;max-height:300px}.care-storage{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.care-storage label{display:flex;gap:6px;align-items:center}.care-storage input{width:auto}

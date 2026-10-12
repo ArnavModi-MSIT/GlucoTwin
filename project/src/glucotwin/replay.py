@@ -1,6 +1,7 @@
 """Replay inference consumes only visible records; outcomes are a separate read."""
 import pandas as pd
 from glucotwin.features import make_features
+from glucotwin.explain import explain_ridge
 
 
 def issue_forecast(frame, profile, patient, artifact, now):
@@ -22,6 +23,7 @@ def issue_forecast(frame, profile, patient, artifact, now):
     elif row.history_eligible:
         result['prediction'] = float(artifact['model'].predict(features.loc[[now], artifact['features']])[0])
         result['status'] = 'Forecast issued'
+        result['explanation'] = explain_ridge(artifact,features.loc[now,artifact['features']].to_numpy(),row.cgm_current)
     return result
 
 

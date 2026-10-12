@@ -66,6 +66,20 @@ class HttpUnitTests(unittest.TestCase):
         with self.assertRaises(urllib.error.HTTPError) as error:
             urllib.request.urlopen(self.url+'/api/export?format=json')
         self.assertEqual(error.exception.code,400)
+    def test_tab_headers_isolate_replay_and_export_despite_shared_cookie(self):
+        client=urllib.request.build_opener(urllib.request.ProxyHandler({}),urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+        def create(pid):
+            request=urllib.request.Request(self.url+'/api/session',data=json.dumps(dict(cohort='demo',patient_id=pid)).encode(),headers={'Content-Type':'application/json','X-GlucoTwin-Session':''})
+            with client.open(request) as response:return response.headers['X-GlucoTwin-Session'],json.load(response)
+        first,first_snapshot=create('rise');second,second_snapshot=create('stable')
+        request=urllib.request.Request(self.url+'/api/advance',data=b'{"minutes":5}',headers={'Content-Type':'application/json','X-GlucoTwin-Session':first})
+        with client.open(request) as response:changed=json.load(response)
+        self.assertEqual(changed['patient_label'],first_snapshot['patient_label'])
+        with client.open(urllib.request.Request(self.url+'/api/snapshot',headers={'X-GlucoTwin-Session':second})) as response:
+            self.assertEqual(json.load(response)['issue_time'],second_snapshot['issue_time'])
+        with client.open(urllib.request.Request(self.url+'/api/export?format=json',headers={'X-GlucoTwin-Session':first})) as response:
+            self.assertEqual(json.load(response)['patient_label'],first_snapshot['patient_label'])
+
     def test_duplicate_listener_is_rejected(self):
         with self.assertRaises(OSError):
             web.ThreadingHTTPServer(('127.0.0.1',self.server.server_port),web.Handler)

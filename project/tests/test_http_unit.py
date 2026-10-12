@@ -80,6 +80,21 @@ class HttpUnitTests(unittest.TestCase):
         with client.open(urllib.request.Request(self.url+'/api/export?format=json',headers={'X-GlucoTwin-Session':first})) as response:
             self.assertEqual(json.load(response)['patient_label'],first_snapshot['patient_label'])
 
+    def test_import_preview_session_error_and_export_scope(self):
+        import pandas as pd
+        text='timestamp,glucose\n'+'\n'.join(f'{t.isoformat()},100' for t in pd.date_range('2024-01-01',periods=40,freq='5min'))
+        body=dict(csv_text=text,unit='mg/dL',provenance='synthetic',mode='persistence',profile={},label='Synthetic upload')
+        status,preview=self.post(body,'/api/import/preview');self.assertEqual(status,200);self.assertEqual(preview['quality']['gap_slots'],0)
+        status,error=self.post({**body,'unit':'auto'},'/api/import/preview');self.assertEqual(status,400);self.assertIn('Declare',error['error'])
+        request=urllib.request.Request(self.url+'/api/import/session',data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-GlucoTwin-Session':''})
+        with urllib.request.urlopen(request) as response:token=response.headers['X-GlucoTwin-Session'];snapshot=json.load(response)
+        self.assertTrue(snapshot['imported']);self.assertIsNone(snapshot['event_research'])
+        request=urllib.request.Request(self.url+'/api/export?format=json',headers={'X-GlucoTwin-Session':token})
+        with urllib.request.urlopen(request) as response:self.assertTrue(json.load(response)['patient_label'].endswith('Synthetic upload'))
+        hostile=urllib.request.Request(self.url+'/api/import/preview',data=json.dumps(body).encode(),headers={'Content-Type':'application/json','Origin':'https://example.com'})
+        with self.assertRaises(urllib.error.HTTPError) as exc:urllib.request.urlopen(hostile)
+        self.assertEqual(exc.exception.code,403)
+
     def test_duplicate_listener_is_rejected(self):
         with self.assertRaises(OSError):
             web.ThreadingHTTPServer(('127.0.0.1',self.server.server_port),web.Handler)

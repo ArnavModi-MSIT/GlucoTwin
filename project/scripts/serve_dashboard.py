@@ -16,6 +16,7 @@ from glucotwin.demo import DemoReplay,SCENARIOS
 from glucotwin.reporting import csv_report,html_report
 from glucotwin.patterns import historical_patterns
 from glucotwin.uncertainty import load_intervals,attach_interval
+from glucotwin.patient_import import parse_patient,ImportedReplay
 
 class ThreadingHTTPServer(_ThreadingHTTPServer):
     # Windows SO_REUSEADDR permits overlapping listeners. Exclusive binding
@@ -140,6 +141,12 @@ class Service:
     def __init__(self):self.sessions={};self.lock=threading.RLock()
     def create(self,cohort,pid,previous_key=None):
         replay=DemoReplay(cohort,pid) if cohort=='demo' else Replay(cohort,pid);key=uuid.uuid4().hex
+        return self.register(replay,key,previous_key)
+    def create_imported(self,body,previous_key=None):
+        parsed=parse_patient(body)
+        replay=ImportedReplay(parsed,models('rbg') if parsed['mode']=='rbg' else None)
+        return self.register(replay,uuid.uuid4().hex,previous_key)
+    def register(self,replay,key,previous_key=None):
         with self.lock:
             now=time.monotonic();self.sessions={k:v for k,v in self.sessions.items() if now-v[1]<3600}
             self.sessions.pop(previous_key,None)
@@ -219,7 +226,8 @@ class Handler(BaseHTTPRequestHandler):
         if self.headers.get('Content-Type','').split(';')[0]!='application/json':return self.respond(400,{'error':'Expected JSON'})
         try:
             length=int(self.headers.get('Content-Length','0'))
-            if not 0<length<=4096:
+            limit=4*1024*1024 if self.path in ('/api/import/preview','/api/import/session') else 4096
+            if not 0<length<=limit:
                 # Drain small rejected bodies so closing the socket does not
                 # discard the JSON error response on Windows. Never parse them.
                 if 0<length<=65536:self.rfile.read(length)
@@ -227,11 +235,21 @@ class Handler(BaseHTTPRequestHandler):
             raw=self.rfile.read(length)
             if len(raw)!=length:raise ValueError('Incomplete request')
             body=json.loads(raw)
-            if not isinstance(body,dict):raise ValueError('Expected JSON object')
+            if not isinstance(body,dict):raise ValueError('Expected a JSON object')
+            if self.path=='/api/import/preview':
+                parsed=parse_patient(body)
+                if parsed['mode']=='rbg':models('rbg')
+                return self.respond(200,{k:parsed[k] for k in ('id','label','mode','provenance','profile','quality')})
+            if self.path=='/api/import/session':
+                key,snapshot=service.create_imported(body,self.session_key() or None)
+                return self.respond(200,snapshot,key)
             action={'/api/session':'create','/api/advance':'advance','/api/reset':'reset'}.get(self.path)
             if not action:return self.respond(404,{'error':'Not found'})
             self.action(action,body)
-        except (ValueError,TypeError,TimeoutError):self.respond(400,{'error':'Invalid request'})
+        except json.JSONDecodeError:self.respond(400,{'error':'Invalid JSON request'})
+        except FileNotFoundError:self.respond(400,{'error':'Prepare the local RBG models before choosing transfer mode. History baseline works without them.'})
+        except (ValueError,TypeError,TimeoutError) as exc:
+            self.respond(400,{'error':str(exc) if self.path in ('/api/import/preview','/api/import/session') and isinstance(exc,ValueError) else 'Invalid request'})
     def action(self,action,body):
         try:
             if action=='create':

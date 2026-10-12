@@ -146,3 +146,7 @@
 !/project/tests/test_explain.py
 
 !/project/docs/PATIENT_REVIEW.md
+
+!/project/src/glucotwin/patient_import.py
+!/project/tests/test_patient_import.py
+!/project/docs/CSV_IMPORT.md

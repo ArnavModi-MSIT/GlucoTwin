@@ -165,3 +165,8 @@ assert.ok(!element('profile-night').textContent.includes('below 70: 0.0%'));
 vm.runInContext("catalog={cohorts:{demo:[{id:'rise',label:'Rising glucose'}]}};",context);
 context.renderOverview();assert.equal(element('overview-rows').children.length,1);
 console.log('Overview, explanation and historical profile render checks passed.');
+
+context.render({...rbg,cohort:'imported',synthetic:true,imported:true,model_name:'Persistence baseline · no trained model',import_quality:{input_rows:40,gap_slots:1,blank_rows:1,input_unit:'mg/dL'},profile_note:'User-supplied readings',event_research:null});
+assert.ok(element('research-title').textContent.includes('Imported patient'));assert.ok(element('model-column').textContent.includes('Persistence'));
+assert.equal(element('event-research').hidden,true);assert.ok(!element('evidence').textContent.includes('158 training'));
+console.log('Imported-record labels and benchmark separation checks passed.');

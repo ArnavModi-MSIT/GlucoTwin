@@ -8,6 +8,7 @@ with a local dashboard for clinicians to review patient history and outcomes.
 ## Features
 
 - Linked clinical and sensor inputs in the fitted models.
+- Validated local CSV import with explicit units, preserved gaps and optional exploratory RBG transfer.
 - Patient overview with last-viewed snapshots, search and replay navigation.
 - Patient replay with glucose history, sensor coverage, future forecasts and user-log timeline markers.
 - Ridge arithmetic explanations grouped into clinical, glucose, heart-rate and missingness contributions.
@@ -15,6 +16,7 @@ with a local dashboard for clinicians to review patient history and outcomes.
 - Optional exploratory prediction ranges with measured assessment coverage and horizon-specific widths.
 - A separate event research panel with uncalibrated scores and fixed cutoffs.
 - Daily summaries, recurring periods, and a fourteen-date historical percentile profile with variability and overnight summaries.
+- Review observations, questions and replay-timed follow-up tasks, included in combined reports.
 - Patient-specific meal/medication logs and a three-day user-entered plan, with optional local saving, JSON export and validated restore.
 - Completed after-meal reviews retained beyond the visible timeline, with replay-time checks.
 - Synthetic scenarios that run without datasets or model downloads.
@@ -104,6 +106,7 @@ prepared local-data and artifact checks.
 - [Presentation (PPTX)](project/docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](project/docs/delivery/GlucoTwin_Presentation.pdf)
 - [API](project/docs/API.md) · [Data contract](project/DATA_CONTRACT.md) · [Evaluation protocol](project/EVALUATION_PROTOCOL.md)
 - [Model results](project/docs/RESULTS.md) · [Model preparation](project/docs/REPRODUCTION.md)
+- [CSV import](project/docs/CSV_IMPORT.md)
 - [Patient review features](project/docs/PATIENT_REVIEW.md)
 - [Forecast uncertainty](project/docs/UNCERTAINTY.md)
 - [Best-results checkpoint](project/docs/BEST_RESULTS.md)

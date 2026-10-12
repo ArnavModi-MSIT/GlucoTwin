@@ -32,7 +32,7 @@ def html_report(snapshot):
     def table(rows, columns):
         return '<table><thead><tr>'+''.join('<th>'+escape(label)+'</th>' for key,label in columns)+'</tr></thead><tbody>'+''.join(
             '<tr>'+''.join('<td>'+show(row.get(key))+'</td>' for key,label in columns)+'</tr>' for row in rows)+'</tbody></table>'
-    label = 'SYNTHETIC DEMONSTRATION — NOT MEASURED MODEL PERFORMANCE' if snapshot.get('synthetic') else 'RESEARCH REPLAY — NOT CLINICALLY VALIDATED'
+    label = 'USER IMPORT — TRANSFER PERFORMANCE UNESTABLISHED' if snapshot.get('imported') else 'SYNTHETIC DEMONSTRATION — NOT MEASURED MODEL PERFORMANCE' if snapshot.get('synthetic') else 'RESEARCH REPLAY — NOT CLINICALLY VALIDATED'
     profile = ''.join('<li>'+escape(k)+': '+show(v)+'</li>' for k,v in snapshot['profile'].items())
     comparison = snapshot['comparison']
     forecasts = table(snapshot['ledger'], [('issued_at','Issued'),('horizon','Horizon (min)'),('target_time','Target'),

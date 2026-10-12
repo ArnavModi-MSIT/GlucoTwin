@@ -33,7 +33,7 @@ const wall=t=>t?t.replace('T',' ').slice(0,16):'—';
 const short=t=>t?`${t.slice(8,10)} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+t.slice(5,7)-1]}, ${t.slice(11,16)}`:'—';
 const coord=t=>Date.parse(t+'Z'); // Use UTC solely as a plotting coordinate; retain supplied wall-time labels.
 const text=(id,value)=>{$(id).textContent=value;};
-function setBusy(value){busy=value;document.body.classList.toggle('busy',value);$('loading').hidden=!value;document.querySelectorAll('button,select').forEach(e=>e.disabled=value);if(playing)$('play').disabled=false;if(!value){globalThis.GlucoCare?.refreshControls();$('import-open').disabled=!validatedImport;}if(!value&&snapshot?.at_end){document.querySelectorAll('[data-step]').forEach(e=>e.disabled=true);$('play').disabled=true;}}
+function setBusy(value){busy=value;document.body.classList.toggle('busy',value);$('loading').hidden=!value;document.querySelectorAll('button,select').forEach(e=>e.disabled=value);if(playing)$('play').disabled=false;if(!value){globalThis.GlucoCare?.refreshControls();$('import-open').disabled=!validatedImport;}if(!value&&snapshot?.at_end){document.querySelectorAll('[data-step]').forEach(e=>e.disabled=true);$('play').disabled=true;$('feed-receive').disabled=true;$('feed-missing').disabled=true;}}
 async function api(path,body){const headers={'X-GlucoTwin-Session':sessionToken};if(body!==undefined)headers['Content-Type']='application/json';const response=await fetch(path,body===undefined?{headers}:{method:'POST',headers,body:JSON.stringify(body)});const value=await response.json();if(!response.ok)throw new Error(value.error||'Request failed');const token=response.headers.get('X-GlucoTwin-Session');if(token){sessionToken=token;await ownReplay(token);}return value;}
 async function action(path,body){if(busy)return;setBusy(true);$('error').hidden=true;try{snapshot=await api(path,body);render(snapshot);if(snapshot.at_end)stopPlayback();}catch(e){stopPlayback();if(snapshot){cohort=snapshot.cohort;populate();$('patient').value=activePatientId;}$('error').textContent=e.message;$('error').hidden=false;}finally{setBusy(false);}}
 function populate(){const select=$('patient');select.replaceChildren();for(const p of catalog.cohorts[cohort]||[]){const option=document.createElement('option');option.value=p.id;option.textContent=p.label;select.append(option);}document.querySelectorAll('[data-cohort]').forEach(b=>b.classList.toggle('active',b.dataset.cohort===cohort));}
@@ -42,9 +42,11 @@ $('patient').addEventListener('change',selectPatient);
 document.querySelectorAll('[data-cohort]').forEach(b=>b.addEventListener('click',async()=>{if(busy)return;stopPlayback();if(!catalog.cohorts[b.dataset.cohort]?.length){text('error',catalog.errors?.[b.dataset.cohort]||'Prepare this cohort first.');$('error').hidden=false;return;}cohort=b.dataset.cohort;populate();await selectPatient();}));
 document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{stopPlayback();action('/api/advance',{minutes:+b.dataset.step});}));
 $('reset').addEventListener('click',()=>{stopPlayback();action('/api/reset',{});});
-function stopPlayback(){playing=false;clearTimeout(playbackTimer);playbackTimer=null;text('play','▶ Play replay');}
+function stopPlayback(){playing=false;clearTimeout(playbackTimer);playbackTimer=null;text('play',snapshot?.sensor_feed?'▶ Start simulated feed':'▶ Play replay');if(snapshot?.sensor_feed)renderSensorFeed(snapshot);}
 async function playbackTick(){if(!playing)return;if(!busy)await action('/api/advance',{minutes:5});if(playing)playbackTimer=setTimeout(playbackTick,Number($('speed').value)||1000);}
-$('play').addEventListener('click',()=>{if(playing){stopPlayback();return;}if(!snapshot||snapshot.at_end||busy)return;playing=true;text('play','Ⅱ Pause replay');playbackTimer=setTimeout(playbackTick,Number($('speed').value)||1000);});
+$('play').addEventListener('click',()=>{if(playing){stopPlayback();return;}if(!snapshot||snapshot.at_end||busy)return;playing=true;text('play',snapshot.sensor_feed?'Ⅱ Pause simulated feed':'Ⅱ Pause replay');if(snapshot.sensor_feed)renderSensorFeed(snapshot);playbackTimer=setTimeout(playbackTick,Number($('speed').value)||1000);});
+$('feed-receive').addEventListener('click',()=>{stopPlayback();action('/api/feed/sample',{missing:false});});
+$('feed-missing').addEventListener('click',()=>{stopPlayback();action('/api/feed/sample',{missing:true});});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPlayback();});
 document.querySelectorAll('[data-export]').forEach(a=>a.addEventListener('click',async e=>{e.preventDefault();stopPlayback();try{const response=await fetch(a.getAttribute('href'),{headers:{'X-GlucoTwin-Session':sessionToken}});if(!response.ok)throw Error('Export failed; select the patient again.');const blob=await response.blob(),url=URL.createObjectURL(blob),link=document.createElement('a'),format=new URL(a.href).searchParams.get('format');link.href=url;link.download=`glucotwin-${cohort}-session.${format}`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(err){text('error',err.message);$('error').hidden=false;}}));
 $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('chart-card').requestFullscreen();}catch(e){text('error','Fullscreen is unavailable in this browser.');$('error').hidden=false;}});
@@ -72,7 +74,7 @@ text('forecast30-note',imported?s.model_name:demo?'Illustrative trend + fictiona
 text('forecast60-note',imported?s.model_name:demo?'Illustrative trend + fictional baseline':'Saved profile-fused Ridge');
 text('model-column',`${modelLabel} (mg/dL)`);text('error-column',`${modelLabel} absolute error (mg/dL)`);
 text('review-title',demo?'Demo guide':'Session review');
-text('review-note',demo?(s.demo_prefill?'Worked example loaded: two weeks of fictional history, earlier replayed forecasts, and sample notes and plans. Play the replay to reveal further outcomes or choose another scenario.':'Choose a scenario, play the five-minute replay, then compare each fixed forecast with its revealed outcome. Sensor interruption shows forecasts being withheld until history recovers.'):`${s.model_name||'Saved model'} · Every five-minute issue is recorded. Session statistics describe this replay only.`);
+text('review-note',s.sensor_feed?'Receive fictional samples manually or start automatic arrivals. New values are generated on receipt; forecasts stay fixed and outcomes appear only when their target sample arrives.':demo?(s.demo_prefill?'Worked example loaded: two weeks of fictional history, earlier replayed forecasts, and sample notes and plans. Play the replay to reveal further outcomes or choose another scenario.':'Choose a scenario, play the five-minute replay, then compare each fixed forecast with its revealed outcome. Sensor interruption shows forecasts being withheld until history recovers.'):`${s.model_name||'Saved model'} · Every five-minute issue is recorded. Session statistics describe this replay only.`);
 text('review-quality',s.coverage===13?'Complete last-hour CGM window':`Incomplete CGM window: ${13-s.coverage} of 13 expected samples missing. Check forecast status.`);
 document.querySelectorAll('[data-export]').forEach(a=>a.hidden=false);
 text('patient-label',s.patient_label);
@@ -115,8 +117,41 @@ const statements=imported?[s.profile_note,'Imported files are not part of the re
 'CGM samples are reconstructed from interpolated source data, and clinical-profile availability is assumed. Numerical forecasts use Ridge; the separate event panel uses saved fused XGBoost models. Event scores are uncalibrated. No diagnosis, treatment or insulin dosing.'
 ];
 for(const statement of statements){const p=document.createElement('p');p.textContent=statement;evidence.append(p);}renderEvents(s);renderPatterns(s);
-globalThis.GlucoCare?.update(s,$('patient').value);drawChart();saveReplay();
+globalThis.GlucoCare?.update(s,$('patient').value);renderPatientSummary(s);renderSensorFeed(s);drawChart();saveReplay();
 for(const link of sectionLinks)link.setAttribute('aria-disabled',String(!!$(link.dataset.section)?.hidden));
+}
+function patientSummary(s){
+ const cutoff=coord(s.data_cutoff),issue=coord(s.issue_time),points=new Map();
+ for(const p of s.chart||[])if(coord(p.time)<=cutoff&&Number.isFinite(p.glucose))points.set(coord(p.time),p.glucose);
+ const complete=Number.isFinite(cutoff)&&cutoff<=issue&&Array.from({length:7},(_,i)=>cutoff-i*300000).every(t=>points.has(t));
+ const change=complete?points.get(cutoff)-points.get(cutoff-1800000):null;
+ const history=s.historical_patterns;
+ const daily=history?.through===s.data_cutoff?(history.daily||[]).filter(r=>r.date<=s.data_cutoff.slice(0,10)&&r.samples>0):[];
+ const samples=daily.reduce((n,r)=>n+r.samples,0),expected=history?.through===s.data_cutoff?(history.daily||[]).filter(r=>r.date<=s.data_cutoff.slice(0,10)).reduce((n,r)=>n+r.expected,0):0;
+ const fraction=field=>samples&&daily.every(r=>Number.isFinite(r[field]))?daily.reduce((n,r)=>n+r.samples*r[field],0)/samples:null;
+ return {change,samples,expected,dates:daily.length,low:fraction('low_fraction'),reference:fraction('reference_fraction'),high:fraction('high_fraction')};
+}
+function renderPatientSummary(s){
+ const summary=patientSummary(s),percent=v=>Number.isFinite(v)?`${number(100*v,1)}%`:'—';
+ text('summary-trend',Number.isFinite(summary.change)?`${summary.change>=0?'+':''}${number(summary.change,1)} mg/dL in 30 min`:'30-minute change unavailable');
+ text('summary-trend-note',Number.isFinite(summary.change)?'Observed change · seven complete five-minute readings':'Needs seven complete readings ending at the data cutoff');
+ text('summary-low',percent(summary.low));text('summary-reference',percent(summary.reference));text('summary-high',percent(summary.high));
+ text('summary-history-note',summary.expected?`Up to seven study dates through ${wall(s.data_cutoff)} · ${summary.dates} with readings. ${summary.samples}/${summary.expected} available-window slots (${percent(summary.samples/summary.expected)} coverage). First/current dates may be partial; percentages use observed readings only.`:'Historical band percentages are unavailable.');
+ const tasks=globalThis.GlucoCare?.pendingTasks(s,$('patient').value);
+ text('summary-tasks',tasks?`${tasks.due} due · ${tasks.upcoming} upcoming`:'No task summary available');
+ text('summary-tasks-note','User-entered reminders and follow-up · no automatic medical advice');
+}
+function renderSensorFeed(s){
+ const feed=s.sensor_feed;$('sensor-feed-panel').hidden=!feed;
+ if(!playing)text('play',feed?'▶ Start simulated feed':'▶ Play replay');
+ text('reset',feed?'↺ Restart simulated feed':'↺ Restart replay');
+ document.querySelectorAll('[data-step]').forEach(b=>b.textContent=feed?`${Number(b.dataset.step)/5} sample${b.dataset.step==='5'?'':'s'}`:`+${b.dataset.step} min`);
+ if(!feed)return;
+ text('feed-status',`${playing?'Running':'Paused'} · ${feed.received}/${feed.limit} new sample slots received · ${feed.missing} missing`);
+ text('feed-note',`${feed.note} Starts with ${feed.initial_samples} past readings. Receipt makes a sample available five study minutes after its timestamp. Future values are generated only when the next sample is requested.`);
+ const list=$('feed-recent');list.replaceChildren();
+ for(const p of (s.chart||[]).slice(-6)){const row=document.createElement('li');row.textContent=`${short(p.time)} · ${Number.isFinite(p.glucose)?number(p.glucose,1)+' mg/dL':'Missing sample'}`;list.append(row);}
+ $('feed-receive').disabled=busy||s.at_end;$('feed-missing').disabled=busy||s.at_end;
 }
 function renderEvents(s){
 const event=s.event_research,demo=s.cohort==='demo';$('event-research').hidden=['rbg','imported'].includes(s.cohort);

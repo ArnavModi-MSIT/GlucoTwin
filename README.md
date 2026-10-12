@@ -75,6 +75,9 @@ trend rule. Its scores are **not** the development results reported above.
 The default worked example opens with two weeks of fictional history, replayed
 forecast outcomes, and labeled sample notes and a three-day plan. Sample entries
 can be edited or removed; they are never added to research or imported patients.
+Patient summaries show observed trends, coverage and entered tasks. A simulated
+sensor-feed scenario generates fictional readings on arrival. Review reports can
+be previewed with charts and downloaded for printing.
 The research cohorts require locally prepared datasets and trusted model
 artifacts; follow the [reproduction guide](project/docs/REPRODUCTION.md).
 

@@ -187,3 +187,12 @@ context.render({...rbg,cohort:'imported',synthetic:true,imported:true,model_name
 assert.ok(element('research-title').textContent.includes('Imported patient'));assert.ok(element('model-column').textContent.includes('Persistence'));
 assert.equal(element('event-research').hidden,true);assert.ok(!element('evidence').textContent.includes('158 training'));
 console.log('Imported-record labels and benchmark separation checks passed.');
+const summarySnapshot={...rbg,chart:Array.from({length:7},(_,i)=>({time:new Date(Date.UTC(2024,0,2,11,55+i*5)).toISOString().slice(0,19),glucose:100+i*2})),historical_patterns:{through:rbg.data_cutoff,daily:[{date:'2024-01-01',samples:10,expected:20,low_fraction:.1,reference_fraction:.7,high_fraction:.2},{date:'2024-01-02',samples:90,expected:100,low_fraction:0,reference_fraction:.9,high_fraction:.1}]}};
+let quick=context.patientSummary(summarySnapshot);
+assert.equal(quick.change,12);assert.equal(quick.samples,100);assert.equal(quick.expected,120);assert.equal(quick.low,.01);assert.equal(quick.reference,.88);assert.equal(quick.high,.11);
+summarySnapshot.chart.push({time:'2024-01-02T13:00:00',glucose:999});
+assert.equal(context.patientSummary(summarySnapshot).change,12);
+summarySnapshot.chart[3].glucose=null;assert.equal(context.patientSummary(summarySnapshot).change,null);
+assert.equal(context.patientSummary({...summarySnapshot,historical_patterns:{through:'2024-01-03T00:00:00',daily:summarySnapshot.historical_patterns.daily}}).samples,0);
+context.renderPatientSummary(summarySnapshot);assert.match(element('summary-history-note').textContent,/100\/120.*83.3%/);assert.match(element('summary-trend').textContent,/unavailable/);
+console.log('Patient summary checks passed: observed trend, missing-data handling, sample weighting and cutoff consistency.');

@@ -153,12 +153,15 @@ class Service:
             if len(self.sessions)>=32:raise ValueError('Too many active replay sessions')
             self.sessions[key]=(replay,now)
         return key,replay.snapshot()
-    def operate(self,key,action,minutes=None):
+    def operate(self,key,action,minutes=None,missing=False):
         with self.lock:
             if key not in self.sessions or time.monotonic()-self.sessions[key][1]>=3600:raise ValueError('Session expired; select a patient again')
             replay,_=self.sessions[key]
             if action=='advance':replay.advance(minutes)
             elif action=='reset':replay.reset()
+            elif action=='receive':
+                if not isinstance(replay,DemoReplay):raise ValueError('Select the simulated sensor feed first')
+                replay.receive(missing)
             self.sessions[key]=(replay,time.monotonic());return replay.snapshot()
 
 service=Service()
@@ -214,7 +217,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers();self.wfile.write(data)
             except (ValueError,KeyError):return self.respond(400,{'error':'Session expired; select a patient again'})
             return
-        files={'/':'index.html','/style.css':'style.css','/app.js':'app.js','/care.js':'care.js'}
+        files={'/':'index.html','/style.css':'style.css','/app.js':'app.js','/care.js':'care.js','/report_charts.js':'report_charts.js'}
         if self.path not in files:return self.respond(404,{'error':'Not found'})
         path=ROOT/'web'/files[self.path];data=path.read_bytes();self.send_response(200)
         self.send_header('Content-Type',{'html':'text/html; charset=utf-8','css':'text/css','js':'text/javascript'}[path.suffix[1:]])
@@ -243,7 +246,7 @@ class Handler(BaseHTTPRequestHandler):
             if self.path=='/api/import/session':
                 key,snapshot=service.create_imported(body,self.session_key() or None)
                 return self.respond(200,snapshot,key)
-            action={'/api/session':'create','/api/advance':'advance','/api/reset':'reset'}.get(self.path)
+            action={'/api/session':'create','/api/advance':'advance','/api/reset':'reset','/api/feed/sample':'receive'}.get(self.path)
             if not action:return self.respond(404,{'error':'Not found'})
             self.action(action,body)
         except json.JSONDecodeError:self.respond(400,{'error':'Invalid JSON request'})
@@ -260,7 +263,7 @@ class Handler(BaseHTTPRequestHandler):
                 previous=self.session_key() or None
                 key,snapshot=service.create(cohort,pid,previous);return self.respond(200,snapshot,key)
             key=self.session_key()
-            self.respond(200,service.operate(key,action,body.get('minutes')))
+            self.respond(200,service.operate(key,action,body.get('minutes'),body.get('missing',False)))
         except FileNotFoundError:self.respond(400,{'error':'Prepare local data and saved models first. See README.'})
         except (ValueError,KeyError,TypeError) as exc:self.respond(400,{'error':str(exc)})
         except Exception:

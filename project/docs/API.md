@@ -16,6 +16,7 @@ The service binds to loopback. It is a local research interface.
 | `/api/export?format=csv` | GET | Session cookie | Forecast and event ledger download |
 | `/api/export?format=json` | GET | Session cookie | Revealed snapshot download |
 | `/api/export?format=html` | GET | Session cookie | Printable session report; browser Print can save PDF |
+| `/api/feed/sample` | POST | Session cookie or tab header; optional `missing` boolean | Receive one fictional five-minute slot in the simulated feed only |
 
 `demo` is always available in the catalog with scenarios `showcase`, `rise`, `stable`, and
 `gap`. The default `showcase` includes fictional history and chronological replayed outcomes. Create one using `{"cohort":"demo","patient_id":"rise"}`. This mode uses
@@ -127,6 +128,27 @@ Print / Save as PDF. The existing backend print report remains the replay-only
 report; care-note JSON remains the restore format. Local HTML preview may be
 unavailable in embedded browsers that block file URLs. The summary is research
 context for review and supplies no diagnosis or treatment recommendations.
+
+The separate **Preview review report** button displays a frozen capture inside a
+sandboxed in-app frame, without opening a file URL. Its download contains the same
+captured HTML, including SVG timeline and past hourly percentile charts. It makes
+no API upload, includes no scripts or external resources, and pauses playback.
+
+## Fictional sensor feed
+
+Create a demo session with `patient_id: "feed"`. It bootstraps 73 past fictional
+samples. POST `/api/feed/sample` with `{}` or `{"missing": false}` generates one
+new sample; `{"missing": true}` appends a missing slot. Other types are rejected
+without changing the session. Research, imported and other demo sessions reject
+this operation. `/api/advance` receives one slot per five-minute step for this
+scenario; `/api/reset` discards received slots and restores the bootstrap state.
+
+The clock is sample time plus five minutes. Forecast targets are revealed only
+after their sample arrives, and previous issued estimates are unchanged.
+`sensor_feed` snapshot metadata describes received/missing slots, bootstrap
+count and the 288-slot limit. GET snapshot does not generate data. At the limit,
+receipt is a no-op and `at_end` is true. This is accelerated fictional input,
+not a connected sensor, research cohort or real-time medical monitoring service.
 
 ## User action markers
 

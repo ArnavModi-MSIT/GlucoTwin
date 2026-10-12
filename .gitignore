@@ -131,6 +131,7 @@
 **/*.bak
 
 !/project/web/care.js
+!/project/web/report_charts.js
 !/project/tests/care_unit.js
 
 !/project/src/glucotwin/patterns.py

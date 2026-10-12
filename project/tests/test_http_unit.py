@@ -23,6 +23,27 @@ class HttpUnitTests(unittest.TestCase):
     def test_non_object_and_invalid_cohort(self):
         for body in [[],None,42,'text',{'cohort':None},{'cohort':[]}]:
             status,value=self.post(body);self.assertEqual(status,400);self.assertIn('error',value)
+    def test_feed_receipt_endpoint_is_session_specific_and_rejects_invalid_data(self):
+        create=urllib.request.Request(self.url+'/api/session',data=b'{"cohort":"demo","patient_id":"feed"}',headers={'Content-Type':'application/json','X-GlucoTwin-Session':''})
+        with urllib.request.urlopen(create) as response:
+            token=response.headers['X-GlucoTwin-Session'];before=json.load(response)
+        def receive(body):
+            return urllib.request.urlopen(urllib.request.Request(self.url+'/api/feed/sample',data=json.dumps(body).encode(),headers={'Content-Type':'application/json','X-GlucoTwin-Session':token}))
+        with receive({'missing':True}) as response:
+            after=json.load(response);self.assertEqual(after['sensor_feed']['received'],1)
+            self.assertIsNone(after['latest']);self.assertEqual(after['sensor_feed']['missing'],1)
+        with self.assertRaises(urllib.error.HTTPError) as error:receive({'missing':'false'})
+        self.assertEqual(error.exception.code,400)
+        request=urllib.request.Request(self.url+'/api/snapshot',headers={'X-GlucoTwin-Session':token})
+        with urllib.request.urlopen(request) as response:self.assertEqual(json.load(response),after)
+        self.assertNotEqual(before['issue_time'],after['issue_time'])
+
+    def test_feed_endpoint_cannot_modify_research_or_replay_sessions(self):
+        key,before=web.service.create('demo','rise')
+        request=urllib.request.Request(self.url+'/api/feed/sample',data=b'{}',headers={'Content-Type':'application/json','X-GlucoTwin-Session':key})
+        with self.assertRaises(urllib.error.HTTPError) as error:urllib.request.urlopen(request)
+        self.assertEqual(error.exception.code,400)
+        self.assertEqual(web.clean(web.service.operate(key,'snapshot')),web.clean(before))
     def test_failed_inference_is_controlled(self):
         with patch.object(web,'catalog',return_value={'P-012':{}}),patch.object(web.service,'create',side_effect=RuntimeError('private path')):
             with self.assertLogs(level='ERROR'):

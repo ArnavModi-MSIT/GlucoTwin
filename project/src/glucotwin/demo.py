@@ -8,6 +8,7 @@ SCENARIOS = {
     'rise': 'Rising glucose',
     'stable': 'Stable trajectory',
     'gap': 'Sensor interruption',
+    'feed': 'Simulated sensor feed',
 }
 
 
@@ -17,6 +18,9 @@ class DemoReplay:
         if pid not in SCENARIOS:
             raise ValueError('Unknown synthetic scenario')
         self.pid = pid
+        if pid == 'feed':
+            self.reset()
+            return
         self.clock = pd.date_range('2024-01-01', periods=145, freq='5min')
         minutes = np.arange(len(self.clock)) * 5
         values = 120 + 5 * np.sin(minutes / 32)
@@ -43,6 +47,19 @@ class DemoReplay:
         self.reset()
 
     def reset(self):
+        if self.pid == 'feed':
+            # Bootstrap past history only. Each later measurement is generated
+            # on receipt; no future values are stored in this session.
+            self.clock = pd.date_range('2024-01-01', periods=74, freq='5min')
+            self.position = self.start = 73
+            self.glucose = pd.Series([self.feed_value(t) for t in self.clock[:-1]],
+                                     index=self.clock[:-1])
+            self.profile = {'Age': '48 years (fictional)', 'Recorded sex': 'F (fictional)',
+                            'Baseline glucose': '120 mg/dL (synthetic)'}
+            self.feed_received = 0
+            self.ledger, self.event_ledger = [], []
+            self.issue()
+            return
         self.position = self.start-30 if self.pid == 'showcase' else self.start
         self.ledger = []
         self.event_ledger = []
@@ -55,10 +72,34 @@ class DemoReplay:
     def advance(self, minutes):
         if type(minutes) is not int or minutes not in (5, 30, 60):
             raise ValueError('Step must be 5, 30 or 60 minutes')
+        if self.pid == 'feed':
+            for _ in range(minutes // 5):
+                self.receive()
+            return
         end = min(self.position + minutes // 5, len(self.clock) - 1)
         while self.position < end:
             self.position += 1
             self.issue()
+
+    @staticmethod
+    def feed_value(time):
+        minutes = (time-pd.Timestamp('2024-01-01')).total_seconds()/60
+        return round(float(120 + 5*np.sin(minutes/32)
+                           + 110*np.exp(-((minutes % 1440-435)/55)**2)), 1)
+
+    def receive(self, missing=False):
+        if self.pid != 'feed':
+            raise ValueError('Samples can be received only by the simulated sensor feed')
+        if type(missing) is not bool:
+            raise ValueError('Missing must be true or false')
+        if self.feed_received >= 288:
+            return
+        time = self.clock[self.position]
+        self.glucose.loc[time] = np.nan if missing else self.feed_value(time)
+        self.clock = self.clock.append(pd.DatetimeIndex([time+pd.Timedelta(minutes=5)]))
+        self.position += 1
+        self.feed_received += 1
+        self.issue()
 
     def issue(self):
         now = self.clock[self.position]
@@ -123,7 +164,7 @@ class DemoReplay:
                                    lead_minutes=(matches[0]-row['issued_at']).total_seconds()/60)
             event_rows.append(row)
         done = [r for r in rows if r['actual'] is not None]
-        return dict(cohort='demo', patient_id=self.pid, synthetic=True, patient_label='Synthetic · '+SCENARIOS[self.pid],
+        snapshot = dict(cohort='demo', patient_id=self.pid, synthetic=True, patient_label='Synthetic · '+SCENARIOS[self.pid],
             demo_prefill=self.pid == 'showcase', demo_seed_time=self.clock[self.start],
             issue_time=now, data_cutoff=cutoff, sensor_delay_minutes=5, profile=self.profile,
             profile_note='Fictional profile + past sensor trend feed an illustrative rule. No fitted ML model or clinical evidence.',
@@ -136,4 +177,10 @@ class DemoReplay:
             event_research=dict(available=True, synthetic=True, current=self.event_ledger[-1], ledger=event_rows,
                 metadata={}, probability_display_approved=False, operational_alerts_approved=False),
             model_name='Illustrative trend + fictional baseline v1', event_model_name='Synthetic trend rule · 180 mg/dL cutoff',
-            at_end=self.position == len(self.clock)-1)
+            at_end=self.feed_received >= 288 if self.pid == 'feed' else self.position == len(self.clock)-1)
+        if self.pid == 'feed':
+            snapshot['sensor_feed'] = dict(simulated=True, received=self.feed_received,
+                initial_samples=73, missing=int(self.glucose.isna().sum()), limit=288,
+                latest_received_time=self.glucose.index[-1],
+                note='Fictional samples generated on receipt. Five study minutes per sample; not a connected medical device.')
+        return snapshot

@@ -1,0 +1,552 @@
+{
+  "version": "cgmacros-independent-tuning-v3",
+  "status": "exploratory development comparison; reserved patients unscored; no promotion",
+  "protocol_sha256": "4ca73b0a822c60e5485e25f1c8b38d98fade389fa1670b0dd52d02128688ff9b",
+  "reference_report_sha256": "c4174f85efaf2522101e067df7d920d065ade6de5c5fcb3cef78d6fadac66dd8",
+  "reference_input_manifest_sha256": "5e6e3243bd46c06750263510ebe0985324d5937d3a1d2c61842f69feb8411fd1",
+  "source_sha256": {
+    "scripts\\compare_event_models.py": "78137b9bdd00fda4d91da928b37462db23fd037e3ef110fe07ff120f97c3c971",
+    "scripts\\run_event_study.py": "5579d34560d95ee76d8fbb6dca3fda25fe546c11bac31301e063dc2c582b71cf",
+    "src\\glucotwin\\features.py": "1e39bf112b662f32eaa43e683994af335a69aef289985c3d624e9de4a861c127",
+    "src\\glucotwin\\episodes.py": "d2a1d7e64ef6416135f68f6dd5f58c5426077b6966dd44100837f0758cb3b906",
+    "src\\glucotwin\\event_study.py": "72a06370394c3cbe43edeb29458a05a8a67a60346124ba27191706324ec1cfab"
+  },
+  "support": {
+    "patients": 27,
+    "opportunities": 59105,
+    "known_label_rows": 58880,
+    "positive_label_rows": 1999,
+    "unknown_label_rows": 225
+  },
+  "folds": [
+    {
+      "fold": 1,
+      "methods": {
+        "fused": {
+          "selected_candidate": "xgb_600_d3",
+          "inner_selection": {
+            "xgb_600_d3": {
+              "mean_average_precision": 0.342528030321601,
+              "fold_average_precision": [
+                0.3475298104136913,
+                0.2948398455776295,
+                0.3852144349734823
+              ]
+            },
+            "xgb_800_d5": {
+              "mean_average_precision": 0.3089493990664632,
+              "fold_average_precision": [
+                0.3024833827039974,
+                0.2680121513418423,
+                0.3563526631535499
+              ]
+            },
+            "xgb_1200_d3_balanced": {
+              "mean_average_precision": 0.30489597059204376,
+              "fold_average_precision": [
+                0.2856605660331681,
+                0.2733588309731409,
+                0.35566851476982225
+              ]
+            },
+            "xgb_800_d4_balanced": {
+              "mean_average_precision": 0.3076357839122304,
+              "fold_average_precision": [
+                0.29143898203152485,
+                0.2804034652030133,
+                0.3510649045021531
+              ]
+            }
+          },
+          "threshold": 0.26683644294738834,
+          "threshold_setting": {
+            "qualifying_episodes": 56,
+            "evaluable_episodes": 51,
+            "detected_episodes": 31,
+            "alarms": 46,
+            "false_alarms": 15,
+            "unknown_alarms": 0,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 15.67013888888889,
+            "episode_recall": 0.6078431372549019,
+            "precision_lower_bound": 0.6739130434782609,
+            "false_per_eligible_day": 0.9572346554398404,
+            "median_lead_minutes": 10.0,
+            "patients_with_evaluable_episodes": 3
+          },
+          "cutoff_operating_criteria_met_with_support_waived": true,
+          "cutoff_full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "outer_evaluation": {
+            "qualifying_episodes": 123,
+            "evaluable_episodes": 115,
+            "detected_episodes": 79,
+            "alarms": 176,
+            "false_alarms": 96,
+            "unknown_alarms": 1,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 69.01041666666666,
+            "episode_recall": 0.6869565217391305,
+            "precision_lower_bound": 0.44886363636363635,
+            "false_per_eligible_day": 1.3910943396226416,
+            "median_lead_minutes": 10.0,
+            "patients_with_evaluable_episodes": 9,
+            "recall_with_at_least_10_minutes_lead": 0.4
+          }
+        },
+        "cgm_only": {
+          "selected_candidate": "xgb_600_d3",
+          "inner_selection": {
+            "xgb_600_d3": {
+              "mean_average_precision": 0.32005713571352906,
+              "fold_average_precision": [
+                0.2980039090608993,
+                0.297738595097197,
+                0.36442890298249075
+              ]
+            },
+            "xgb_800_d5": {
+              "mean_average_precision": 0.2970812430676382,
+              "fold_average_precision": [
+                0.2730029914292029,
+                0.2813083144760852,
+                0.3369324232976266
+              ]
+            },
+            "xgb_1200_d3_balanced": {
+              "mean_average_precision": 0.31241108601903295,
+              "fold_average_precision": [
+                0.28504886614810454,
+                0.29341677550149553,
+                0.3587676164074987
+              ]
+            },
+            "xgb_800_d4_balanced": {
+              "mean_average_precision": 0.3140908818355142,
+              "fold_average_precision": [
+                0.29016384075064205,
+                0.28934538604343135,
+                0.36276341871246925
+              ]
+            }
+          },
+          "threshold": 0.4065953445434595,
+          "threshold_setting": {
+            "qualifying_episodes": 56,
+            "evaluable_episodes": 51,
+            "detected_episodes": 35,
+            "alarms": 49,
+            "false_alarms": 14,
+            "unknown_alarms": 0,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 15.67013888888889,
+            "episode_recall": 0.6862745098039216,
+            "precision_lower_bound": 0.7142857142857143,
+            "false_per_eligible_day": 0.8934190117438511,
+            "median_lead_minutes": 10.0,
+            "patients_with_evaluable_episodes": 3
+          },
+          "cutoff_operating_criteria_met_with_support_waived": true,
+          "cutoff_full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "outer_evaluation": {
+            "qualifying_episodes": 123,
+            "evaluable_episodes": 115,
+            "detected_episodes": 91,
+            "alarms": 169,
+            "false_alarms": 78,
+            "unknown_alarms": 0,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 69.01041666666666,
+            "episode_recall": 0.7913043478260869,
+            "precision_lower_bound": 0.5384615384615384,
+            "false_per_eligible_day": 1.1302641509433964,
+            "median_lead_minutes": 5.0,
+            "patients_with_evaluable_episodes": 9,
+            "recall_with_at_least_10_minutes_lead": 0.3391304347826087
+          }
+        }
+      }
+    },
+    {
+      "fold": 2,
+      "methods": {
+        "fused": {
+          "selected_candidate": "xgb_600_d3",
+          "inner_selection": {
+            "xgb_600_d3": {
+              "mean_average_precision": 0.35459611388575524,
+              "fold_average_precision": [
+                0.33505032148326186,
+                0.32266332221945726,
+                0.40607469795454654
+              ]
+            },
+            "xgb_800_d5": {
+              "mean_average_precision": 0.33101680812247997,
+              "fold_average_precision": [
+                0.32214032260510406,
+                0.30070885323199553,
+                0.37020124853034025
+              ]
+            },
+            "xgb_1200_d3_balanced": {
+              "mean_average_precision": 0.33313146910089264,
+              "fold_average_precision": [
+                0.30993835162341615,
+                0.2872225922009916,
+                0.4022334634782702
+              ]
+            },
+            "xgb_800_d4_balanced": {
+              "mean_average_precision": 0.3375644837072915,
+              "fold_average_precision": [
+                0.31427886840415853,
+                0.2952429411420523,
+                0.40317164157566354
+              ]
+            }
+          },
+          "threshold": 0.4894220405817034,
+          "threshold_setting": {
+            "qualifying_episodes": 49,
+            "evaluable_episodes": 44,
+            "detected_episodes": 24,
+            "alarms": 37,
+            "false_alarms": 12,
+            "unknown_alarms": 1,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 22.84375,
+            "episode_recall": 0.5454545454545454,
+            "precision_lower_bound": 0.6486486486486487,
+            "false_per_eligible_day": 0.5253077975376197,
+            "median_lead_minutes": 5.0,
+            "patients_with_evaluable_episodes": 3
+          },
+          "cutoff_operating_criteria_met_with_support_waived": false,
+          "cutoff_full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "outer_evaluation": {
+            "qualifying_episodes": 94,
+            "evaluable_episodes": 87,
+            "detected_episodes": 47,
+            "alarms": 83,
+            "false_alarms": 34,
+            "unknown_alarms": 2,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 72.7361111111111,
+            "episode_recall": 0.5402298850574713,
+            "precision_lower_bound": 0.5662650602409639,
+            "false_per_eligible_day": 0.46744319266755785,
+            "median_lead_minutes": 5.0,
+            "patients_with_evaluable_episodes": 9,
+            "recall_with_at_least_10_minutes_lead": 0.1839080459770115
+          }
+        },
+        "cgm_only": {
+          "selected_candidate": "xgb_1200_d3_balanced",
+          "inner_selection": {
+            "xgb_600_d3": {
+              "mean_average_precision": 0.3269648254553174,
+              "fold_average_precision": [
+                0.36199649318221705,
+                0.2986233529482567,
+                0.3202746302354785
+              ]
+            },
+            "xgb_800_d5": {
+              "mean_average_precision": 0.3196012430153188,
+              "fold_average_precision": [
+                0.35049849607230704,
+                0.29502606802040443,
+                0.3132791649532449
+              ]
+            },
+            "xgb_1200_d3_balanced": {
+              "mean_average_precision": 0.32853300747912284,
+              "fold_average_precision": [
+                0.3633717211294396,
+                0.28226309558425877,
+                0.33996420572367014
+              ]
+            },
+            "xgb_800_d4_balanced": {
+              "mean_average_precision": 0.32564478142531905,
+              "fold_average_precision": [
+                0.35911008486797175,
+                0.28042945751345144,
+                0.33739480189453397
+              ]
+            }
+          },
+          "threshold": 0.9476639389991762,
+          "threshold_setting": {
+            "qualifying_episodes": 49,
+            "evaluable_episodes": 44,
+            "detected_episodes": 27,
+            "alarms": 46,
+            "false_alarms": 18,
+            "unknown_alarms": 1,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 22.84375,
+            "episode_recall": 0.6136363636363636,
+            "precision_lower_bound": 0.5869565217391305,
+            "false_per_eligible_day": 0.7879616963064295,
+            "median_lead_minutes": 5.0,
+            "patients_with_evaluable_episodes": 3
+          },
+          "cutoff_operating_criteria_met_with_support_waived": false,
+          "cutoff_full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "outer_evaluation": {
+            "qualifying_episodes": 94,
+            "evaluable_episodes": 87,
+            "detected_episodes": 44,
+            "alarms": 87,
+            "false_alarms": 41,
+            "unknown_alarms": 2,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 72.7361111111111,
+            "episode_recall": 0.5057471264367817,
+            "precision_lower_bound": 0.5057471264367817,
+            "false_per_eligible_day": 0.5636814970402904,
+            "median_lead_minutes": 5.0,
+            "patients_with_evaluable_episodes": 9,
+            "recall_with_at_least_10_minutes_lead": 0.13793103448275862
+          }
+        }
+      }
+    },
+    {
+      "fold": 3,
+      "methods": {
+        "fused": {
+          "selected_candidate": "xgb_600_d3",
+          "inner_selection": {
+            "xgb_600_d3": {
+              "mean_average_precision": 0.23087980011556283,
+              "fold_average_precision": [
+                0.23454793052298845,
+                0.1775233341745431,
+                0.280568135649157
+              ]
+            },
+            "xgb_800_d5": {
+              "mean_average_precision": 0.20873832014584237,
+              "fold_average_precision": [
+                0.19219136690961383,
+                0.17295857193731368,
+                0.26106502159059963
+              ]
+            },
+            "xgb_1200_d3_balanced": {
+              "mean_average_precision": 0.21694196576417446,
+              "fold_average_precision": [
+                0.2196340583563439,
+                0.1577363145619022,
+                0.2734555243742772
+              ]
+            },
+            "xgb_800_d4_balanced": {
+              "mean_average_precision": 0.21408524817465743,
+              "fold_average_precision": [
+                0.21191839314690042,
+                0.15103522980586526,
+                0.2793021215712066
+              ]
+            }
+          },
+          "threshold": 0.28183798849582675,
+          "threshold_setting": {
+            "qualifying_episodes": 53,
+            "evaluable_episodes": 48,
+            "detected_episodes": 34,
+            "alarms": 54,
+            "false_alarms": 20,
+            "unknown_alarms": 0,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 21.28472222222222,
+            "episode_recall": 0.7083333333333334,
+            "precision_lower_bound": 0.6296296296296297,
+            "false_per_eligible_day": 0.9396411092985318,
+            "median_lead_minutes": 5.0,
+            "patients_with_evaluable_episodes": 3
+          },
+          "cutoff_operating_criteria_met_with_support_waived": false,
+          "cutoff_full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "outer_evaluation": {
+            "qualifying_episodes": 149,
+            "evaluable_episodes": 134,
+            "detected_episodes": 103,
+            "alarms": 175,
+            "false_alarms": 71,
+            "unknown_alarms": 1,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 63.47916666666667,
+            "episode_recall": 0.7686567164179104,
+            "precision_lower_bound": 0.5885714285714285,
+            "false_per_eligible_day": 1.1184771906793567,
+            "median_lead_minutes": 10.0,
+            "patients_with_evaluable_episodes": 9,
+            "recall_with_at_least_10_minutes_lead": 0.4552238805970149
+          }
+        },
+        "cgm_only": {
+          "selected_candidate": "xgb_600_d3",
+          "inner_selection": {
+            "xgb_600_d3": {
+              "mean_average_precision": 0.2472022268231118,
+              "fold_average_precision": [
+                0.24671919688587127,
+                0.18780672695796505,
+                0.3070807566254991
+              ]
+            },
+            "xgb_800_d5": {
+              "mean_average_precision": 0.23116229573410996,
+              "fold_average_precision": [
+                0.22657616460340588,
+                0.17404851322782913,
+                0.2928622093710948
+              ]
+            },
+            "xgb_1200_d3_balanced": {
+              "mean_average_precision": 0.23572201066843945,
+              "fold_average_precision": [
+                0.21625084543544754,
+                0.20230304662403334,
+                0.2886121399458375
+              ]
+            },
+            "xgb_800_d4_balanced": {
+              "mean_average_precision": 0.23724991992062675,
+              "fold_average_precision": [
+                0.21978859991859281,
+                0.19920747004512826,
+                0.2927536897981592
+              ]
+            }
+          },
+          "threshold": 0.450733985900879,
+          "threshold_setting": {
+            "qualifying_episodes": 53,
+            "evaluable_episodes": 48,
+            "detected_episodes": 29,
+            "alarms": 38,
+            "false_alarms": 9,
+            "unknown_alarms": 0,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 21.28472222222222,
+            "episode_recall": 0.6041666666666666,
+            "precision_lower_bound": 0.7631578947368421,
+            "false_per_eligible_day": 0.42283849918433936,
+            "median_lead_minutes": 10.0,
+            "patients_with_evaluable_episodes": 3
+          },
+          "cutoff_operating_criteria_met_with_support_waived": true,
+          "cutoff_full_support_gate_met": false,
+          "cutoff_patients": 3,
+          "outer_evaluation": {
+            "qualifying_episodes": 149,
+            "evaluable_episodes": 134,
+            "detected_episodes": 85,
+            "alarms": 124,
+            "false_alarms": 39,
+            "unknown_alarms": 0,
+            "redundant_alarms": 0,
+            "eligible_monitoring_days": 63.47916666666667,
+            "episode_recall": 0.6343283582089553,
+            "precision_lower_bound": 0.6854838709677419,
+            "false_per_eligible_day": 0.61437479488021,
+            "median_lead_minutes": 5.0,
+            "patients_with_evaluable_episodes": 9,
+            "recall_with_at_least_10_minutes_lead": 0.29850746268656714
+          }
+        }
+      }
+    }
+  ],
+  "pooled": {
+    "fused": {
+      "qualifying_episodes": 366,
+      "evaluable_episodes": 336,
+      "detected_episodes": 229,
+      "alarms": 434,
+      "false_alarms": 201,
+      "unknown_alarms": 4,
+      "redundant_alarms": 0,
+      "eligible_monitoring_days": 205.2256944444444,
+      "episode_recall": 0.6815476190476191,
+      "precision_lower_bound": 0.5276497695852534,
+      "false_per_eligible_day": 0.9794095254208613,
+      "median_lead_minutes": 10.0,
+      "patients_with_evaluable_episodes": 27,
+      "recall_with_at_least_10_minutes_lead": 0.36607142857142855
+    },
+    "cgm_only": {
+      "qualifying_episodes": 366,
+      "evaluable_episodes": 336,
+      "detected_episodes": 220,
+      "alarms": 380,
+      "false_alarms": 158,
+      "unknown_alarms": 2,
+      "redundant_alarms": 0,
+      "eligible_monitoring_days": 205.2256944444444,
+      "episode_recall": 0.6547619047619048,
+      "precision_lower_bound": 0.5789473684210527,
+      "false_per_eligible_day": 0.769884104559682,
+      "median_lead_minutes": 5.0,
+      "patients_with_evaluable_episodes": 27,
+      "recall_with_at_least_10_minutes_lead": 0.2708333333333333
+    }
+  },
+  "paired_fused_minus_cgm_bootstrap95": {
+    "episode_recall": {
+      "lower": -0.07778985507246382,
+      "upper": 0.11458613351254482,
+      "valid_resamples": 2000
+    },
+    "precision_lower_bound": {
+      "lower": -0.09461911488143207,
+      "upper": -0.004846115985851114,
+      "valid_resamples": 2000
+    },
+    "false_per_eligible_day": {
+      "lower": 0.03834052426406801,
+      "upper": 0.39188192514908143,
+      "valid_resamples": 2000
+    },
+    "recall_with_at_least_10_minutes_lead": {
+      "lower": 0.0088191582787273,
+      "upper": 0.18840689837452093,
+      "valid_resamples": 2000
+    }
+  },
+  "bootstrap_unit": "patient; identical 2000 resamples for both arms, seed 2026",
+  "pooled_engineering_gate_passed": {
+    "fused": true,
+    "cgm_only": false
+  },
+  "fused_v2_exact_reproduction": true,
+  "active_files_unchanged": true,
+  "operational_alerts_approved": false,
+  "probability_display_approved": false,
+  "runtime_seconds": 264.18,
+  "sampled_peak_rss_mib": 232.98,
+  "device": "cpu",
+  "versions": {
+    "python": "3.10.11",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "sklearn": "1.7.2",
+    "xgboost": "3.2.0"
+  },
+  "limitations": [
+    "Repeatedly inspected development cohort; not a fresh test",
+    "Only 27 development patients and three cutoff patients per fold",
+    "Reconstructed sensor grid and assumed clinical availability",
+    "Uncalibrated scores; no medical validation",
+    "Pooled episode metrics are not patient-macro metrics"
+  ]
+}

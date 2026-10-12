@@ -1,0 +1,13 @@
+{
+  "version": "cgmacros-independent-tuning-v3",
+  "reference_protocol_sha256": "2477485444624abca60bb8c2cf3cab3d0eb864615a2504b7b67f6dc494ffec8e",
+  "reference_protocol": "event_study_gpu_v2.json",
+  "change": "Independently select hyperparameters per arm using the same four candidates and same inner patient folds",
+  "unchanged": "Feature definitions, source files, rows, labels, all patient roles, cutoff selection, cooldown and engineering gate",
+  "selection_access": "Fit patients only; cutoff patients only for threshold choice; all six models frozen before outer scoring",
+  "budget": "4 candidates x 3 inner folds x 2 arms x 3 outer folds = 72 inner fits plus 6 final fits",
+  "evaluation": "Patient-paired bootstrap with 2000 shared resamples, seed 2026",
+  "operational_alerts_approved": false,
+  "probability_display_approved": false,
+  "promotion": "None; preserve active v2 artifacts and reproduce fused results exactly"
+}

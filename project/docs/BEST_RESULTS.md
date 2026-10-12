@@ -7,6 +7,11 @@ reserved-test performance remains unscored. Synthetic-demo scores are excluded.
 
 The [high-event diagnostic audit](HIGH_EVENT_AUDIT.md) leaves this selection and
 all scores unchanged; its cutoff-patient counts are not a new best result.
+The subsequent [independent tuning comparison](EVENT_COMPARISON.md) reproduces
+the active fused result exactly and establishes no better overall model.
+CGM-only independently tuned on the same budget achieves 65.5% recall, 57.9%
+precision, 0.770 false alarms/eligible day and five-minute median lead. It remains
+a comparison arm, not a replacement. Numerical MAEs are unchanged.
 
 ## Working application
 

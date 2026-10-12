@@ -58,7 +58,13 @@ monitoring days exclude unavailable or ineligible coverage.
 The CGM-only comparison uses the configuration selected for the fused model,
 with separate cutoff selection. It is a matched feature ablation, not an
 independently tuned sensor-only benchmark. A fair model-selection comparison
-requires a separately versioned study with equal tuning budgets for both arms.
+is now available in a separately versioned
+[equal-budget comparison](EVENT_COMPARISON.md). Independently tuned CGM-only
+achieved 65.5% recall, 57.9% conservative precision, 0.770 false alarms per
+eligible day and five-minute median lead. Fused reproduced v2 exactly. Its
+paired recall advantage still includes zero (-7.8 to +11.5 percentage points);
+earlier warnings trade off against lower precision and more false alarms.
+This follow-up does not replace the active artifacts or improve numerical MAE.
 
 The retained [aggregate model report](../reports/event_study_gpu_v2.json) also
 supplies cutoffs and fingerprints needed to verify the saved runtime models.

@@ -62,6 +62,10 @@ The protocol filename is retained to match existing artifact fingerprints;
 it does not imply GPU execution. Do not modify cutoffs against reserved data.
 See [event replay](EVENT_REPLAY.md) and [current results](RESULTS.md).
 
+The separate [independent tuning comparison](EVENT_COMPARISON.md) gives both
+feature arms the same candidate budget and preserves the active v2 models.
+Its versioned outputs are separate from the files loaded by the dashboard.
+
 ## Launch
 
 Run `python scripts/launch_dashboard.py`, or double-click `StartGlucoTwin.cmd`

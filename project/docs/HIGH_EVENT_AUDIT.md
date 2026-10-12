@@ -58,6 +58,10 @@ a separately versioned protocol with fixed patient roles and admission rules,
 paired error/event reporting, and untouched reserved patients. Do not tune that
 comparison against the error categories from outer-evaluation patients.
 
+That follow-up is recorded in the separate
+[independent tuning comparison](EVENT_COMPARISON.md); this diagnostic audit and
+its original counts remain unchanged.
+
 ## Reproduce
 
 After the existing event study has been prepared, run from `project/`:

@@ -11,6 +11,7 @@ with a local dashboard for clinicians to review patient history and outcomes.
 - Patient replay with glucose history, sensor coverage and future forecasts.
 - Fixed prediction ledgers, delayed outcome reveal and persistence comparisons.
 - A separate event research panel with uncalibrated scores and fixed cutoffs.
+- Patient-specific meal/medication logs and prescribed-schedule reminders on replay time; separate notes export.
 - Synthetic scenarios that run without datasets or model downloads.
 - Automatic five-minute replay, issued-flag and revealed-onset chart markers.
 - CSV/JSON session exports and a printable report with PDF saving through the browser.

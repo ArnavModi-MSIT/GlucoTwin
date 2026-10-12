@@ -129,3 +129,6 @@
 **/*.log
 **/*.tmp
 **/*.bak
+
+!/project/web/care.js
+!/project/tests/care_unit.js

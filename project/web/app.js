@@ -75,6 +75,7 @@ const statements=demo?['All profiles and readings in this mode are generated loc
 'CGM samples are reconstructed from interpolated source data, and clinical-profile availability is assumed. Numerical forecasts use Ridge; the separate event panel uses saved fused XGBoost models. Event scores are uncalibrated. No diagnosis, treatment or insulin dosing.'
 ];
 for(const statement of statements){const p=document.createElement('p');p.textContent=statement;evidence.append(p);}renderEvents(s);drawChart();
+globalThis.GlucoCare?.update(s,$('patient').value);
 }
 function renderEvents(s){
 const event=s.event_research,demo=s.cohort==='demo';$('event-research').hidden=s.cohort==='rbg';

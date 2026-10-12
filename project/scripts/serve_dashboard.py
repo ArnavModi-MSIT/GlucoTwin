@@ -194,7 +194,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers();self.wfile.write(data)
             except (ValueError,KeyError):return self.respond(400,{'error':'Session expired; select a patient again'})
             return
-        files={'/':'index.html','/style.css':'style.css','/app.js':'app.js'}
+        files={'/':'index.html','/style.css':'style.css','/app.js':'app.js','/care.js':'care.js'}
         if self.path not in files:return self.respond(404,{'error':'Not found'})
         path=ROOT/'web'/files[self.path];data=path.read_bytes();self.send_response(200)
         self.send_header('Content-Type',{'html':'text/html; charset=utf-8','css':'text/css','js':'text/javascript'}[path.suffix[1:]])

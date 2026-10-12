@@ -57,3 +57,14 @@ flags are not operational alerts. RBG returns `event_research: null`. See
 The frontend shows request failures in its alert banner and restores controls
 after requests. Chart labels summarize current values for screen readers;
 the forecast ledger provides a tabular alternative to forecast markers.
+
+## User-entered care notes
+
+The dashboard provides patient-specific meal and medication-taken logs plus
+one-off reminders copied from an existing prescribed schedule. These annotations
+are held in tab memory, cleared on reload/close, and exported separately as JSON.
+They are not sent to the API or used as model inputs, dataset events, or PDF report
+content. Reminder status follows replay time and supports manual review; no
+real-world notification, medication scheduling algorithm or dosing advice runs.
+Observed logs cannot be dated after replay time. Restarting a replay retains
+notes for that patient and labels later entries accordingly.

@@ -1,0 +1,104 @@
+{
+  "version": "residual-interval-v1",
+  "nominal": 0.9,
+  "status": "Exploratory previously examined development data; reserved tests untouched",
+  "protocol": "Sorted validation IDs alternate calibration/assessment; fixed before computing residuals. Row-pooled absolute residual order statistic. No clipping, refitting or adaptive selection.",
+  "limitations": [
+    "Temporal overlap and patient shift invalidate an automatic nominal coverage guarantee.",
+    "Validation data previously informed model selection.",
+    "Ranges are descriptive research estimates, not clinical confidence or event probabilities."
+  ],
+  "cohorts": {
+    "cgmacros": [
+      {
+        "horizon": 60,
+        "radius_mg_dl": 35.28946527457924,
+        "calibration_patients": 3,
+        "calibration_rows": 7565,
+        "assessment": {
+          "patients": 3,
+          "rows": 7652,
+          "coverage": 0.8341610036591741,
+          "patient_macro_coverage": 0.8336332387455161,
+          "patient_coverage_min": 0.7221561632976615,
+          "patient_coverage_max": 0.9546875,
+          "width_mg_dl": 70.57893054915849,
+          "slices": {
+            "low": {
+              "rows": 37,
+              "coverage": 0.5135135135135135
+            },
+            "reference": {
+              "rows": 5919,
+              "coverage": 0.93833417807062
+            },
+            "high": {
+              "rows": 1696,
+              "coverage": 0.47759433962264153
+            }
+          }
+        }
+      }
+    ],
+    "rbg": [
+      {
+        "horizon": 30,
+        "radius_mg_dl": 38.334197998046875,
+        "calibration_patients": 17,
+        "calibration_rows": 951959,
+        "assessment": {
+          "patients": 17,
+          "rows": 1009812,
+          "coverage": 0.8891140133014859,
+          "patient_macro_coverage": 0.8901034296298157,
+          "patient_coverage_min": 0.7944458605942164,
+          "patient_coverage_max": 0.957537947194818,
+          "width_mg_dl": 76.66839599609375,
+          "slices": {
+            "low": {
+              "rows": 41083,
+              "coverage": 0.8734269649246647
+            },
+            "reference": {
+              "rows": 666813,
+              "coverage": 0.909736312879323
+            },
+            "high": {
+              "rows": 301916,
+              "coverage": 0.8457021158202944
+            }
+          }
+        }
+      },
+      {
+        "horizon": 60,
+        "radius_mg_dl": 62.18501281738281,
+        "calibration_patients": 17,
+        "calibration_rows": 945366,
+        "assessment": {
+          "patients": 17,
+          "rows": 1004536,
+          "coverage": 0.8932392666863109,
+          "patient_macro_coverage": 0.8941401960954837,
+          "patient_coverage_min": 0.8177552819404555,
+          "patient_coverage_max": 0.9673230058635635,
+          "width_mg_dl": 124.37002563476562,
+          "slices": {
+            "low": {
+              "rows": 40818,
+              "coverage": 0.7842863442598853
+            },
+            "reference": {
+              "rows": 663795,
+              "coverage": 0.9328151010477632
+            },
+            "high": {
+              "rows": 299923,
+              "coverage": 0.8204772558289961
+            }
+          }
+        }
+      }
+    ]
+  }
+}

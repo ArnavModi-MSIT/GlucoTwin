@@ -135,3 +135,9 @@
 
 !/project/src/glucotwin/patterns.py
 !/project/tests/test_patterns.py
+
+!/project/src/glucotwin/uncertainty.py
+!/project/scripts/prepare_intervals.py
+!/project/tests/test_uncertainty.py
+!/project/reports/forecast_intervals_v1.json
+!/project/docs/UNCERTAINTY.md

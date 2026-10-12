@@ -10,6 +10,7 @@ with a local dashboard for clinicians to review patient history and outcomes.
 - Linked clinical and sensor inputs in the fitted models.
 - Patient replay with glucose history, sensor coverage, future forecasts and user-log timeline markers.
 - Fixed prediction ledgers, delayed outcome reveal and persistence comparisons.
+- Optional exploratory prediction ranges with measured assessment coverage and horizon-specific widths.
 - A separate event research panel with uncalibrated scores and fixed cutoffs.
 - Daily summaries and recurring time-of-day patterns from available history, with coverage checks.
 - Patient-specific meal/medication logs and a three-day user-entered meal/reminder plan, with JSON export and validated restore.
@@ -100,6 +101,7 @@ prepared local-data and artifact checks.
 - [Presentation (PPTX)](project/docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](project/docs/delivery/GlucoTwin_Presentation.pdf)
 - [API](project/docs/API.md) · [Data contract](project/DATA_CONTRACT.md) · [Evaluation protocol](project/EVALUATION_PROTOCOL.md)
 - [Model results](project/docs/RESULTS.md) · [Model preparation](project/docs/REPRODUCTION.md)
+- [Forecast uncertainty](project/docs/UNCERTAINTY.md)
 - [Best-results checkpoint](project/docs/BEST_RESULTS.md)
 
 Demonstration video preparation is deferred.

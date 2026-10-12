@@ -151,3 +151,9 @@ assert.equal(context.drawCareMarkers(actionSvg,{issue_time:time},()=>100,0,200,D
 assert.equal(actionSvg.children.length,0);assert.match(element('care-marker-count').textContent,/2 logged actions/);
 delete context.GlucoCare;
 console.log('Timeline annotation renderer checks passed: shapes, labels, future exclusion and toggle.');
+
+context.renderUncertainty({synthetic:false,uncertainty_note:'Exploratory',forecasts:[{horizon:30,interval_lower:80,interval_upper:140,interval_assessment_coverage:.89,interval_assessment_patients:17}]});
+assert.ok(elements.get('uncertainty-ranges').children[0].textContent.includes('89.0%'));
+context.renderUncertainty({synthetic:true,forecasts:[]});
+assert.ok(elements.get('uncertainty-note').textContent.includes('fictional'));
+console.log('Uncertainty renderer checks passed.');

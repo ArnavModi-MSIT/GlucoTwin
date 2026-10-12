@@ -15,6 +15,7 @@ from glucotwin.event_replay import load_event_artifact,issue_event,reveal_events
 from glucotwin.demo import DemoReplay,SCENARIOS
 from glucotwin.reporting import csv_report,html_report
 from glucotwin.patterns import historical_patterns
+from glucotwin.uncertainty import load_intervals,attach_interval
 
 class ThreadingHTTPServer(_ThreadingHTTPServer):
     # Windows SO_REUSEADDR permits overlapping listeners. Exclusive binding
@@ -66,6 +67,7 @@ def clean(value):
 class Replay:
     def __init__(self,cohort,pid):
         self.cohort=cohort;self.patient=catalog(cohort)[pid];self.frame,self.profile=records(cohort,pid);self.models=models(cohort)
+        self.intervals,self.interval_note=load_intervals(ROOT,cohort,self.patient['patient_id'])
         if cohort=='rbg':self.clock=pd.date_range(self.frame.ts.min()+pd.Timedelta(minutes=5),self.frame.ts.max()+pd.Timedelta(minutes=5),freq='5min')
         else:
             minutes=self.frame.Timestamp.to_numpy(dtype='datetime64[ns]').astype('int64')//60_000_000_000
@@ -88,6 +90,7 @@ class Replay:
             row=issue_forecast(self.frame,self.profile,self.patient,self.models[60],now)
             row.update(horizon=60,available_at=row['target_time'],persistence=row.get('current') if row['prediction'] is not None else None)
             rows=[row]
+        for row in rows:attach_interval(row,self.intervals.get(row['horizon']))
         self.ledger.extend(rows)
         if self.event_artifact is not None:
             self.event_ledger.append(issue_event(self.frame,self.profile,self.patient,self.event_artifact,now,self.event_ledger))
@@ -125,7 +128,7 @@ class Replay:
                    'current':self.event_ledger[-1] if self.event_ledger else None,
                    'ledger':reveal_events(self.event_ledger,self.frame,self.patient,now) if self.event_artifact is not None else [],
                    'probability_display_approved':False,'operational_alerts_approved':False}
-        return clean({'cohort':self.cohort,'synthetic':False,'model_name':'Profile-fused Ridge · RBG' if rbg else 'Clinical + CGM + HR Ridge · CGMacros','event_model_name':None if rbg else 'Fused XGBoost · cgmacros-onset-gpu-v2','patient_label':label(self.patient['patient_id']),'issue_time':now,'data_cutoff':cutoff,'sensor_delay_minutes':5 if rbg else 0,'profile':profile,'profile_note':note,'latest':latest,'coverage':coverage,'forecasts':current,'chart':chart,'historical_patterns':patterns,'ledger':shown.to_dict('records'),'comparison':comparison,'event_research':event,'at_end':self.position==len(self.clock)-1})
+        return clean({'cohort':self.cohort,'synthetic':False,'model_name':'Profile-fused Ridge · RBG' if rbg else 'Clinical + CGM + HR Ridge · CGMacros','event_model_name':None if rbg else 'Fused XGBoost · cgmacros-onset-gpu-v2','patient_label':label(self.patient['patient_id']),'issue_time':now,'data_cutoff':cutoff,'sensor_delay_minutes':5 if rbg else 0,'profile':profile,'profile_note':note,'latest':latest,'coverage':coverage,'forecasts':current,'chart':chart,'historical_patterns':patterns,'ledger':shown.to_dict('records'),'comparison':comparison,'event_research':event,'uncertainty_note':self.interval_note,'at_end':self.position==len(self.clock)-1})
 
 def label(pid):
     value=str(pid).removesuffix('_RBG')

@@ -28,6 +28,7 @@ text('mode-label',demo?'Synthetic demonstration':'Research mode');
 text('research-title',demo?'Fictional patient · illustrative rule · no trained model':'Research estimates. Alerts and risk probabilities are disabled.');
 text('research-detail',demo?'Explore the workflow without downloading data. These trajectories and scores are not benchmark results.':'Development results do not establish medical reliability or support treatment decisions.');
 text('profile-tag',demo?'Synthetic patient · no real patient data':'Validation patient · test patients excluded');
+renderUncertainty(s);
 text('forecast30-note',demo?'Illustrative trend + fictional baseline':'Saved profile-fused Ridge');
 text('forecast60-note',demo?'Illustrative trend + fictional baseline':'Saved profile-fused Ridge');
 text('model-column',`${modelLabel} (mg/dL)`);text('error-column',`${modelLabel} absolute error (mg/dL)`);
@@ -140,3 +141,12 @@ marker.append(svgNode('line',{x1:px,x2:px,y1:py+8,y2:bottom,stroke:color,'stroke
 }return $('show-care-markers').checked?rows:[];
 }
 $('show-care-markers').addEventListener('change',drawChart);
+
+function renderUncertainty(s){
+ text('uncertainty-note',s.synthetic?'No calibrated range for fictional demo forecasts.':s.uncertainty_note||'Intervals have not been prepared.');
+ const area=$('uncertainty-ranges');area.replaceChildren();
+ for(const f of s.forecasts||[]){if(!Number.isFinite(f.interval_lower)||!Number.isFinite(f.interval_upper))continue;
+ const p=document.createElement('p');p.textContent=`+${f.horizon} min: ${number(f.interval_lower,1)}–${number(f.interval_upper,1)} mg/dL · Assessment coverage: ${number(100*f.interval_assessment_coverage,1)}% across ${f.interval_assessment_patients} patients · Width: ${number(f.interval_upper-f.interval_lower,1)} mg/dL`;area.append(p);
+ if(Number.isFinite(f.interval_low_coverage)&&Number.isFinite(f.interval_high_coverage)){const detail=document.createElement('p');detail.textContent=`Assessment coverage by actual target: below 70 mg/dL ${number(100*f.interval_low_coverage,1)}%; above 180 mg/dL ${number(100*f.interval_high_coverage,1)}%. These slices are retrospective diagnostics.`;area.append(detail);}}
+ if(!area.children.length){const p=document.createElement('p');p.textContent='No range available for the current forecast.';area.append(p);}
+}

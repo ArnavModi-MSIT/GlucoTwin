@@ -85,3 +85,5 @@ timing, event outcomes, launcher behavior and the API. Synthetic checks require
 no dataset. Set `GLUCOTWIN_INTEGRATION=1` to include local saved-event and API
 checks after preparation. These checks establish implementation behavior,
 not clinical reliability or a new clean-machine training result.
+
+Optional exploratory ranges: after preparing the active artifacts, run `python scripts/prepare_intervals.py`. See [uncertainty methods and limitations](UNCERTAINTY.md). Restart the server after calibration; existing sessions keep their issued bounds fixed.

@@ -108,3 +108,22 @@ an earlier asynchronous read. Unknown extra fields and exported planning-day
 arrays are not restored: the calendar is recomputed from validated entries and
 the current replay clock. Imported notes remain unverified user annotations and
 never become model inputs or dataset records.
+
+## Combined review summary
+
+`Download review summary` generates a standalone HTML file in the browser from
+the currently displayed snapshot and this patient’s validated in-tab notes. It
+includes profile, sensor cutoff/coverage, current numerical estimates, available
+daily summaries and recurring periods, user-reported actions, and the three-day
+plan. Dataset history, algorithmic estimates and user annotations have separate
+labels. Forecast target outcomes are not included. Actions dated or created
+after replay time are omitted; review states appear only once their review time
+has elapsed, and future-created plans are excluded. Plan times are copied user
+inputs, not predicted treatments. All dynamic text is HTML-escaped.
+
+This download makes no API upload, uses no external assets or scripts, and does
+not alter model inference. Open the saved HTML file in a browser and choose
+Print / Save as PDF. The existing backend print report remains the replay-only
+report; care-note JSON remains the restore format. Local HTML preview may be
+unavailable in embedded browsers that block file URLs. The summary is research
+context for review and supplies no diagnosis or treatment recommendations.

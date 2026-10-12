@@ -67,3 +67,22 @@ assert.throws(()=>care.restore('limit',overflow,importIdentity,true));assert.equ
 const sanitized=care.validateImport({...importPayload,entries:[{...importedRow,model_prediction:500}]},importIdentity);
 assert.equal(sanitized[0].model_prediction,undefined);
 console.log('Restore checks passed: identity, legacy files, malformed data, duplicate handling, review preservation and atomic merge.');
+
+const reviewSnapshot={cohort:'demo',synthetic:true,patient_label:'Fictional <patient>',issue_time:monthEnd,data_cutoff:'2024-02-28T07:55:00',profile:{Age:'48 <fictional>'},profile_note:'Synthetic profile',latest:123,coverage:13,model_name:'Illustrative rule',forecasts:[{horizon:30,target_time:'2024-02-28T08:30:00',prediction:130,status:'Forecast issued',actual:'FUTURE_ACTUAL_SENTINEL'}],historical_patterns:{through:'2024-02-28T07:55:00',note:'Past-only samples',daily:[{date:'2024-02-28',samples:10,expected:13,coverage:10/13,mean:123,low_fraction:0,reference_fraction:1,high_fraction:0}],periods:[]}};
+care.add('review',{kind:'meal',at:'2024-02-28T07:00',note:'<script>unsafe</script>'},monthEnd);
+care.add('review',{kind:'meal',at:'2024-02-29T07:00',note:'FUTURE_NOTE_SENTINEL'},'2024-02-29T08:00:00');
+care.add('review',{kind:'meal_plan',at:'2024-02-29T13:00',note:'User planned lunch'},monthEnd);
+const futureReviewed={...importPayload,entries:[{...importedRow,completed_at:'2024-02-28T09:00'}]};
+care.restore('review',futureReviewed,importIdentity,true);
+const review=care.reviewHtml(reviewSnapshot,'review');
+assert.match(review,/SYNTHETIC DEMONSTRATION/);
+assert.match(review,/Fictional &lt;patient&gt;/);
+assert.match(review,/&lt;script&gt;unsafe&lt;\/script&gt;/);
+assert.doesNotMatch(review,/<script>|FUTURE_ACTUAL_SENTINEL|FUTURE_NOTE_SENTINEL/);
+assert.match(review,/User planned lunch/);
+assert.match(review,/Due in replay/);
+assert.doesNotMatch(review,/<td>Reviewed<\/td>/);
+assert.match(review,/1 user-reported action entries/);
+assert.throws(()=>care.reviewHtml({...reviewSnapshot,historical_patterns:{...reviewSnapshot.historical_patterns,through:'2024-02-29T08:00:00'}},'review'));
+assert.match(care.reviewHtml({...reviewSnapshot,synthetic:false},'empty-patient'),/None available/);
+console.log('Review report checks passed: provenance, escaping, future-note exclusion, hidden target outcomes and causal review state.');

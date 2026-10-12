@@ -15,7 +15,7 @@ with a local dashboard for clinicians to review patient history and outcomes.
 - Patient-specific meal/medication logs and a three-day user-entered meal/reminder plan, with JSON export and validated restore.
 - Synthetic scenarios that run without datasets or model downloads.
 - Automatic five-minute replay, issued-flag and revealed-onset chart markers.
-- CSV/JSON session exports and a printable report with PDF saving through the browser.
+- CSV/JSON session exports, a printable replay report, and a combined review summary with user logs and the three-day plan.
 
 Dataset names: **RBG** identifies the REPLACE-BG type 1 diabetes study.
 **CGMacros** is the nutrition and diet-monitoring dataset, combining glucose,

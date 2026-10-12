@@ -97,3 +97,22 @@ assert.equal(care.timelineEntries('other-timeline',monthEnd).length,0);
 assert.equal(care.timelineEntries('timeline','2024-02-28T09:00:00').length,3);
 const timelineCopy=care.timelineEntries('timeline',monthEnd);timelineCopy[0].note='changed';assert.equal(care.timelineEntries('timeline',monthEnd)[0].note,'Known meal');
 console.log('Timeline action filtering checks passed: actual logs, creation time, patient scope and immutable reads.');
+
+care.add('meal-review',{kind:'meal',at:'2024-01-01T08:00',note:'Breakfast'},'2024-01-01T08:00:00');
+const mealSnapshot={issue_time:'2024-01-01T10:05:00',data_cutoff:'2024-01-01T10:00:00',chart:Array.from({length:25},(_,i)=>({time:new Date(Date.UTC(2024,0,1,8,i*5)).toISOString().slice(0,19),glucose:100+i}))};
+let mealResult=care.mealReview(mealSnapshot,'meal-review')[0];
+assert.equal(mealResult.samples,24);assert.equal(mealResult.baseline,100);assert.equal(mealResult.maximum,124);assert.equal(mealResult.difference,24);
+assert.equal(care.mealReview({...mealSnapshot,data_cutoff:'2024-01-01T09:55:00'},'meal-review')[0].difference,null);
+assert.equal(care.mealReview({...mealSnapshot,chart:mealSnapshot.chart.slice(8)},'meal-review')[0].difference,null);
+assert.equal(care.mealReview({...mealSnapshot,chart:mealSnapshot.chart.slice(1)},'meal-review')[0].status,'Baseline unavailable');
+assert.deepEqual(care.mealReview({...mealSnapshot,chart:[...mealSnapshot.chart,{time:'2024-01-01T10:10:00',glucose:999}]},'meal-review'),care.mealReview(mealSnapshot,'meal-review'));
+assert.equal(care.mealReview(mealSnapshot,'other-patient').length,0);
+console.log('After-meal review checks passed: sensor delay, coverage, baseline, future exclusion and patient isolation.');
+
+const shiftedMeal={...mealSnapshot,issue_time:'2024-01-01T10:08:00',data_cutoff:'2024-01-01T10:03:00',chart:mealSnapshot.chart.map(r=>({...r,time:new Date(Date.parse(r.time+'Z')+180000).toISOString().slice(0,19)}))};
+assert.equal(care.mealReview(shiftedMeal,'meal-review')[0].samples,24);
+assert.equal(care.mealReview(shiftedMeal,'meal-review')[0].baseline,null);
+care.add('meal-review',{kind:'meal_plan',at:'2024-01-01T08:00',note:'Planned only'},'2024-01-01T08:00:00');
+assert.equal(care.mealReview(mealSnapshot,'meal-review').length,1);
+const reviewWithMeal=care.reviewHtml({...mealSnapshot,cohort:'demo',synthetic:true,patient_label:'Test',coverage:13,forecasts:[],profile:{}},'meal-review');
+assert.ok(reviewWithMeal.includes('After-meal observed glucose'));assert.ok(reviewWithMeal.includes('24/24'));

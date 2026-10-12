@@ -120,3 +120,5 @@ Original code is licensed under [MIT](project/LICENSE). Datasets and dependencie
 their own terms: [CGMacros](https://physionet.org/content/cgmacros/1.0.0/) uses
 CC BY-NC-SA 4.0; [DiaData v3](https://zenodo.org/records/17285631) uses CC BY-NC 4.0
 with original-source attribution. Raw records and model binaries stay local.
+
+After-meal review pairs user-reported meal times with available sensor history. It shows the baseline, highest available two-hour reading and coverage; incomplete or poorly covered windows withhold the difference. These observations do not establish a food effect or recommend treatment.

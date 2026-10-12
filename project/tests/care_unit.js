@@ -86,3 +86,14 @@ assert.match(review,/1 user-reported action entries/);
 assert.throws(()=>care.reviewHtml({...reviewSnapshot,historical_patterns:{...reviewSnapshot.historical_patterns,through:'2024-02-29T08:00:00'}},'review'));
 assert.match(care.reviewHtml({...reviewSnapshot,synthetic:false},'empty-patient'),/None available/);
 console.log('Review report checks passed: provenance, escaping, future-note exclusion, hidden target outcomes and causal review state.');
+
+care.add('timeline',{kind:'meal',at:'2024-02-28T07:00',note:'Known meal'},monthEnd);
+care.add('timeline',{kind:'medication',at:'2024-02-28T07:30',note:'Known medication log'},monthEnd);
+care.add('timeline',{kind:'meal',at:'2024-02-28T06:30',note:'Backdated later entry'},'2024-02-28T09:00:00');
+care.add('timeline',{kind:'meal_plan',at:'2024-02-28T07:00',note:'Plan only'},monthEnd);
+care.add('timeline',{kind:'schedule',at:'2024-02-28T07:00',note:'Reminder only',confirmed:true},monthEnd);
+assert.deepEqual(care.timelineEntries('timeline',monthEnd).map(r=>r.note),['Known meal','Known medication log']);
+assert.equal(care.timelineEntries('other-timeline',monthEnd).length,0);
+assert.equal(care.timelineEntries('timeline','2024-02-28T09:00:00').length,3);
+const timelineCopy=care.timelineEntries('timeline',monthEnd);timelineCopy[0].note='changed';assert.equal(care.timelineEntries('timeline',monthEnd)[0].note,'Known meal');
+console.log('Timeline action filtering checks passed: actual logs, creation time, patient scope and immutable reads.');

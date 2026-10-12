@@ -8,7 +8,7 @@ with a local dashboard for clinicians to review patient history and outcomes.
 ## Features
 
 - Linked clinical and sensor inputs in the fitted models.
-- Patient replay with glucose history, sensor coverage and future forecasts.
+- Patient replay with glucose history, sensor coverage, future forecasts and user-log timeline markers.
 - Fixed prediction ledgers, delayed outcome reveal and persistence comparisons.
 - A separate event research panel with uncalibrated scores and fixed cutoffs.
 - Daily summaries and recurring time-of-day patterns from available history, with coverage checks.

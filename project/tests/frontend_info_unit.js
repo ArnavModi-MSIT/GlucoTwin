@@ -129,3 +129,25 @@ assert.match(element('patterns-periods').textContent,/Repeated high readings/);
 assert.match(element('patterns-days').textContent,/58\/7280.6%190.0 mg\/dL/);
 context.render(rbg);assert.equal(element('patterns-panel').hidden,true);
 console.log('Historical pattern renderer checks passed: coverage, descriptive periods and missing-payload handling.');
+
+const actionSvg=new Element('svg');
+const actionRows=[
+ {id:1,kind:'meal',at:'2024-01-02T12:00',created_at_replay:'2024-01-02T12:05',note:'Recorded lunch'},
+ {id:2,kind:'medication',at:'2024-01-02T12:10',created_at_replay:'2024-01-02T12:15',note:'Recorded medication'},
+ {id:3,kind:'meal_plan',at:'2024-01-02T12:00',created_at_replay:'2024-01-02T12:05',note:'Planned only'},
+ {id:4,kind:'meal',at:'2024-01-02T13:00',created_at_replay:'2024-01-02T13:00',note:'Future action'},
+ {id:5,kind:'meal',at:'2024-01-02T12:00',created_at_replay:'2024-01-02T13:00',note:'Future-created note'},
+ {id:6,kind:'meal',at:'2024-01-02T05:00',created_at_replay:'2024-01-02T05:05',note:'Outside visible history'}
+];
+context.GlucoCare={timelineEntries:()=>actionRows};
+element('show-care-markers').checked=true;
+const selectedActions=context.drawCareMarkers(actionSvg,{issue_time:time},()=>100,0,200,Date.parse('2024-01-02T06:25:00Z'));
+assert.equal(selectedActions.length,2);assert.equal(actionSvg.children.length,2);
+assert.match(actionSvg.children[0]['aria-label'],/User-reported meal log/);
+assert.match(actionSvg.children[1]['aria-label'],/medication taken log/);
+assert.doesNotMatch(element('care-chart-notes').textContent,/Future|Planned|Outside/);
+element('show-care-markers').checked=false;actionSvg.replaceChildren();
+assert.equal(context.drawCareMarkers(actionSvg,{issue_time:time},()=>100,0,200,Date.parse('2024-01-02T06:25:00Z')).length,0);
+assert.equal(actionSvg.children.length,0);assert.match(element('care-marker-count').textContent,/2 logged actions/);
+delete context.GlucoCare;
+console.log('Timeline annotation renderer checks passed: shapes, labels, future exclusion and toggle.');

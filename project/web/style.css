@@ -22,3 +22,5 @@
 .care-import{margin:16px 0;padding:12px;border:1px solid var(--line);border-radius:8px}.care-import summary{font-size:12px;cursor:pointer}.care-import label{margin:12px 0}.care-import #care-import-confirm-label{flex-direction:row;align-items:center}.care-import input[type=file]{width:100%;font-size:12px}
 
 .care-actions{display:flex;gap:8px;flex-wrap:wrap}.care-actions button{white-space:nowrap}
+
+.annotation-toggle{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);margin-top:12px}.chart-annotations{margin-top:10px}.chart-annotations summary{font-size:11px;cursor:pointer}.chart-annotations p{font-size:11px;line-height:1.7;color:var(--muted);overflow-wrap:anywhere}.chart-tooltip{white-space:normal;max-width:260px;overflow-wrap:anywhere}svg [data-care-marker]:focus{outline:2px solid var(--accent)}

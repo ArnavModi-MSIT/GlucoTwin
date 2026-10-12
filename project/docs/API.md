@@ -127,3 +127,17 @@ Print / Save as PDF. The existing backend print report remains the replay-only
 report; care-note JSON remains the restore format. Local HTML preview may be
 unavailable in embedded browsers that block file URLs. The summary is research
 context for review and supplies no diagnosis or treatment recommendations.
+
+## User action markers
+
+The timeline overlays in-tab meal and medication-taken logs for the visible
+six-hour window. Both the action time and creation replay time must be no later
+than the current replay time. Planned meals and prescribed reminders are never
+treated as observed actions. Patient/dataset identity is checked against the
+current care context before notes reach the renderer.
+
+Meal circles and medication-log squares have distinct colors, text descriptions
+and tooltips. A show/hide control changes marker visibility; the accessible list
+remains available. Adding, restoring or removing notes redraws annotations
+without changing sensor values, y-axis limits, forecast values or API inputs.
+Timing is descriptive and does not establish a treatment response.

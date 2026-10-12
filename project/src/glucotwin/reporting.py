@@ -1,7 +1,31 @@
 """Exports accept a revealed snapshot only; they cannot read source records."""
 import csv
 import io
+from datetime import datetime
 from html import escape
+
+
+def history_csv_report(snapshot):
+    """Export the available hourly summaries; no raw records or user notes."""
+    history = snapshot.get('historical_patterns') or {}
+    cutoff = datetime.fromisoformat(snapshot['data_cutoff'])
+    if history.get('through') != snapshot['data_cutoff'] or cutoff > datetime.fromisoformat(snapshot['issue_time']):
+        raise ValueError('Historical summary does not match the current data cutoff')
+    output = io.StringIO(newline='')
+    fields = ['cohort','synthetic','patient','replay_time','data_cutoff','date','hour',
+              'first_checkpoint','last_checkpoint','samples','expected','coverage',
+              'complete_hour','comparable','mean','minimum','maximum',
+              'low_fraction','reference_fraction','high_fraction']
+    writer = csv.DictWriter(output,fieldnames=fields,extrasaction='ignore')
+    writer.writeheader()
+    base = dict(cohort=snapshot['cohort'],synthetic=bool(snapshot.get('synthetic')),
+                patient=snapshot['patient_label'],replay_time=snapshot['issue_time'],data_cutoff=snapshot['data_cutoff'])
+    for row in history.get('hourly',[]):
+        if datetime.fromisoformat(row['last_checkpoint']) > cutoff:
+            continue
+        values = dict(row,**base)
+        writer.writerow({k:"'"+v if isinstance(v,str) and v.lstrip().startswith(('=','+','-','@')) else v for k,v in values.items()})
+    return output.getvalue()
 
 
 def csv_report(snapshot):

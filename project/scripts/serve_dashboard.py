@@ -13,7 +13,7 @@ from glucotwin.rbg_replay import issue_rbg_forecasts,reveal_rbg_outcomes
 from glucotwin.artifacts import validate_replay_artifact
 from glucotwin.event_replay import load_event_artifact,issue_event,reveal_events
 from glucotwin.demo import DemoReplay,SCENARIOS
-from glucotwin.reporting import csv_report,html_report
+from glucotwin.reporting import csv_report,html_report,history_csv_report
 from glucotwin.patterns import historical_patterns
 from glucotwin.uncertainty import load_intervals,attach_interval
 from glucotwin.patient_import import parse_patient,ImportedReplay
@@ -205,19 +205,20 @@ class Handler(BaseHTTPRequestHandler):
         if self.path=='/api/snapshot':return self.action('snapshot',{})
         if urlsplit(self.path).path=='/api/export':
             format_=parse_qs(urlsplit(self.path).query).get('format',['json'])[0]
-            if format_ not in ('json','csv','html'):return self.respond(400,{'error':'Use json, csv or html'})
+            if format_ not in ('json','csv','html','history'):return self.respond(400,{'error':'Use json, csv, html or history'})
             try:
                 key=self.session_key()
                 snapshot=clean(service.operate(key,'snapshot'))
-                data=(json.dumps(snapshot,indent=2,allow_nan=False) if format_=='json' else csv_report(snapshot) if format_=='csv' else html_report(snapshot)).encode('utf-8')
+                data=(json.dumps(snapshot,indent=2,allow_nan=False) if format_=='json' else csv_report(snapshot) if format_=='csv' else history_csv_report(snapshot) if format_=='history' else html_report(snapshot)).encode('utf-8')
                 self.send_response(200)
-                self.send_header('Content-Type',{'json':'application/json','csv':'text/csv; charset=utf-8','html':'text/html; charset=utf-8'}[format_])
-                self.send_header('Content-Disposition',f'{"inline" if format_=="html" else "attachment"}; filename="glucotwin-{snapshot["cohort"]}-session.{format_}"')
+                self.send_header('Content-Type',{'json':'application/json','csv':'text/csv; charset=utf-8','html':'text/html; charset=utf-8','history':'text/csv; charset=utf-8'}[format_])
+                filename=f'glucotwin-{snapshot["cohort"]}-history.csv' if format_=='history' else f'glucotwin-{snapshot["cohort"]}-session.{format_}'
+                self.send_header('Content-Disposition',f'{"inline" if format_=="html" else "attachment"}; filename="{filename}"')
                 self.send_header('Cache-Control','no-store');self.send_header('Content-Length',str(len(data)))
                 self.end_headers();self.wfile.write(data)
             except (ValueError,KeyError):return self.respond(400,{'error':'Session expired; select a patient again'})
             return
-        files={'/':'index.html','/style.css':'style.css','/app.js':'app.js','/care.js':'care.js','/report_charts.js':'report_charts.js'}
+        files={'/':'index.html','/style.css':'style.css','/app.js':'app.js','/care.js':'care.js','/report_charts.js':'report_charts.js','/history.js':'history.js'}
         if self.path not in files:return self.respond(404,{'error':'Not found'})
         path=ROOT/'web'/files[self.path];data=path.read_bytes();self.send_response(200)
         self.send_header('Content-Type',{'html':'text/html; charset=utf-8','css':'text/css','js':'text/javascript'}[path.suffix[1:]])

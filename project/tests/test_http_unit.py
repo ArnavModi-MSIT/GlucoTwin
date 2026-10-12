@@ -44,6 +44,17 @@ class HttpUnitTests(unittest.TestCase):
         with self.assertRaises(urllib.error.HTTPError) as error:urllib.request.urlopen(request)
         self.assertEqual(error.exception.code,400)
         self.assertEqual(web.clean(web.service.operate(key,'snapshot')),web.clean(before))
+
+    def test_hourly_export_keeps_session_identity_and_returns_csv(self):
+        key,snapshot=web.service.create('demo','showcase')
+        request=urllib.request.Request(self.url+'/api/export?format=history',headers={'X-GlucoTwin-Session':key})
+        with urllib.request.urlopen(request) as response:
+            text=response.read().decode()
+            self.assertEqual(response.headers['Content-Type'],'text/csv; charset=utf-8')
+            self.assertIn('history.csv',response.headers['Content-Disposition'])
+            self.assertIn('mean,minimum,maximum',text)
+            self.assertIn(snapshot['patient_label'],text)
+            self.assertNotIn('prediction',text)
     def test_failed_inference_is_controlled(self):
         with patch.object(web,'catalog',return_value={'P-012':{}}),patch.object(web.service,'create',side_effect=RuntimeError('private path')):
             with self.assertLogs(level='ERROR'):

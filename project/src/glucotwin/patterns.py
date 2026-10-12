@@ -51,7 +51,7 @@ def historical_patterns(times, values, cutoff):
     if source.index.has_duplicates:
         raise ValueError('Duplicate historical timestamps')
     if source.empty:
-        return dict(through=cutoff.isoformat(), daily=[], periods=[], observed_samples=0,
+        return dict(through=cutoff.isoformat(), daily=[], hourly=[], periods=[], observed_samples=0,
                     note='No available historical readings.',profile=descriptive_profile(times,values,cutoff))
     first = max(start, source.index.min())
     first = cutoff - ((cutoff-first)//pd.Timedelta(minutes=5))*pd.Timedelta(minutes=5)
@@ -67,6 +67,20 @@ def historical_patterns(times, values, cutoff):
                           low_fraction=float((known < 70).mean()) if count else None,
                           reference_fraction=float(known.between(70,180).mean()) if count else None,
                           high_fraction=float((known > 180).mean()) if count else None))
+    hourly = []
+    for (date, hour), part in frame.groupby(['date', frame.index.hour], sort=True):
+        known = part.value.dropna()
+        count = len(known)
+        hour_end = pd.Timestamp(date) + pd.Timedelta(hours=int(hour)+1)
+        complete = len(part) == 12 and hour_end <= cutoff
+        hourly.append(dict(date=date, hour=int(hour), first_checkpoint=part.index[0].isoformat(),
+            last_checkpoint=part.index[-1].isoformat(), samples=count, expected=len(part),
+            coverage=count/len(part), complete_hour=bool(complete), comparable=bool(complete and count>=10),
+            mean=float(known.mean()) if count else None,
+            minimum=float(known.min()) if count else None, maximum=float(known.max()) if count else None,
+            low_fraction=float((known < 70).mean()) if count else None,
+            reference_fraction=float(known.between(70,180).mean()) if count else None,
+            high_fraction=float((known > 180).mean()) if count else None))
     periods = []
     for block in range(4):
         eligible = []
@@ -86,7 +100,7 @@ def historical_patterns(times, values, cutoff):
                             eligible_days=n, high_days=high, low_days=low,
                             description='; '.join(recurring) if recurring else
                             'Insufficient comparable days' if n < 2 else 'No repeated pattern under this rule'))
-    return dict(through=cutoff.isoformat(), daily=daily, periods=periods,
+    return dict(through=cutoff.isoformat(), daily=daily, hourly=hourly, periods=periods,
                 observed_samples=int(g.notna().sum()),
                 profile=descriptive_profile(times,values,cutoff),
                 note='Last seven study dates through data cutoff. Five-minute samples; gaps stay missing. Reference bands: below 70, 70–180 and above 180 mg/dL. Descriptive history, not a future forecast or individualized target.')

@@ -18,7 +18,7 @@ with a local dashboard for clinicians to review patient history and outcomes.
 - Fixed prediction ledgers, delayed outcome reveal and persistence comparisons.
 - Optional exploratory prediction ranges with measured assessment coverage and horizon-specific widths.
 - A separate event research panel with uncalibrated scores and fixed cutoffs.
-- Daily summaries, recurring periods, and a fourteen-date historical percentile profile with variability and overnight summaries.
+- Daily summaries, an hourly history heatmap with day comparisons and CSV export, and a fourteen-date historical percentile profile.
 - Review observations, questions and replay-timed follow-up tasks, included in combined reports.
 - Patient-specific meal/medication logs and a three-day user-entered plan, with optional local saving, JSON export and validated restore.
 - Completed after-meal reviews retained beyond the visible timeline, with replay-time checks.

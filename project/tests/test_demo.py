@@ -11,7 +11,7 @@ import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import serve_dashboard as web
 from glucotwin.demo import DemoReplay
-from glucotwin.reporting import csv_report,html_report
+from glucotwin.reporting import csv_report,html_report,history_csv_report
 
 
 class DemoTests(unittest.TestCase):
@@ -140,3 +140,17 @@ class DemoTests(unittest.TestCase):
     def test_bad_steps_rejected(self):
         for value in (True,5.0,'5',-5,10):
             with self.assertRaises(ValueError):DemoReplay('demo','rise').advance(value)
+
+    def test_hourly_csv_exports_only_available_summaries_and_escapes_formula(self):
+        s=web.clean(DemoReplay('demo','showcase').snapshot())
+        expected=len(s['historical_patterns']['hourly'])
+        s['patient_label']=' \t=HYPERLINK("example")'
+        future=dict(s['historical_patterns']['hourly'][-1],last_checkpoint='2024-01-16T00:55:00')
+        s['historical_patterns']['hourly'].append(future)
+        rows=list(csv.DictReader(io.StringIO(history_csv_report(s))))
+        self.assertEqual(len(rows),expected)
+        self.assertTrue(all(row['patient'].startswith("'") for row in rows))
+        self.assertTrue(all(row['last_checkpoint']<=s['data_cutoff'] for row in rows))
+        self.assertNotIn('prediction',rows[0]);self.assertNotIn('note',rows[0])
+        s['historical_patterns']['through']='2024-01-16T00:00:00'
+        with self.assertRaises(ValueError):history_csv_report(s)

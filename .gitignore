@@ -132,6 +132,8 @@
 
 !/project/web/care.js
 !/project/web/report_charts.js
+!/project/web/history.js
+!/project/tests/history_unit.js
 !/project/tests/care_unit.js
 
 !/project/src/glucotwin/patterns.py

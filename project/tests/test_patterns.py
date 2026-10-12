@@ -13,6 +13,31 @@ class PatternTests(unittest.TestCase):
         self.times=pd.date_range('2024-01-01',periods=3*288,freq='5min')
         self.values=np.full(len(self.times),100.)
 
+    def test_hourly_partial_current_hour_and_missing_coverage(self):
+        values=np.array([69,70,180,181]+[np.nan]*8+[100])
+        summary=historical_patterns(self.times[:13],values,self.times[12])
+        first,current=summary['hourly']
+        self.assertEqual((first['samples'],first['expected']),(4,12))
+        self.assertEqual(first['mean'],125.)
+        self.assertEqual((first['minimum'],first['maximum']),(69.,181.))
+        self.assertEqual((first['low_fraction'],first['reference_fraction'],first['high_fraction']),(.25,.5,.25))
+        self.assertTrue(first['complete_hour']);self.assertFalse(first['comparable'])
+        self.assertEqual((current['hour'],current['samples'],current['expected']),(1,1,1))
+        self.assertFalse(current['complete_hour']);self.assertFalse(current['comparable'])
+        self.assertTrue(all(pd.Timestamp(r['last_checkpoint'])<=self.times[12] for r in summary['hourly']))
+
+    def test_hourly_phase_admission_and_no_interpolation(self):
+        times=pd.date_range('2024-01-01T00:03',periods=13,freq='5min')
+        times=times.delete(2)
+        first=historical_patterns(times,np.full(len(times),100.),times[-1])['hourly'][0]
+        self.assertEqual((first['samples'],first['expected']),(11,12))
+        self.assertEqual(first['first_checkpoint'],'2024-01-01T00:03:00')
+        self.assertEqual(first['last_checkpoint'],'2024-01-01T00:58:00')
+        self.assertTrue(first['comparable'])
+        partial=historical_patterns(self.times[3:13],np.full(10,100.),self.times[12])['hourly'][0]
+        self.assertEqual(partial['expected'],9);self.assertFalse(partial['complete_hour'])
+        self.assertEqual(historical_patterns(self.times,self.values,'2023-01-01')['hourly'],[])
+
     def test_future_changes_and_prefix_give_identical_summary(self):
         cutoff=self.times[300]
         a=historical_patterns(self.times,self.values,cutoff)

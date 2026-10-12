@@ -14,6 +14,7 @@ The service binds to loopback. It is a local research interface.
 | `/api/reset` | POST | `{}` | Reset this session to its warm-up boundary |
 | `/api/snapshot` | GET | None | Current snapshot without advancing |
 | `/api/export?format=csv` | GET | Session cookie | Forecast and event ledger download |
+| `/api/export?format=history` | GET | Session cookie or tab header | Available hourly history CSV; separate from the forecast ledger |
 | `/api/export?format=json` | GET | Session cookie | Revealed snapshot download |
 | `/api/export?format=html` | GET | Session cookie | Printable session report; browser Print can save PDF |
 | `/api/feed/sample` | POST | Session cookie or tab header; optional `missing` boolean | Receive one fictional five-minute slot in the simulated feed only |
@@ -87,8 +88,25 @@ A high window has at least 20% readings above 180 mg/dL; a low window has at lea
 5% below 70. Recurrence requires at least two days and at least half of comparable
 days. Partial windows and poor coverage are excluded from recurrence. These are
 descriptive engineering rules, not future predictions or personalized targets.
-CGMacros source samples retain their reconstruction limitations. The JSON and
-print/PDF report include these summaries; the CSV remains a prediction ledger.
+CGMacros source samples retain their reconstruction limitations. JSON and
+print/PDF reports include daily and recurring-period summaries; ordinary CSV
+remains a prediction ledger.
+
+`historical_patterns.hourly` contains one row per supplied five-minute-grid hour,
+with `date`, `hour`, first/last checkpoint timestamps, observed `samples`,
+`expected` slots, coverage, mean/minimum/maximum and observed band fractions.
+A complete hour has 12 expected slots and its nominal end is no later than
+`data_cutoff`; comparable hours additionally need at least 10 readings. The
+first supplied hour and current hour may be partial. Missing readings remain
+missing, and future hours are omitted. Means and fractions use observed readings
+only; empty hours have null values.
+
+The history CSV exports these fields with patient/cohort identity, replay time
+and data cutoff. It requires matching summary/cutoff timestamps and omits rows
+whose final checkpoint is after the cutoff. Text starting with spreadsheet
+formula characters is escaped. No raw readings, predictions or browser care
+notes are included. The interactive heatmap and two-day comparison are dashboard
+views; they are not added to the existing printable reports.
 
 ## Restore care notes
 

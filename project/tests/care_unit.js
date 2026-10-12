@@ -37,3 +37,33 @@ assert.equal(care.entries('limit').length,199);
 assert.throws(()=>care.add('plan',{kind:'meal_plan',at:'9999-12-31T13:00',note:'invalid rollover',repeat_days:3},monthEnd));
 assert.equal(care.entries('plan').length,6);
 console.log('Three-day planning checks passed: leap dates, patient isolation, explicit repetition, planned status and atomic limits.');
+
+const importIdentity={cohort:'demo',pid:'restore'};
+const importedRow={id:9,kind:'schedule',at:'2024-02-28T07:00',note:'Synthetic prescribed reminder',created_at_replay:'2024-02-28T06:00',completed_at:'2024-02-28T07:00'};
+const importPayload={schema:'glucotwin-user-notes-v2',cohort:'demo',patient_id:'restore',replay_time:monthEnd,entries:[importedRow]};
+assert.throws(()=>care.restore('restored',importPayload,importIdentity));
+assert.equal(care.entries('restored').length,0);
+assert.deepEqual(care.restore('restored',importPayload,importIdentity,true),{added:1,skipped:0});
+assert.equal(care.status(care.entries('restored')[0],monthEnd),'Reviewed');
+assert.equal(care.status(care.entries('restored')[0],'2024-02-28T06:00:00'),'Upcoming');
+assert.deepEqual(care.restore('restored',importPayload,importIdentity,true),{added:0,skipped:1});
+const stale={...importPayload,entries:[{...importedRow,completed_at:null}]};
+care.restore('restored',stale,importIdentity,true);assert.equal(care.entries('restored')[0].completed_at,'2024-02-28T07:00');
+for(const invalid of [
+ {...importPayload,cohort:'rbg'}, {...importPayload,patient_id:'other'},
+ {...importPayload,schema:'other'}, {...importPayload,entries:[importedRow,importedRow]},
+ {...importPayload,entries:[{...importedRow,id:-1}]},
+ {...importPayload,entries:[{...importedRow,at:'2024-02-30T07:00'}]},
+ {...importPayload,entries:[{...importedRow,kind:'meal',completed_at:null,at:'2024-02-28T09:00'}]},
+ {...importPayload,entries:[{...importedRow,completed_at:'2024-02-28T05:00'}]},
+ {...importPayload,entries:[{...importedRow,note:'x'.repeat(301)}]},
+]){assert.throws(()=>care.restore('restored',invalid,importIdentity,true));assert.equal(care.entries('restored').length,1);}
+assert.throws(()=>care.parseImport('broken JSON',importIdentity));
+assert.throws(()=>care.parseImport('x'.repeat(256*1024+1),importIdentity));
+const legacy={...importPayload,schema:'glucotwin-user-notes-v1'};
+assert.equal(care.parseImport(JSON.stringify(legacy),importIdentity).rows.length,1);
+const overflow={...importPayload,entries:[{...importedRow,id:1},{...importedRow,id:2,note:'Second distinct note'}]};
+assert.throws(()=>care.restore('limit',overflow,importIdentity,true));assert.equal(care.entries('limit').length,199);
+const sanitized=care.validateImport({...importPayload,entries:[{...importedRow,model_prediction:500}]},importIdentity);
+assert.equal(sanitized[0].model_prediction,undefined);
+console.log('Restore checks passed: identity, legacy files, malformed data, duplicate handling, review preservation and atomic merge.');

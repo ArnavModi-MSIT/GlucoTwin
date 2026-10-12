@@ -88,3 +88,23 @@ days. Partial windows and poor coverage are excluded from recurrence. These are
 descriptive engineering rules, not future predictions or personalized targets.
 CGMacros source samples retain their reconstruction limitations. The JSON and
 print/PDF report include these summaries; the CSV remains a prediction ledger.
+
+## Restore care notes
+
+The browser reads a selected local JSON file without uploading it. Exports with
+`glucotwin-user-notes-v1` or `glucotwin-user-notes-v2` are supported; the cohort
+and patient ID must match the selected patient exactly. Maximum file size is
+256 KB and maximum merged patient entries is 200. Entry types, identifiers,
+dates, descriptions, observed-action chronology and reminder review timestamps
+are checked before changing any state. User-entered planned actions may be in
+the future; imported review status remains hidden until that replay time.
+
+Restore previews counts and requires confirmation for imported prescribed
+reminders. It merges without overwriting existing entries or review states.
+Duplicate identity uses type, action time, description and creation replay time;
+import IDs are reassigned. Invalid files and capacity errors change no entries.
+Changing patient cancels pending selection; a later file selection supersedes
+an earlier asynchronous read. Unknown extra fields and exported planning-day
+arrays are not restored: the calendar is recomputed from validated entries and
+the current replay clock. Imported notes remain unverified user annotations and
+never become model inputs or dataset records.

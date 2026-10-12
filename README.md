@@ -16,6 +16,11 @@ with a local dashboard for clinicians to review patient history and outcomes.
 - Automatic five-minute replay, issued-flag and revealed-onset chart markers.
 - CSV/JSON session exports and a printable report with PDF saving through the browser.
 
+Dataset names: **RBG** identifies the REPLACE-BG type 1 diabetes study.
+**CGMacros** is the nutrition and diet-monitoring dataset, combining glucose,
+meal macronutrients and clinical information. **CGM** means continuous glucose
+monitoring; **HR** means heart rate. The dashboard includes a dataset guide.
+
 ## Models and stack
 
 | Dashboard path | Model inputs | Prediction horizon |

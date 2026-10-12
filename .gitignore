@@ -32,6 +32,7 @@
 !/project/docs/RBG_DATA_CONTRACT.md
 !/project/docs/EVENT_REPLAY.md
 !/project/docs/RESULTS.md
+!/project/docs/BEST_RESULTS.md
 !/project/docs/delivery/README.md
 !/project/docs/delivery/GlucoTwin_Architecture.pdf
 !/project/docs/delivery/GlucoTwin_Presentation.pdf
@@ -39,6 +40,7 @@
 !/project/reports/
 /project/reports/*
 !/project/reports/event_study_gpu_v2.json
+!/project/reports/best_results_sources.json
 !/project/scripts/
 /project/scripts/*
 !/project/scripts/audit_cgmacros.py
@@ -67,6 +69,8 @@
 !/project/src/glucotwin/episodes.py
 !/project/src/glucotwin/event_replay.py
 !/project/src/glucotwin/event_study.py
+!/project/src/glucotwin/demo.py
+!/project/src/glucotwin/reporting.py
 !/project/tests/
 /project/tests/*
 !/project/tests/local_only.py
@@ -86,6 +90,7 @@
 !/project/tests/test_prepare_development_only.py
 !/project/tests/test_web_dashboard.py
 !/project/tests/test_event_study.py
+!/project/tests/test_demo.py
 !/project/web/
 /project/web/*
 !/project/web/app.js

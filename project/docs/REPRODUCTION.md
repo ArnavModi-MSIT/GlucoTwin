@@ -4,6 +4,11 @@ Run commands from `project/` with Python 3.10 and the pinned requirements.
 Datasets, generated patient manifests and trusted model binaries stay local.
 The launcher does not download data or train missing models.
 
+For a first run, install `requirements.txt` and launch the dashboard. The built-in
+**Synthetic demo** requires no patient files or saved models. It is a fictional
+workflow demonstration with a deterministic trend rule, not a benchmark or a
+substitute for the research model. The instructions below enable research cohorts.
+
 ## CGMacros numerical model
 
 ```powershell

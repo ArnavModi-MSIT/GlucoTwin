@@ -1,4 +1,4 @@
-"""Preflight and launch the prepared local dashboard; never train or download."""
+"""Launch the synthetic demo and optional prepared research cohorts; never train or download."""
 from pathlib import Path
 import argparse
 import errno
@@ -105,49 +105,6 @@ def check_dependencies(root=ROOT):
                             'Then run StartGlucoTwin.cmd again.')
 
 
-def check_prepared_files(root=ROOT):
-    """Check paths and validation manifests without reading sensor records."""
-    root = Path(root)
-    required = ['web/index.html', 'web/style.css', 'web/app.js',
-                'configs/model_selection.json', 'configs/rbg_model_selection.json',
-                'configs/cgmacros_splits.json', 'configs/rbg_splits.json',
-                'artifacts/ridge_cgm_clinical_hr.joblib',
-                'artifacts/rbg_ridge_cgm_profile_30.joblib',
-                'artifacts/rbg_ridge_cgm_profile_60.joblib',
-                'data/raw/cgmacros/CGMacros/bio.csv']
-    missing = [name for name in required if not (root / name).is_file()]
-    for cohort in ('cgmacros', 'rbg'):
-        manifest_path = root / f'configs/{cohort}_splits.json'
-        if not manifest_path.is_file():
-            continue
-        try:
-            participants = json.loads(manifest_path.read_text(encoding='utf-8'))['participants']
-            patients = [p['patient_id'] for p in participants if p['split'] == 'validation']
-            if not patients:
-                raise ValueError('No validation patients')
-            for pid in patients:
-                if cohort == 'cgmacros':
-                    number = int(pid)
-                    if number < 0:
-                        raise ValueError('Invalid patient ID')
-                    name = f'data/raw/cgmacros/CGMacros/CGMacros-{number:03d}/CGMacros-{number:03d}.csv'
-                else:
-                    if not isinstance(pid, str) or any(c in pid for c in '/\\') or pid in ('.', '..'):
-                        raise ValueError('Invalid patient ID')
-                    name = f'data/processed/rbg/replay/{pid}.npz'
-                if not (root / name).is_file():
-                    missing.append(name)
-        except (OSError, ValueError, KeyError, TypeError) as exc:
-            raise LaunchError(f'Invalid {cohort} split manifest. See docs/REPRODUCTION.md.') from exc
-    if missing:
-        visible = missing[:8]
-        extra = f'\n  ... and {len(missing) - len(visible)} more files' if len(missing) > len(visible) else ''
-        raise LaunchError('Local dashboard files are missing:\n  ' + '\n  '.join(visible) + extra
-                          + '\nKeep prepared data and trusted model artifacts inside project/. '
-                            'See README.md and docs/REPRODUCTION.md for preparation commands. '
-                            'This launcher does not download data or train models.')
-
-
 def open_dashboard(url):
     try:
         opened = webbrowser.open(url, new=2)
@@ -165,14 +122,13 @@ def launch(port=8000, no_browser=False, root=ROOT):
             open_dashboard(url)
         return 0
     check_dependencies(root)
-    check_prepared_files(root)
+    # The synthetic replay needs no private datasets or fitted artifacts.
+    for name in ('web/index.html','web/style.css','web/app.js'):
+        if not (Path(root)/name).is_file():raise LaunchError(f'Missing application file: {name}')
     # Heavy dependencies and trusted local joblib files are loaded only now.
     sys.path.insert(0, str(Path(root) / 'scripts'))
     try:
         service = importlib.import_module('serve_dashboard')
-        for cohort in ('cgmacros', 'rbg'):
-            service.models(cohort)
-            service.catalog(cohort)
     except Exception as exc:
         raise LaunchError(f'Prepared models could not be loaded: {exc}\n'
                           'Use the pinned requirements and locally generated model artifacts. '

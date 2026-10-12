@@ -14,5 +14,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - run: python -m pip install -e .
       - run: python -m unittest discover -s tests -v
+      - run: node --check web/app.js
+      - run: node tests/frontend_info_unit.js

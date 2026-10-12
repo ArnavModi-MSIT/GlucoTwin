@@ -15,15 +15,18 @@ class Element{
   replaceChildren(...children){this.children=children;this._text='';}
   append(...children){this.children.push(...children);}
   addEventListener(){}
+  setAttribute(key,value){this[key]=value;}
 }
 const elements=new Map();
 const document={
+  addEventListener(){},
   getElementById(id){if(!elements.has(id))elements.set(id,new Element());return elements.get(id);},
   createElement(tag){return new Element(tag);},
+  createElementNS(ns,tag){return new Element(tag);},
   querySelectorAll(){return [];},
   body:new Element('body')
 };
-const context=vm.createContext({document,fetch:()=>new Promise(()=>{}),ResizeObserver:class{observe(){}},console});
+const context=vm.createContext({document,fetch:()=>new Promise(()=>{}),ResizeObserver:class{observe(){}},console,setTimeout,clearTimeout});
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/app.js'),'utf8'),context);
 const element=id=>elements.get(id);
 const cgmFeatures=Array.from({length:22},(_,i)=>`cgm_feature_${i}`);
@@ -82,3 +85,40 @@ assert.match(element('input-quality').textContent,/HR coverage, last hour: 50\.0
 assert.equal(element('forecast60').textContent,'—');
 assert.equal(element('ledger-count').textContent,'Issued forecasts: 0 · Withheld attempts: 1');
 console.log('Frontend information checks passed: issued/withheld rows, paired session stats, missing CGM and HR coverage.');
+
+// Synthetic mode must never inherit the measured study's model or evidence labels.
+context.render({...rbg,cohort:'demo',synthetic:true,event_research:{available:true,current:{score:190,cutoff:180,status:'Illustrative flag',window_start:time,window_end:time},metadata:{},ledger:[]}});
+assert.match(element('research-title').textContent,/Fictional patient/);
+assert.match(element('forecast60-note').textContent,/Illustrative trend/);
+assert.match(element('evidence').textContent,/not XGBoost/);
+assert.equal(element('event-evidence').hidden,true);
+assert.equal(element('forecast30-card').hidden,false);
+
+// Issued flags are visible immediately; onset markers require matured outcomes and deduplicate episodes.
+const chart=new Element('svg'),eventAt='2024-01-02T12:10:00';
+const eventRow={issued_at:'2024-01-02T12:00:00',available_at:'2024-01-02T12:45:00',research_flag:true,event_at:eventAt,outcome:'Qualifying onset observed'};
+const chartSnapshot={issue_time:time,event_research:{ledger:[eventRow]}};
+context.drawEventMarkers(chart,chartSnapshot,()=>100,0,200,Date.parse('2024-01-02T11:00:00Z'),Date.parse('2024-01-02T13:00:00Z'));
+assert.equal(chart.children.filter(e=>e.tagName==='line').length,0);
+chart.replaceChildren();
+context.drawEventMarkers(chart,{...chartSnapshot,issue_time:'2024-01-02T12:50:00',event_research:{ledger:[eventRow,eventRow]}},()=>100,0,200,Date.parse('2024-01-02T11:00:00Z'),Date.parse('2024-01-02T13:00:00Z'));
+assert.equal(chart.children.filter(e=>e.tagName==='line').length,1);
+console.log('Synthetic labels and causal event marker checks passed.');
+
+(async()=>{
+ const calls=[],scheduled=[];
+ context.api=async(path,body)=>{calls.push({path,body});return rbg;};
+ context.setTimeout=(fn)=>{scheduled.push(fn);return 1;};
+ context.clearTimeout=()=>{};
+ vm.runInContext('snapshot=null;playing=true;busy=false;drawChart=()=>{};',context);
+ await context.playbackTick();
+ assert.equal(calls.length,1);assert.equal(calls[0].body.minutes,5);
+ assert.equal(scheduled.length,1);
+ context.stopPlayback();await scheduled[0]();
+ assert.equal(calls.length,1);
+ context.api=async()=>{throw new Error('test failure');};
+ vm.runInContext('playing=true;',context);await context.playbackTick();
+ assert.equal(element('play').textContent,'▶ Play replay');
+ assert.equal(scheduled.length,1);
+ console.log('Playback advances once per completed request and stops on pause/error.');
+})().catch(error=>{console.error(error);process.exitCode=1;});

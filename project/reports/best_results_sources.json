@@ -1,0 +1,36 @@
+{
+  "recorded_on": "2026-10-12",
+  "purpose": "Integrity fingerprints for BEST_RESULTS.md; private sources are not included in this repository.",
+  "sources": [
+    {
+      "study": "event_study_gpu_v2",
+      "source_file": "event_study_gpu_v2.json",
+      "sha256": "c4174f85efaf2522101e067df7d920d065ade6de5c5fcb3cef78d6fadac66dd8",
+      "source_published": true
+    },
+    {
+      "study": "MAE_REVIEW_HANDOFF",
+      "source_file": "MAE_REVIEW_HANDOFF.md",
+      "sha256": "b8ac1d0cfee761b73e24192f3ae0e83d819b868bf0a9fd8af31dda0a4da81e4d",
+      "source_published": false
+    },
+    {
+      "study": "regression_methods_v5",
+      "source_file": "regression_methods_v5.json",
+      "sha256": "245759a9ba9ded5e66004fb0b5b6af6640fb816d39d349bc1f01e261e617bf18",
+      "source_published": false
+    },
+    {
+      "study": "dclp3_study_v2",
+      "source_file": "dclp3_study_v2.json",
+      "sha256": "bf2df09ddd0dccd5da98d88102e9327d4110a61e7ab7b4163e236afc0538e4ad",
+      "source_published": false
+    },
+    {
+      "study": "gru_low_study_v2",
+      "source_file": "report.json",
+      "sha256": "79b82fa6e4bf470876ac90479d2fe1dd722a3d13205fcdc72a29b01aa3160bc0",
+      "source_published": false
+    }
+  ]
+}

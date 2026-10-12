@@ -13,6 +13,24 @@ The service binds to loopback. It is a local research interface.
 | `/api/advance` | POST | `{"minutes":5}` (also 30 or 60) | Advance and issue immutable forecasts |
 | `/api/reset` | POST | `{}` | Reset this session to its warm-up boundary |
 | `/api/snapshot` | GET | None | Current snapshot without advancing |
+| `/api/export?format=csv` | GET | Session cookie | Forecast and event ledger download |
+| `/api/export?format=json` | GET | Session cookie | Revealed snapshot download |
+| `/api/export?format=html` | GET | Session cookie | Printable session report; browser Print can save PDF |
+
+`demo` is always available in the catalog with scenarios `rise`, `stable`, and
+`gap`. Create one using `{"cohort":"demo","patient_id":"rise"}`. This mode uses
+fictional profiles and generated sensor readings, with a deterministic past-only
+trend rule. `synthetic: true` and model names distinguish it from trained models.
+Synthetic event outcomes require a 50-minute delay (30-minute window, 15-minute
+confirmation and 5-minute sensor delay); CGMacros uses its existing 45-minute rule.
+
+All advances process **every five-minute issue**, including 30/60-minute jumps.
+Automatic playback uses the same five-minute advance endpoint and pauses when
+the browser page is hidden, on errors, on patient changes or at record end.
+Exports use the current server snapshot and never query future source rows.
+CSV contains `forecast` and `event` record types; JSON also includes visible chart
+history and profile context. Reports carry synthetic/research labels and model
+identity. Session MAE is not a validation benchmark.
 
 POST bodies must be JSON objects with `Content-Type: application/json`, at
 most 4,096 bytes. Session state uses an HttpOnly, SameSite=Strict cookie.

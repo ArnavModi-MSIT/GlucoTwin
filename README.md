@@ -11,6 +11,9 @@ with a local dashboard for clinicians to review patient history and outcomes.
 - Patient replay with glucose history, sensor coverage and future forecasts.
 - Fixed prediction ledgers, delayed outcome reveal and persistence comparisons.
 - A separate event research panel with uncalibrated scores and fixed cutoffs.
+- Synthetic scenarios that run without datasets or model downloads.
+- Automatic five-minute replay, issued-flag and revealed-onset chart markers.
+- CSV/JSON session exports and a printable report with PDF saving through the browser.
 
 ## Models and stack
 
@@ -50,9 +53,11 @@ Operational alerts, calibrated risk probabilities and treatment advice are disab
 
 ## Setup
 
-Requires Python 3.10+, locally prepared datasets and trusted model artifacts.
-Data and models are excluded from Git; follow the
-[reproduction guide](project/docs/REPRODUCTION.md) before launching.
+Requires Python 3.10+ and the dependencies below. The synthetic demonstration
+runs immediately after installation, using fictional patients and an illustrative
+trend rule. Its scores are **not** the development results reported above.
+The research cohorts require locally prepared datasets and trusted model
+artifacts; follow the [reproduction guide](project/docs/REPRODUCTION.md).
 
 From the repository root:
 
@@ -63,10 +68,15 @@ python -m venv .venv
 .\.venv\Scripts\python.exe scripts/launch_dashboard.py
 ```
 
-After preparation, Windows users can double-click
+After installing dependencies, Windows users can double-click
 [StartGlucoTwin.cmd](StartGlucoTwin.cmd) to open `http://127.0.0.1:8000`.
 Press **Ctrl+C** in the server window to stop it. Optional event-model setup is
 documented in [event replay](project/docs/EVENT_REPLAY.md).
+
+Select **Synthetic demo** to explore a rising trajectory, stable readings or a
+sensor interruption. **Play replay** advances every five minutes; larger jumps
+also record each intermediate issue. Export buttons include only information
+revealed by the current replay time.
 
 Run tests from `project/`:
 
@@ -83,6 +93,7 @@ prepared local-data and artifact checks.
 - [Presentation (PPTX)](project/docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](project/docs/delivery/GlucoTwin_Presentation.pdf)
 - [API](project/docs/API.md) · [Data contract](project/DATA_CONTRACT.md) · [Evaluation protocol](project/EVALUATION_PROTOCOL.md)
 - [Model results](project/docs/RESULTS.md) · [Model preparation](project/docs/REPRODUCTION.md)
+- [Best-results checkpoint](project/docs/BEST_RESULTS.md)
 
 Demonstration video preparation is deferred.
 

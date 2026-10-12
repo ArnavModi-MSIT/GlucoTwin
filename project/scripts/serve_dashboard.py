@@ -5,12 +5,15 @@ from http.cookies import SimpleCookie
 from functools import lru_cache
 import argparse,json,sys,uuid,time,threading,math,logging,hashlib,socket,importlib.metadata
 import numpy as np,pandas as pd,joblib
+from urllib.parse import urlsplit,parse_qs
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
 from glucotwin.features import profile_features
 from glucotwin.replay import issue_forecast,reveal_outcomes
 from glucotwin.rbg_replay import issue_rbg_forecasts,reveal_rbg_outcomes
 from glucotwin.artifacts import validate_replay_artifact
 from glucotwin.event_replay import load_event_artifact,issue_event,reveal_events
+from glucotwin.demo import DemoReplay,SCENARIOS
+from glucotwin.reporting import csv_report,html_report
 
 class ThreadingHTTPServer(_ThreadingHTTPServer):
     # Windows SO_REUSEADDR permits overlapping listeners. Exclusive binding
@@ -88,8 +91,10 @@ class Replay:
         if self.event_artifact is not None:
             self.event_ledger.append(issue_event(self.frame,self.profile,self.patient,self.event_artifact,now,self.event_ledger))
     def advance(self,minutes):
-        if minutes not in [5,30,60]:raise ValueError('Step must be 5, 30 or 60 minutes')
-        self.position=min(self.position+minutes//5,len(self.clock)-1);self.issue()
+        if type(minutes) is not int or minutes not in [5,30,60]:raise ValueError('Step must be 5, 30 or 60 minutes')
+        end=min(self.position+minutes//5,len(self.clock)-1)
+        while self.position<end:
+            self.position+=1;self.issue()
     def reset(self):self.position=self.start;self.ledger=[];self.event_ledger=[];self.issue()
     def snapshot(self):
         now=self.clock[self.position];rbg=self.cohort=='rbg';cutoff=now-pd.Timedelta(minutes=5) if rbg else now
@@ -117,7 +122,7 @@ class Replay:
                    'current':self.event_ledger[-1] if self.event_ledger else None,
                    'ledger':reveal_events(self.event_ledger,self.frame,self.patient,now) if self.event_artifact is not None else [],
                    'probability_display_approved':False,'operational_alerts_approved':False}
-        return clean({'cohort':self.cohort,'patient_label':label(self.patient['patient_id']),'issue_time':now,'data_cutoff':cutoff,'sensor_delay_minutes':5 if rbg else 0,'profile':profile,'profile_note':note,'latest':latest,'coverage':coverage,'forecasts':current,'chart':chart,'ledger':shown.to_dict('records'),'comparison':comparison,'event_research':event,'at_end':self.position==len(self.clock)-1})
+        return clean({'cohort':self.cohort,'synthetic':False,'model_name':'Profile-fused Ridge · RBG' if rbg else 'Clinical + CGM + HR Ridge · CGMacros','event_model_name':None if rbg else 'Fused XGBoost · cgmacros-onset-gpu-v2','patient_label':label(self.patient['patient_id']),'issue_time':now,'data_cutoff':cutoff,'sensor_delay_minutes':5 if rbg else 0,'profile':profile,'profile_note':note,'latest':latest,'coverage':coverage,'forecasts':current,'chart':chart,'ledger':shown.to_dict('records'),'comparison':comparison,'event_research':event,'at_end':self.position==len(self.clock)-1})
 
 def label(pid):
     value=str(pid).removesuffix('_RBG')
@@ -128,7 +133,7 @@ def label(pid):
 class Service:
     def __init__(self):self.sessions={};self.lock=threading.RLock()
     def create(self,cohort,pid,previous_key=None):
-        replay=Replay(cohort,pid);key=uuid.uuid4().hex
+        replay=DemoReplay(cohort,pid) if cohort=='demo' else Replay(cohort,pid);key=uuid.uuid4().hex
         with self.lock:
             now=time.monotonic();self.sessions={k:v for k,v in self.sessions.items() if now-v[1]<3600}
             self.sessions.pop(previous_key,None)
@@ -166,12 +171,29 @@ class Handler(BaseHTTPRequestHandler):
         if self.path=='/api/health':
             return self.respond(200,{'app':'GlucoTwin','workspace_id':hashlib.sha256(str(ROOT.resolve()).encode()).hexdigest()})
         if self.path=='/api/catalog':
-            cohorts={};errors={}
+            cohorts={'demo':[{'id':pid,'label':name} for pid,name in SCENARIOS.items()]};errors={}
             for cohort in ['rbg','cgmacros']:
-                try:cohorts[cohort]=[{'id':pid,'label':label(pid)} for pid in catalog(cohort)]
-                except FileNotFoundError:errors[cohort]='Local dataset preparation required'
+                try:
+                    models(cohort)
+                    cohorts[cohort]=[{'id':pid,'label':label(pid)} for pid in catalog(cohort)]
+                except (FileNotFoundError,ValueError,ImportError,KeyError):errors[cohort]='Local dataset/model preparation required. Synthetic demo is available.'
             return self.respond(200,{'cohorts':cohorts,'errors':errors})
         if self.path=='/api/snapshot':return self.action('snapshot',{})
+        if urlsplit(self.path).path=='/api/export':
+            format_=parse_qs(urlsplit(self.path).query).get('format',['json'])[0]
+            if format_ not in ('json','csv','html'):return self.respond(400,{'error':'Use json, csv or html'})
+            try:
+                cookie=SimpleCookie(self.headers.get('Cookie',''))
+                key=cookie['glucotwin_session'].value if 'glucotwin_session' in cookie else ''
+                snapshot=clean(service.operate(key,'snapshot'))
+                data=(json.dumps(snapshot,indent=2,allow_nan=False) if format_=='json' else csv_report(snapshot) if format_=='csv' else html_report(snapshot)).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type',{'json':'application/json','csv':'text/csv; charset=utf-8','html':'text/html; charset=utf-8'}[format_])
+                self.send_header('Content-Disposition',f'{"inline" if format_=="html" else "attachment"}; filename="glucotwin-{snapshot["cohort"]}-session.{format_}"')
+                self.send_header('Cache-Control','no-store');self.send_header('Content-Length',str(len(data)))
+                self.end_headers();self.wfile.write(data)
+            except (ValueError,KeyError):return self.respond(400,{'error':'Session expired; select a patient again'})
+            return
         files={'/':'index.html','/style.css':'style.css','/app.js':'app.js'}
         if self.path not in files:return self.respond(404,{'error':'Not found'})
         path=ROOT/'web'/files[self.path];data=path.read_bytes();self.send_response(200)
@@ -201,9 +223,9 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if action=='create':
                 cohort=body.get('cohort');pid=body.get('patient_id')
-                if cohort not in ('rbg','cgmacros'):raise ValueError('Unknown cohort')
+                if cohort not in ('rbg','cgmacros','demo'):raise ValueError('Unknown cohort')
                 if cohort=='cgmacros':pid=int(pid)
-                if pid not in catalog(cohort):raise ValueError('Patient unavailable for replay')
+                if pid not in (SCENARIOS if cohort=='demo' else catalog(cohort)):raise ValueError('Patient unavailable for replay')
                 cookie=SimpleCookie(self.headers.get('Cookie',''))
                 previous=cookie['glucotwin_session'].value if 'glucotwin_session' in cookie else None
                 key,snapshot=service.create(cohort,pid,previous);return self.respond(200,snapshot,key)

@@ -55,6 +55,11 @@ percentage points, so a fusion advantage is not established. Conservative
 precision includes unknown and redundant alarms in its denominator; eligible
 monitoring days exclude unavailable or ineligible coverage.
 
+The CGM-only comparison uses the configuration selected for the fused model,
+with separate cutoff selection. It is a matched feature ablation, not an
+independently tuned sensor-only benchmark. A fair model-selection comparison
+requires a separately versioned study with equal tuning budgets for both arms.
+
 The retained [aggregate model report](../reports/event_study_gpu_v2.json) also
 supplies cutoffs and fingerprints needed to verify the saved runtime models.
 Scores are uncalibrated ranking values. Clinical alerts, risk percentages and

@@ -88,14 +88,23 @@ class LauncherTests(unittest.TestCase):
                 launcher.launch(no_browser=True)
         load.assert_not_called()
 
-    def test_missing_prepared_data_does_not_start_service(self):
+    def test_missing_application_files_does_not_start_service(self):
         with tempfile.TemporaryDirectory() as folder:
             with patch.object(launcher, 'matching_server', return_value=False), \
                     patch.object(launcher, 'check_dependencies'), \
                     patch.object(launcher.importlib, 'import_module') as load:
-                with self.assertRaisesRegex(launcher.LaunchError, 'Local dashboard files are missing'):
+                with self.assertRaisesRegex(launcher.LaunchError, 'Missing application file'):
                     launcher.launch(no_browser=True, root=Path(folder))
             load.assert_not_called()
+
+    def test_fresh_checkout_starts_without_private_models(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);(root/'web').mkdir()
+            for name in ('index.html','style.css','app.js'):(root/'web'/name).write_text('demo')
+            service=Mock();service.ThreadingHTTPServer.return_value.serve_forever.side_effect=KeyboardInterrupt
+            with patch.object(launcher,'matching_server',return_value=False),patch.object(launcher,'check_dependencies'),patch.object(launcher.importlib,'import_module',return_value=service):
+                self.assertEqual(launcher.launch(no_browser=True,root=root),0)
+            service.models.assert_not_called();service.catalog.assert_not_called()
 
     def test_new_server_stays_foreground_and_closes_after_interrupt(self):
         service = Mock()
@@ -103,7 +112,6 @@ class LauncherTests(unittest.TestCase):
         server.serve_forever.side_effect = KeyboardInterrupt
         with patch.object(launcher, 'matching_server', return_value=False), \
                 patch.object(launcher, 'check_dependencies'), \
-                patch.object(launcher, 'check_prepared_files'), \
                 patch.object(launcher.importlib, 'import_module', return_value=service), \
                 patch.object(launcher, 'open_dashboard') as browser:
             self.assertEqual(launcher.launch(8012, no_browser=True), 0)

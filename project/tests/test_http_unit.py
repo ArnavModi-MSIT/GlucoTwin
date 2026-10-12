@@ -1,5 +1,6 @@
 """HTTP boundary tests use no datasets, saved models or role manifests."""
 import sys, unittest, threading, json, urllib.request, urllib.error, hashlib
+import http.cookiejar
 from pathlib import Path
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
@@ -48,6 +49,23 @@ class HttpUnitTests(unittest.TestCase):
     def test_patient_labels(self):
         self.assertEqual(web.label('115.0_RBG'),'Patient 115')
         self.assertEqual(web.label('P-012'),'Patient P-012')
+
+    def test_synthetic_session_and_export_boundaries(self):
+        client=urllib.request.build_opener(urllib.request.ProxyHandler({}),urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+        request=urllib.request.Request(self.url+'/api/session',data=b'{"cohort":"demo","patient_id":"rise"}',headers={'Content-Type':'application/json'})
+        with client.open(request) as response:first=json.load(response)
+        self.assertTrue(first['synthetic'])
+        with client.open(self.url+'/api/export?format=json') as response:
+            export=json.load(response);self.assertEqual(export,first)
+            self.assertEqual(response.headers['Cache-Control'],'no-store')
+        with client.open(self.url+'/api/export?format=html') as response:
+            self.assertIn(b'SYNTHETIC DEMONSTRATION',response.read())
+        with client.open(self.url+'/api/export?format=csv') as response:
+            self.assertIn('attachment',response.headers['Content-Disposition'])
+            self.assertIn(b'forecast,demo,True',response.read())
+        with self.assertRaises(urllib.error.HTTPError) as error:
+            urllib.request.urlopen(self.url+'/api/export?format=json')
+        self.assertEqual(error.exception.code,400)
     def test_duplicate_listener_is_rejected(self):
         with self.assertRaises(OSError):
             web.ThreadingHTTPServer(('127.0.0.1',self.server.server_port),web.Handler)

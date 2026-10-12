@@ -68,3 +68,16 @@ content. Reminder status follows replay time and supports manual review; no
 real-world notification, medication scheduling algorithm or dosing advice runs.
 Observed logs cannot be dated after replay time. Restarting a replay retains
 notes for that patient and labels later entries accordingly.
+
+## Historical patterns
+
+Snapshots contain `historical_patterns`: last seven study dates ending at the
+data cutoff, five-minute grid on the patient phase, no new interpolation. Daily
+percentages use observed readings, with coverage and expected counts shown.
+Comparable six-hour windows must have 72 expected slots and at least 80% coverage.
+A high window has at least 20% readings above 180 mg/dL; a low window has at least
+5% below 70. Recurrence requires at least two days and at least half of comparable
+days. Partial windows and poor coverage are excluded from recurrence. These are
+descriptive engineering rules, not future predictions or personalized targets.
+CGMacros source samples retain their reconstruction limitations. The JSON and
+print/PDF report include these summaries; the CSV remains a prediction ledger.

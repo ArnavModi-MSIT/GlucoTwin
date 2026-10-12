@@ -132,3 +132,6 @@
 
 !/project/web/care.js
 !/project/tests/care_unit.js
+
+!/project/src/glucotwin/patterns.py
+!/project/tests/test_patterns.py

@@ -122,3 +122,10 @@ console.log('Synthetic labels and causal event marker checks passed.');
  assert.equal(scheduled.length,1);
  console.log('Playback advances once per completed request and stops on pause/error.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
+
+context.render({...rbg,historical_patterns:{through:time,note:'Past-only history',observed_samples:58,periods:[{start_hour:0,end_hour:6,eligible_days:2,high_days:2,low_days:0,description:'Repeated high readings'}],daily:[{date:'2024-01-02',samples:58,expected:72,coverage:58/72,mean:190,low_fraction:0,reference_fraction:.2,high_fraction:.8}]}});
+assert.equal(element('patterns-panel').hidden,false);
+assert.match(element('patterns-periods').textContent,/Repeated high readings/);
+assert.match(element('patterns-days').textContent,/58\/7280.6%190.0 mg\/dL/);
+context.render(rbg);assert.equal(element('patterns-panel').hidden,true);
+console.log('Historical pattern renderer checks passed: coverage, descriptive periods and missing-payload handling.');

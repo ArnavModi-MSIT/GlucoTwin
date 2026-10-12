@@ -75,6 +75,7 @@ class DemoReplay:
             score=score, cutoff=180., research_flag=bool(flag), status=status))
 
     def snapshot(self):
+        from glucotwin.patterns import historical_patterns
         now = self.clock[self.position]
         cutoff = now-pd.Timedelta(minutes=5)
         visible = self.glucose.loc[:cutoff]
@@ -111,6 +112,7 @@ class DemoReplay:
             latest=self.ledger[-1]['latest_glucose'], coverage=self.ledger[-1]['cgm_count'],
             forecasts=self.ledger[-2:], ledger=rows,
             chart=[dict(time=t, glucose=v) for t,v in visible.loc[cutoff-pd.Timedelta(hours=6):].items()],
+            historical_patterns=historical_patterns(self.glucose.index,self.glucose.to_numpy(),cutoff),
             comparison=dict(evaluated=len(done), ridge_mae=float(np.mean([r['ridge_error'] for r in done])) if done else None,
                             persistence_mae=float(np.mean([r['persistence_error'] for r in done])) if done else None),
             event_research=dict(available=True, synthetic=True, current=self.event_ledger[-1], ledger=event_rows,

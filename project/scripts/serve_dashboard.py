@@ -14,6 +14,7 @@ from glucotwin.artifacts import validate_replay_artifact
 from glucotwin.event_replay import load_event_artifact,issue_event,reveal_events
 from glucotwin.demo import DemoReplay,SCENARIOS
 from glucotwin.reporting import csv_report,html_report
+from glucotwin.patterns import historical_patterns
 
 class ThreadingHTTPServer(_ThreadingHTTPServer):
     # Windows SO_REUSEADDR permits overlapping listeners. Exclusive binding
@@ -115,6 +116,8 @@ class Replay:
             latest=current[0].get('current');coverage=current[0].get('cgm_count',0)
             note='Historical profile and heart rate feed the fused Ridge model. Baseline availability is assumed; samples are reconstructed.'
         completed=shown.loc[shown.ridge_error.notna()]
+        patterns=historical_patterns(self.frame.ts if rbg else self.frame.Timestamp,
+                                     self.frame.GlucoseCGM if rbg else self.frame['Dexcom GL'],cutoff)
         comparison={'evaluated':len(completed),'ridge_mae':float(completed.ridge_error.mean()) if len(completed) else None,'persistence_mae':float(completed.persistence_error.mean()) if len(completed) else None}
         event=None
         if not rbg:
@@ -122,7 +125,7 @@ class Replay:
                    'current':self.event_ledger[-1] if self.event_ledger else None,
                    'ledger':reveal_events(self.event_ledger,self.frame,self.patient,now) if self.event_artifact is not None else [],
                    'probability_display_approved':False,'operational_alerts_approved':False}
-        return clean({'cohort':self.cohort,'synthetic':False,'model_name':'Profile-fused Ridge · RBG' if rbg else 'Clinical + CGM + HR Ridge · CGMacros','event_model_name':None if rbg else 'Fused XGBoost · cgmacros-onset-gpu-v2','patient_label':label(self.patient['patient_id']),'issue_time':now,'data_cutoff':cutoff,'sensor_delay_minutes':5 if rbg else 0,'profile':profile,'profile_note':note,'latest':latest,'coverage':coverage,'forecasts':current,'chart':chart,'ledger':shown.to_dict('records'),'comparison':comparison,'event_research':event,'at_end':self.position==len(self.clock)-1})
+        return clean({'cohort':self.cohort,'synthetic':False,'model_name':'Profile-fused Ridge · RBG' if rbg else 'Clinical + CGM + HR Ridge · CGMacros','event_model_name':None if rbg else 'Fused XGBoost · cgmacros-onset-gpu-v2','patient_label':label(self.patient['patient_id']),'issue_time':now,'data_cutoff':cutoff,'sensor_delay_minutes':5 if rbg else 0,'profile':profile,'profile_note':note,'latest':latest,'coverage':coverage,'forecasts':current,'chart':chart,'historical_patterns':patterns,'ledger':shown.to_dict('records'),'comparison':comparison,'event_research':event,'at_end':self.position==len(self.clock)-1})
 
 def label(pid):
     value=str(pid).removesuffix('_RBG')

@@ -74,7 +74,7 @@ const statements=demo?['All profiles and readings in this mode are generated loc
 'Low-target validation MAE worsened: Ridge 38.80 mg/dL versus persistence 20.26, based on only 39 target rows. Forecast targets overlap; these rows are not independent patient samples.',
 'CGM samples are reconstructed from interpolated source data, and clinical-profile availability is assumed. Numerical forecasts use Ridge; the separate event panel uses saved fused XGBoost models. Event scores are uncalibrated. No diagnosis, treatment or insulin dosing.'
 ];
-for(const statement of statements){const p=document.createElement('p');p.textContent=statement;evidence.append(p);}renderEvents(s);drawChart();
+for(const statement of statements){const p=document.createElement('p');p.textContent=statement;evidence.append(p);}renderEvents(s);renderPatterns(s);drawChart();
 globalThis.GlucoCare?.update(s,$('patient').value);
 }
 function renderEvents(s){
@@ -118,4 +118,12 @@ function drawEventMarkers(svg,s,x,top,bottom,start,end){
    line.append(svgNode('title',{},`Revealed sustained onset ${short(row.event_at)}`));svg.append(line);
   }
  }
+}
+
+function renderPatterns(s){
+const p=s.historical_patterns;$('patterns-panel').hidden=!p;if(!p)return;
+text('patterns-note',p.note);text('patterns-provenance',`${s.synthetic?'Fictional demonstration history':'Dataset history'} · Available through ${wall(p.through)} · ${p.observed_samples} observed samples`);
+const periods=$('patterns-periods');periods.replaceChildren();
+for(const r of p.periods){const box=document.createElement('article'),title=document.createElement('strong'),detail=document.createElement('p'),support=document.createElement('small');title.textContent=`${String(r.start_hour).padStart(2,'0')}:00–${String(r.end_hour).padStart(2,'0')}:00`;detail.textContent=r.description;support.textContent=`${r.eligible_days} comparable days · High periods: ${r.high_days} · Low periods: ${r.low_days}`;box.append(title,detail,support);periods.append(box);}
+const body=$('patterns-days');body.replaceChildren();for(const r of [...p.daily].reverse()){const tr=document.createElement('tr');for(const v of [r.date,`${r.samples}/${r.expected}`,`${number(r.coverage*100,1)}%`,Number.isFinite(r.mean)?`${number(r.mean,1)} mg/dL`:'—',...['low_fraction','reference_fraction','high_fraction'].map(k=>Number.isFinite(r[k])?`${number(r[k]*100,1)}%`:'—')]){const td=document.createElement('td');td.textContent=v;tr.append(td);}body.append(tr);}
 }

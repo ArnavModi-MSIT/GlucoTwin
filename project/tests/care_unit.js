@@ -18,3 +18,22 @@ const copy=care.entries('a');copy[0].note='mutated';assert.equal(care.entries('a
 care.remove('a',meal.id);assert.equal(care.entries('a').length,1);
 assert.throws(()=>care.add('a',{kind:'dose_prediction',at:'2026-01-01T11:00',note:'x'},now));
 console.log('Care log checks passed: isolation, validation, replay timing, immutable reads and removal');
+
+const monthEnd='2024-02-28T08:00:00';
+care.add('plan',{kind:'meal_plan',at:'2024-02-28T13:00',note:'User-selected lunch',repeat_days:3},monthEnd);
+assert.deepEqual(care.planningDays('plan',monthEnd).map(r=>r.date),['2024-02-28','2024-02-29','2024-03-01']);
+assert.deepEqual(care.entries('plan').map(r=>r.at),['2024-02-28T13:00','2024-02-29T13:00','2024-03-01T13:00']);
+assert.equal(care.status(care.entries('plan')[0],monthEnd),'Planned');
+assert.equal(care.status(care.entries('plan')[0],'2024-02-28T14:00:00'),'Planned time reached');
+assert.throws(()=>care.complete('plan',1,'2024-02-28T14:00:00'));
+care.add('plan',{kind:'schedule',at:'2024-02-28T15:00',note:'Copy of existing daily prescription',confirmed:true,repeat_days:3},monthEnd);
+assert.equal(care.planningDays('plan',monthEnd)[0].entries.length,2);
+assert.equal(care.planningDays('other',monthEnd)[0].entries.length,0);
+assert.throws(()=>care.add('plan',{kind:'medication',at:'2024-02-28T07:00',note:'taken',repeat_days:3},monthEnd));
+assert.throws(()=>care.add('plan',{kind:'schedule',at:'2024-02-28T15:00',note:'unconfirmed',repeat_days:3},monthEnd));
+for(let i=0;i<199;i++)care.add('limit',{kind:'meal',at:'2024-02-28T07:00',note:'log'},monthEnd);
+assert.throws(()=>care.add('limit',{kind:'meal_plan',at:'2024-02-28T13:00',note:'plan',repeat_days:3},monthEnd));
+assert.equal(care.entries('limit').length,199);
+assert.throws(()=>care.add('plan',{kind:'meal_plan',at:'9999-12-31T13:00',note:'invalid rollover',repeat_days:3},monthEnd));
+assert.equal(care.entries('plan').length,6);
+console.log('Three-day planning checks passed: leap dates, patient isolation, explicit repetition, planned status and atomic limits.');

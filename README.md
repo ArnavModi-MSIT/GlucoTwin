@@ -10,6 +10,9 @@ with a local dashboard for clinicians to review patient history and outcomes.
 - Linked clinical and sensor inputs in the fitted models.
 - Validated local CSV import with explicit units, preserved gaps and optional exploratory RBG transfer.
 - Patient overview with last-viewed snapshots, search and replay navigation.
+- Sticky navigation between overview, timeline, history, care plan and results.
+- Editable care entries with patient-specific undo for recent removals.
+- Optional same-tab replay resume after refresh while the localhost session is active.
 - Patient replay with glucose history, sensor coverage, future forecasts and user-log timeline markers.
 - Ridge arithmetic explanations grouped into clinical, glucose, heart-rate and missingness contributions.
 - Fixed prediction ledgers, delayed outcome reveal and persistence comparisons.

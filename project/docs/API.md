@@ -17,8 +17,8 @@ The service binds to loopback. It is a local research interface.
 | `/api/export?format=json` | GET | Session cookie | Revealed snapshot download |
 | `/api/export?format=html` | GET | Session cookie | Printable session report; browser Print can save PDF |
 
-`demo` is always available in the catalog with scenarios `rise`, `stable`, and
-`gap`. Create one using `{"cohort":"demo","patient_id":"rise"}`. This mode uses
+`demo` is always available in the catalog with scenarios `showcase`, `rise`, `stable`, and
+`gap`. The default `showcase` includes fictional history and chronological replayed outcomes. Create one using `{"cohort":"demo","patient_id":"rise"}`. This mode uses
 fictional profiles and generated sensor readings, with a deterministic past-only
 trend rule. `synthetic: true` and model names distinguish it from trained models.
 Synthetic event outcomes require a 50-minute delay (30-minute window, 15-minute
@@ -39,7 +39,7 @@ unexpected inference failures return HTTP 500 with a generic message and a
 server log. Select a patient again after expiry. Host/Origin failures return
 403. Unknown routes return 404.
 
-Snapshots contain `issue_time`, `data_cutoff`, profile context, visible chart
+Snapshots contain `patient_id`, `issue_time`, `data_cutoff`, profile context, visible chart
 points, per-horizon forecasts, a fixed forecast ledger and session comparison
 metrics. Null predictions mean abstention. Null outcomes remain pending or
 have no exact observation. RBG inputs/outcomes have a five-minute availability
@@ -62,7 +62,7 @@ the forecast ledger provides a tabular alternative to forecast markers.
 
 The dashboard provides patient-specific meal and medication-taken logs plus
 planned meals and reminders copied from an existing prescribed schedule. These annotations
-are held in tab memory, cleared on reload/close, and exported separately as JSON.
+are held in tab memory, optionally saved locally, and exported separately as JSON.
 They are not sent to the API or used as model inputs, dataset events, or PDF report
 content. Reminder status follows replay time and supports manual review; no
 real-world notification, medication scheduling algorithm or dosing advice runs.
@@ -144,6 +144,6 @@ Timing is descriptive and does not establish a treatment response.
 
 Patient review additions: issued numerical rows may include `explanation` with Ridge reference offset, grouped contributions, imputed fields and a reconstructed prediction. `historical_patterns.profile` contains the past-only fourteen-date descriptive summary and hourly quantiles. These fields enter JSON snapshots and HTML reports; they never reveal future target observations. The overview uses last-viewed browser snapshots, not a new live-data endpoint. Optional care-note persistence stays in browser local storage and is not sent to the API.
 
-Browser requests use a tab-specific `X-GlucoTwin-Session` header. Creating a session with an explicit empty header leaves other tab sessions intact; the response returns the new token in that header. Tokens stay in memory and are not placed in URLs. Cookie-only API clients remain supported. Browser exports fetch with the same header and download the resulting file, so the chosen patient is preserved even when another tab changes cohorts. Open the downloaded HTML report and print it to PDF if needed.
+Browser requests use a tab-specific `X-GlucoTwin-Session` header. Creating a session with an explicit empty header leaves other tab sessions intact; the response returns the new token in that header. Tokens stay in memory unless same-tab refresh resume is enabled; then the bookmark is kept in session storage. Tokens are never placed in URLs. Cookie-only API clients remain supported. Browser exports fetch with the same header and download the resulting file, so the chosen patient is preserved even when another tab changes cohorts. Open the downloaded HTML report and print it to PDF if needed.
 
 `POST /api/import/preview` accepts `csv_text`, declared `unit`, `provenance`, anonymized `label`, `mode` (`persistence` or `rbg`) and optional `profile` (`age`, `sex`). It validates without creating a replay and returns quality metadata. `POST /api/import/session` validates again, creates an imported replay and returns a tab session header. Import requests have a 4 MB JSON-body limit; CSV itself is limited to 1 MB. No file paths or model uploads are accepted. All normal local-host/origin guards remain in force. Imported snapshots have `imported: true`, `patient_id` and `import_quality`; they carry no cohort-specific event or uncertainty calibration.

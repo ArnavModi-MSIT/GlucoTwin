@@ -123,7 +123,7 @@ class DemoReplay:
                                    lead_minutes=(matches[0]-row['issued_at']).total_seconds()/60)
             event_rows.append(row)
         done = [r for r in rows if r['actual'] is not None]
-        return dict(cohort='demo', synthetic=True, patient_label='Synthetic · '+SCENARIOS[self.pid],
+        return dict(cohort='demo', patient_id=self.pid, synthetic=True, patient_label='Synthetic · '+SCENARIOS[self.pid],
             demo_prefill=self.pid == 'showcase', demo_seed_time=self.clock[self.start],
             issue_time=now, data_cutoff=cutoff, sensor_delay_minutes=5, profile=self.profile,
             profile_note='Fictional profile + past sensor trend feed an illustrative rule. No fitted ML model or clinical evidence.',

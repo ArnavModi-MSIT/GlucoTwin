@@ -80,6 +80,16 @@ class HttpUnitTests(unittest.TestCase):
         with client.open(urllib.request.Request(self.url+'/api/export?format=json',headers={'X-GlucoTwin-Session':first})) as response:
             self.assertEqual(json.load(response)['patient_label'],first_snapshot['patient_label'])
 
+    def test_refresh_snapshot_restores_identity_and_fixed_ledger_without_cookie(self):
+        request=urllib.request.Request(self.url+'/api/session',data=b'{"cohort":"demo","patient_id":"showcase"}',headers={'Content-Type':'application/json','X-GlucoTwin-Session':''})
+        with urllib.request.urlopen(request) as response:token=response.headers['X-GlucoTwin-Session']
+        advance=urllib.request.Request(self.url+'/api/advance',data=b'{"minutes":30}',headers={'Content-Type':'application/json','X-GlucoTwin-Session':token})
+        with urllib.request.urlopen(advance) as response:expected=json.load(response)
+        with patch.object(web,'DemoReplay',side_effect=AssertionError('Resume must not rebuild the replay')):
+            snapshot=urllib.request.Request(self.url+'/api/snapshot',headers={'X-GlucoTwin-Session':token})
+            with urllib.request.urlopen(snapshot) as response:self.assertEqual(json.load(response),expected)
+        self.assertEqual(expected['patient_id'],'showcase')
+
     def test_import_preview_session_error_and_export_scope(self):
         import pandas as pd
         text='timestamp,glucose\n'+'\n'.join(f'{t.isoformat()},100' for t in pd.date_range('2024-01-01',periods=40,freq='5min'))

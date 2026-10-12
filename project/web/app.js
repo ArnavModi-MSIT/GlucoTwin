@@ -3,13 +3,38 @@ const $ = id => document.getElementById(id);
 const viewedPatients=new Map(),importedPatients=new Map();
 let validatedImport=null,importReadEpoch=0;
 let activePatientId='',sessionToken='',catalog, cohort='demo', snapshot, busy=false, playing=false, playbackTimer=null;
+const resumeStorageKey='glucotwin-tab-replay-v1';
+let releaseReplayLock=null,lockedReplayToken='';
+async function ownReplay(token){
+ if(!globalThis.navigator?.locks)return true;
+ if(lockedReplayToken===token)return true;
+ releaseReplayLock?.();releaseReplayLock=null;lockedReplayToken='';
+ return new Promise(resolve=>{
+  globalThis.navigator.locks.request('glucotwin-replay-'+token,{ifAvailable:true},lock=>{
+   if(!lock){resolve(false);return;}
+   lockedReplayToken=token;resolve(true);return new Promise(release=>{releaseReplayLock=release;});
+  }).catch(()=>resolve(false));
+ });
+}
+function readSavedReplay(storage){
+ const encoded=storage?.getItem(resumeStorageKey);if(!encoded)return null;
+ if(encoded.length>2048)throw Error('Invalid saved replay.');
+ const value=JSON.parse(encoded);
+ if(value?.schema!=='glucotwin-tab-replay-v1'||!['demo','rbg','cgmacros','imported'].includes(value.cohort)||typeof value.pid!=='string'||!value.pid||value.pid.length>80||typeof value.token!=='string'||!/^[a-f0-9]{32}$/.test(value.token)||typeof value.issue_time!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:00$/.test(value.issue_time))throw Error('Invalid saved replay.');
+ return value;
+}
+function saveReplay(){
+ if(!snapshot||!$('resume-replay').checked)return;
+ try{globalThis.sessionStorage.setItem(resumeStorageKey,JSON.stringify({schema:'glucotwin-tab-replay-v1',cohort:snapshot.cohort,pid:activePatientId,token:sessionToken,issue_time:snapshot.issue_time}));text('resume-status',`Replay kept at ${wall(snapshot.issue_time)} for this tab. Playback resumes paused.`);}
+ catch{$('resume-replay').checked=false;text('resume-status','This browser could not keep the replay. Notes can still be exported separately.');}
+}
 const number=(v,d=0)=>Number.isFinite(v)?v.toFixed(d):'—';
 const wall=t=>t?t.replace('T',' ').slice(0,16):'—';
 const short=t=>t?`${t.slice(8,10)} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+t.slice(5,7)-1]}, ${t.slice(11,16)}`:'—';
 const coord=t=>Date.parse(t+'Z'); // Use UTC solely as a plotting coordinate; retain supplied wall-time labels.
 const text=(id,value)=>{$(id).textContent=value;};
 function setBusy(value){busy=value;document.body.classList.toggle('busy',value);$('loading').hidden=!value;document.querySelectorAll('button,select').forEach(e=>e.disabled=value);if(playing)$('play').disabled=false;if(!value){globalThis.GlucoCare?.refreshControls();$('import-open').disabled=!validatedImport;}if(!value&&snapshot?.at_end){document.querySelectorAll('[data-step]').forEach(e=>e.disabled=true);$('play').disabled=true;}}
-async function api(path,body){const headers={'X-GlucoTwin-Session':sessionToken};if(body!==undefined)headers['Content-Type']='application/json';const response=await fetch(path,body===undefined?{headers}:{method:'POST',headers,body:JSON.stringify(body)});const value=await response.json();if(!response.ok)throw new Error(value.error||'Request failed');const token=response.headers.get('X-GlucoTwin-Session');if(token)sessionToken=token;return value;}
+async function api(path,body){const headers={'X-GlucoTwin-Session':sessionToken};if(body!==undefined)headers['Content-Type']='application/json';const response=await fetch(path,body===undefined?{headers}:{method:'POST',headers,body:JSON.stringify(body)});const value=await response.json();if(!response.ok)throw new Error(value.error||'Request failed');const token=response.headers.get('X-GlucoTwin-Session');if(token){sessionToken=token;await ownReplay(token);}return value;}
 async function action(path,body){if(busy)return;setBusy(true);$('error').hidden=true;try{snapshot=await api(path,body);render(snapshot);if(snapshot.at_end)stopPlayback();}catch(e){stopPlayback();if(snapshot){cohort=snapshot.cohort;populate();$('patient').value=activePatientId;}$('error').textContent=e.message;$('error').hidden=false;}finally{setBusy(false);}}
 function populate(){const select=$('patient');select.replaceChildren();for(const p of catalog.cohorts[cohort]||[]){const option=document.createElement('option');option.value=p.id;option.textContent=p.label;select.append(option);}document.querySelectorAll('[data-cohort]').forEach(b=>b.classList.toggle('active',b.dataset.cohort===cohort));}
 async function selectPatient(){stopPlayback();if(!$('patient').options.length){text('error',catalog.errors?.[cohort]||'No prepared patients available for this cohort.');$('error').hidden=false;return;}if(cohort==='imported'){const payload=importedPatients.get($('patient').value);if(!payload){text('error','Reimport the CSV after reloading.');$('error').hidden=false;return;}await action('/api/import/session',payload);}else await action('/api/session',{cohort,patient_id:$('patient').value});}
@@ -23,6 +48,17 @@ $('play').addEventListener('click',()=>{if(playing){stopPlayback();return;}if(!s
 document.addEventListener('visibilitychange',()=>{if(document.hidden)stopPlayback();});
 document.querySelectorAll('[data-export]').forEach(a=>a.addEventListener('click',async e=>{e.preventDefault();stopPlayback();try{const response=await fetch(a.getAttribute('href'),{headers:{'X-GlucoTwin-Session':sessionToken}});if(!response.ok)throw Error('Export failed; select the patient again.');const blob=await response.blob(),url=URL.createObjectURL(blob),link=document.createElement('a'),format=new URL(a.href).searchParams.get('format');link.href=url;link.download=`glucotwin-${cohort}-session.${format}`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}catch(err){text('error',err.message);$('error').hidden=false;}}));
 $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('chart-card').requestFullscreen();}catch(e){text('error','Fullscreen is unavailable in this browser.');$('error').hidden=false;}});
+$('resume-replay').addEventListener('change',()=>{if($('resume-replay').checked)saveReplay();else{try{globalThis.sessionStorage.removeItem(resumeStorageKey);}catch{}text('resume-status','Off. Replay sessions expire after one hour of inactivity.');}});
+const sectionLinks=[...document.querySelectorAll('.section-nav a')];
+function markSection(id){for(const link of sectionLinks){if(link.dataset.section===id)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current');}}
+for(const link of sectionLinks)link.addEventListener('click',event=>{
+ const target=$(link.dataset.section);event.preventDefault();if(!target||target.hidden)return;
+ if(target.tagName==='DETAILS')target.open=true;markSection(link.dataset.section);target.setAttribute('tabindex','-1');target.scrollIntoView({block:'start'});target.focus({preventScroll:true});
+});
+if(typeof IntersectionObserver!=='undefined'&&sectionLinks.length){
+ const observer=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top);if(visible.length)markSection(visible[0].target.id);},{rootMargin:'-70px 0px -65% 0px'});
+ for(const link of sectionLinks){const target=$(link.dataset.section);if(target)observer.observe(target);}
+}
 function render(s){
 cohort=s.cohort;activePatientId=String($('patient').value);
 const demo=cohort==='demo',imported=!!s.imported,modelLabel=imported?(s.model_name.includes('Persistence')?'Persistence':'Transferred Ridge'):demo?'Demo rule':'Ridge';
@@ -79,7 +115,8 @@ const statements=imported?[s.profile_note,'Imported files are not part of the re
 'CGM samples are reconstructed from interpolated source data, and clinical-profile availability is assumed. Numerical forecasts use Ridge; the separate event panel uses saved fused XGBoost models. Event scores are uncalibrated. No diagnosis, treatment or insulin dosing.'
 ];
 for(const statement of statements){const p=document.createElement('p');p.textContent=statement;evidence.append(p);}renderEvents(s);renderPatterns(s);
-globalThis.GlucoCare?.update(s,$('patient').value);drawChart();
+globalThis.GlucoCare?.update(s,$('patient').value);drawChart();saveReplay();
+for(const link of sectionLinks)link.setAttribute('aria-disabled',String(!!$(link.dataset.section)?.hidden));
 }
 function renderEvents(s){
 const event=s.event_research,demo=s.cohort==='demo';$('event-research').hidden=['rbg','imported'].includes(s.cohort);
@@ -108,7 +145,28 @@ for(let i=0;i<=6;i++){const time=start+(end-start)*i/6,d=new Date(time),label=`$
 const issueX=x(s.issue_time);svg.append(svgNode('line',{x1:issueX,x2:issueX,y1:top,y2:bottom,stroke:'#9eaeb7','stroke-dasharray':'4 4'}));let path='',previous=null;const cadence=s.sensor_delay_minutes?5:1;for(const p of s.chart){if(!Number.isFinite(p.glucose)){previous=null;continue;}const contiguous=previous&&coord(p.time)-coord(previous.time)<=cadence*60000;path+=`${contiguous?'L':'M'}${x(p.time).toFixed(2)},${y(p.glucose).toFixed(2)} `;previous=p;}svg.append(svgNode('path',{d:path,fill:'none',stroke:'#2587ba','stroke-width':2,'stroke-linejoin':'round'}));for(const p of markers){const px=x(p.time),py=y(p.glucose),dot=p.name==='Persistence'?svgNode('circle',{cx:px,cy:py,r:4.5,fill:p.color}):svgNode('path',{d:`M${px},${py-6} L${px+6},${py} L${px},${py+6} L${px-6},${py} Z`,fill:p.color});dot.append(svgNode('title',{},`${p.name}: ${number(p.glucose,1)} mg/dL · ${short(p.time)}`));svg.append(dot);}
 drawEventMarkers(svg,s,x,top,bottom,start,end);const careNotes=drawCareMarkers(svg,s,x,top,bottom,start);const legend=$('legend');legend.replaceChildren();for(const [name,color] of [['Observed glucose','#2587ba'],...s.forecasts.map(f=>[`${s.imported?(s.model_name.includes('Persistence')?'Persistence':'Transferred Ridge'):s.synthetic?'Demo rule':'Ridge'} +${f.horizon} min`,f.horizon===30?'#dd7945':'#8867b2']),['Persistence','#8c9ba6']]){const span=document.createElement('span'),dot=document.createElement('i');dot.style.background=color;span.append(dot,document.createTextNode(name));legend.append(span);}if(s.event_research?.available){for(const [name,color] of [['Issued flag','#bd6435'],['Revealed onset','#963a63']]){const span=document.createElement('span'),dot=document.createElement('i');dot.style.background=color;span.append(dot,document.createTextNode(name));legend.append(span);}}for(const [kind,name,color] of [['meal','Meal log (user-reported)','#a87913'],['medication','Medication taken log (user-reported)','#227b55']]){if(careNotes.some(r=>r.kind===kind)){const span=document.createElement('span'),dot=document.createElement('i');dot.style.background=color;span.append(dot,document.createTextNode(name));legend.append(span);}}const points=s.chart.filter(p=>Number.isFinite(p.glucose)),tip=container.querySelector('.chart-tooltip');svg.onpointermove=e=>{const rect=svg.getBoundingClientRect(),px=(e.clientX-rect.left)*w/rect.width;const annotation=e.target?.closest?.('[data-care-marker]');if(annotation){tip.textContent=annotation.getAttribute('aria-label');tip.hidden=false;tip.style.left=`${Math.max(0,Math.min(container.clientWidth-220,px-100))}px`;tip.style.top='5px';return;}if(px<left||px>issueX||!points.length){tip.hidden=true;return;}let nearest=points[0];for(const p of points)if(Math.abs(x(p.time)-px)<Math.abs(x(nearest.time)-px))nearest=p;tip.textContent=`${short(nearest.time)} · ${number(nearest.glucose,1)} mg/dL`;tip.hidden=false;tip.style.left=`${Math.max(0,Math.min(container.clientWidth-170,px+10))}px`;tip.style.top=`${Math.max(0,y(nearest.glucose)-35)}px`;};svg.onpointerleave=()=>tip.hidden=true;}
 new ResizeObserver(drawChart).observe($('chart'));
-(async()=>{setBusy(true);try{catalog=await api('/api/catalog');populate();}catch(e){text('error',e.message);$('error').hidden=false;}finally{setBusy(false);}if($('patient').options.length)await selectPatient();})();
+(async()=>{
+ setBusy(true);try{catalog=await api('/api/catalog');populate();}catch(e){text('error',e.message);$('error').hidden=false;}finally{setBusy(false);}
+ if(!$('patient').options.length)return;
+ let saved=null,notice='';
+ try{saved=readSavedReplay(globalThis.sessionStorage);}catch{try{globalThis.sessionStorage.removeItem(resumeStorageKey);}catch{}notice='Saved replay could not be read. Starting a fresh replay.';}
+ if(saved){
+  $('resume-replay').checked=true;sessionToken=saved.token;setBusy(true);
+  try{
+   if(!await ownReplay(saved.token)){notice=saved.cohort==='imported'?'That imported replay is active in another tab. Reimport the CSV for an independent session; showing the demo.':'That replay is active in another tab. Starting an independent replay for this patient.';throw Error('Replay already open');}
+   const restored=await api('/api/snapshot');
+   if(restored.cohort!==saved.cohort||String(restored.patient_id)!==saved.pid)throw Error('Saved replay identity mismatch.');
+   if(saved.cohort==='imported')catalog.cohorts.imported=[{id:saved.pid,label:restored.patient_label.replace(/^Imported · /,'')}];
+   if(!catalog.cohorts[saved.cohort]?.some(p=>String(p.id)===saved.pid))throw Error('Saved patient is unavailable.');
+   cohort=saved.cohort;populate();$('patient').value=saved.pid;snapshot=restored;render(restored);text('resume-status',`Replay restored at ${wall(restored.issue_time)}. Press Play to continue.`);return;
+  }catch{
+   sessionToken='';notice=notice||(saved.cohort==='imported'?'Imported replay expired or server restarted. Reimport the CSV to continue; showing the demo.':'Previous replay expired or server restarted. Starting a fresh replay.');
+   if(catalog.cohorts[saved.cohort]?.some(p=>String(p.id)===saved.pid)){cohort=saved.cohort;populate();$('patient').value=saved.pid;}
+   else{cohort='demo';populate();}
+  }finally{setBusy(false);}
+ }
+ await selectPatient();if(notice)text('resume-status',notice);
+})();
 
 function drawEventMarkers(svg,s,x,top,bottom,start,end){
  const rows=s.event_research?.ledger||[],seen=new Set();

@@ -28,6 +28,23 @@ const document={
 };
 const context=vm.createContext({document,fetch:()=>new Promise(()=>{}),ResizeObserver:class{observe(){}},console,setTimeout,clearTimeout});
 vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/app.js'),'utf8'),context);
+const replayBookmark={schema:'glucotwin-tab-replay-v1',cohort:'demo',pid:'showcase',token:'a'.repeat(32),issue_time:'2024-01-15T08:35:00'};
+assert.equal(context.readSavedReplay({getItem:()=>null}),null);
+assert.equal(context.readSavedReplay({getItem:()=>JSON.stringify(replayBookmark)}).pid,'showcase');
+for(const invalid of [{...replayBookmark,token:'not-a-session'}, {...replayBookmark,cohort:'unknown'}, {...replayBookmark,pid:''}, {...replayBookmark,issue_time:null}])assert.throws(()=>context.readSavedReplay({getItem:()=>JSON.stringify(invalid)}));
+assert.throws(()=>context.readSavedReplay({getItem:()=>'x'.repeat(2049)}));
+console.log('Replay bookmark validation checks passed.');
+(async()=>{
+ const held=new Set(),locks={async request(name,options,callback){if(held.has(name))return callback(null);held.add(name);try{return await callback({name});}finally{held.delete(name);}}};
+ context.navigator={locks};
+ const other=vm.createContext({document,navigator:{locks},fetch:()=>new Promise(()=>{}),ResizeObserver:class{observe(){}},console,setTimeout,clearTimeout});
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../web/app.js'),'utf8'),other);
+ assert.equal(await context.ownReplay('test-owned-replay'),true);
+ assert.equal(await other.ownReplay('test-owned-replay'),false);
+ assert.equal(await context.ownReplay('test-new-replay'),true);
+ assert.equal(await other.ownReplay('test-owned-replay'),true);
+ console.log('Replay ownership checks passed: active-tab isolation and released locks.');
+})().catch(error=>{console.error(error);process.exitCode=1;});
 const element=id=>elements.get(id);
 const cgmFeatures=Array.from({length:22},(_,i)=>`cgm_feature_${i}`);
 const time='2024-01-02T12:30:00';

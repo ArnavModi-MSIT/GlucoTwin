@@ -129,7 +129,7 @@ class Replay:
                    'current':self.event_ledger[-1] if self.event_ledger else None,
                    'ledger':reveal_events(self.event_ledger,self.frame,self.patient,now) if self.event_artifact is not None else [],
                    'probability_display_approved':False,'operational_alerts_approved':False}
-        return clean({'cohort':self.cohort,'synthetic':False,'model_name':'Profile-fused Ridge · RBG' if rbg else 'Clinical + CGM + HR Ridge · CGMacros','event_model_name':None if rbg else 'Fused XGBoost · cgmacros-onset-gpu-v2','patient_label':label(self.patient['patient_id']),'issue_time':now,'data_cutoff':cutoff,'sensor_delay_minutes':5 if rbg else 0,'profile':profile,'profile_note':note,'latest':latest,'coverage':coverage,'forecasts':current,'chart':chart,'historical_patterns':patterns,'ledger':shown.to_dict('records'),'comparison':comparison,'event_research':event,'uncertainty_note':self.interval_note,'at_end':self.position==len(self.clock)-1})
+        return clean({'cohort':self.cohort,'patient_id':self.patient['patient_id'],'synthetic':False,'model_name':'Profile-fused Ridge · RBG' if rbg else 'Clinical + CGM + HR Ridge · CGMacros','event_model_name':None if rbg else 'Fused XGBoost · cgmacros-onset-gpu-v2','patient_label':label(self.patient['patient_id']),'issue_time':now,'data_cutoff':cutoff,'sensor_delay_minutes':5 if rbg else 0,'profile':profile,'profile_note':note,'latest':latest,'coverage':coverage,'forecasts':current,'chart':chart,'historical_patterns':patterns,'ledger':shown.to_dict('records'),'comparison':comparison,'event_research':event,'uncertainty_note':self.interval_note,'at_end':self.position==len(self.clock)-1})
 
 def label(pid):
     value=str(pid).removesuffix('_RBG')

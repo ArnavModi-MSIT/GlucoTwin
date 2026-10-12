@@ -1,6 +1,27 @@
 'use strict';
 const assert=require('node:assert/strict');
 const care=require('../web/care.js');
+const exampleSnapshot={cohort:'demo',synthetic:true,demo_prefill:true,demo_seed_time:'2024-01-15T08:35:00',issue_time:'2024-01-15T08:35:00'};
+assert.equal(care.seedDemo('example',exampleSnapshot,'showcase'),true);
+assert.equal(care.entries('example').length,11);
+assert.ok(care.entries('example').every(r=>r.note.startsWith('Fictional example:')));
+assert.deepEqual(new Set(care.entries('example').map(r=>r.kind)),new Set(['meal','medication','review','question','follow_up','meal_plan','schedule']));
+assert.ok(care.planningDays('example',exampleSnapshot.issue_time).every(r=>r.entries.length>=2));
+assert.equal(care.seedDemo('example',exampleSnapshot,'showcase'),false);
+care.remove('example',care.entries('example')[0].id);
+care.seedDemo('example',exampleSnapshot,'showcase');assert.equal(care.entries('example').length,10);
+const sampleStorage={removeItem(){}};care.clearLocal(sampleStorage,'example');
+care.seedDemo('example',exampleSnapshot,'showcase');assert.equal(care.entries('example').length,0);
+for(const [key,s,pid] of [
+ ['real-example',{...exampleSnapshot,cohort:'rbg'},'showcase'],
+ ['import-example',{...exampleSnapshot,cohort:'imported'},'showcase'],
+ ['other-demo',exampleSnapshot,'rise'],
+ ['early-demo',{...exampleSnapshot,issue_time:'2024-01-15T08:00:00'},'showcase']
+]){assert.equal(care.seedDemo(key,s,pid),false);assert.equal(care.entries(key).length,0);}
+care.add('existing-example',{kind:'review',at:'2024-01-15T08:00',note:'Keep my existing note'},exampleSnapshot.issue_time);
+assert.equal(care.seedDemo('existing-example',exampleSnapshot,'showcase'),false);
+assert.equal(care.entries('existing-example').length,1);
+console.log('Worked example checks passed: explicit fictional identity, populated plans, no duplication, preserved edits and patient isolation.');
 const now='2026-01-01T12:00:00';
 const meal=care.add('a',{kind:'meal',at:'2026-01-01T11:00',note:'Lunch'},now);
 assert.equal(care.entries('b').length,0);

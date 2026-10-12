@@ -4,6 +4,7 @@ import pandas as pd
 from glucotwin.episodes import onsets
 
 SCENARIOS = {
+    'showcase': 'Complete worked example',
     'rise': 'Rising glucose',
     'stable': 'Stable trajectory',
     'gap': 'Sensor interruption',
@@ -23,17 +24,33 @@ class DemoReplay:
             values = values + 110 * np.exp(-((minutes - 435) / 55) ** 2)
         if pid == 'gap':
             values[(minutes >= 395) & (minutes <= 430)] = np.nan
+        if pid == 'showcase':
+            # A full past record for summaries, plus unseen readings for replay.
+            self.clock = pd.date_range('2024-01-01', periods=16*288+1, freq='5min')
+            minutes = np.arange(len(self.clock)) * 5
+            day, hour = minutes // 1440, minutes % 1440
+            variation = 1 + .06 * np.sin(day)
+            values = (120 + 5*np.sin(hour/32)
+                      - 65*variation*np.exp(-((hour-150)/55)**2)
+                      + 110*variation*np.exp(-((hour-435)/55)**2)
+                      + 85*variation*np.exp(-((hour-810)/75)**2)
+                      + 95*variation*np.exp(-((hour-1170)/80)**2))
         self.glucose = pd.Series(np.round(values, 1), index=self.clock)
-        self.start = 73  # 06:05 issue time, with readings available through 06:00.
+        self.start = 14*288+103 if pid == 'showcase' else 73
+        # Showcase opens at day 15, 08:35; other scenarios open at 06:05.
         self.profile = {'Age': '48 years (fictional)', 'Recorded sex': 'F (fictional)',
                         'Baseline glucose': '120 mg/dL (synthetic)'}
         self.reset()
 
     def reset(self):
-        self.position = self.start
+        self.position = self.start-30 if self.pid == 'showcase' else self.start
         self.ledger = []
         self.event_ledger = []
         self.issue()
+        # Replay the preceding 150 minutes, rather than inventing completed scores.
+        while self.position < self.start:
+            self.position += 1
+            self.issue()
 
     def advance(self, minutes):
         if type(minutes) is not int or minutes not in (5, 30, 60):
@@ -107,6 +124,7 @@ class DemoReplay:
             event_rows.append(row)
         done = [r for r in rows if r['actual'] is not None]
         return dict(cohort='demo', synthetic=True, patient_label='Synthetic · '+SCENARIOS[self.pid],
+            demo_prefill=self.pid == 'showcase', demo_seed_time=self.clock[self.start],
             issue_time=now, data_cutoff=cutoff, sensor_delay_minutes=5, profile=self.profile,
             profile_note='Fictional profile + past sensor trend feed an illustrative rule. No fitted ML model or clinical evidence.',
             latest=self.ledger[-1]['latest_glucose'], coverage=self.ledger[-1]['cgm_count'],

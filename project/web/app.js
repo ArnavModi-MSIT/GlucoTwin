@@ -36,7 +36,7 @@ text('forecast30-note',imported?s.model_name:demo?'Illustrative trend + fictiona
 text('forecast60-note',imported?s.model_name:demo?'Illustrative trend + fictional baseline':'Saved profile-fused Ridge');
 text('model-column',`${modelLabel} (mg/dL)`);text('error-column',`${modelLabel} absolute error (mg/dL)`);
 text('review-title',demo?'Demo guide':'Session review');
-text('review-note',demo?'Choose a scenario, play the five-minute replay, then compare each fixed forecast with its revealed outcome. Sensor interruption shows forecasts being withheld until history recovers.':`${s.model_name||'Saved model'} · Every five-minute issue is recorded. Session statistics describe this replay only.`);
+text('review-note',demo?(s.demo_prefill?'Worked example loaded: two weeks of fictional history, earlier replayed forecasts, and sample notes and plans. Play the replay to reveal further outcomes or choose another scenario.':'Choose a scenario, play the five-minute replay, then compare each fixed forecast with its revealed outcome. Sensor interruption shows forecasts being withheld until history recovers.'):`${s.model_name||'Saved model'} · Every five-minute issue is recorded. Session statistics describe this replay only.`);
 text('review-quality',s.coverage===13?'Complete last-hour CGM window':`Incomplete CGM window: ${13-s.coverage} of 13 expected samples missing. Check forecast status.`);
 document.querySelectorAll('[data-export]').forEach(a=>a.hidden=false);
 text('patient-label',s.patient_label);

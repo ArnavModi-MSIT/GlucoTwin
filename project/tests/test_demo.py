@@ -15,6 +15,29 @@ from glucotwin.reporting import csv_report,html_report
 
 
 class DemoTests(unittest.TestCase):
+    def test_showcase_has_past_patterns_and_replayed_outcomes(self):
+        r=DemoReplay('demo','showcase');s=r.snapshot()
+        self.assertEqual(next(iter(web.SCENARIOS)), 'showcase')
+        self.assertTrue(s['demo_prefill'])
+        self.assertEqual(s['issue_time'],pd.Timestamp('2024-01-15T08:35:00'))
+        self.assertTrue(all(p['time']<=s['data_cutoff'] for p in s['chart']))
+        self.assertTrue(all(p['eligible_days']>=6 for p in s['historical_patterns']['periods']))
+        self.assertTrue(all(p['median'] is not None for p in s['historical_patterns']['profile']['hours']))
+        self.assertGreater(s['comparison']['evaluated'],0)
+        self.assertTrue(any(p['outcome']=='Pending' for p in s['ledger']))
+        self.assertTrue(any(p['research_flag'] and p['event_at'] is not None
+                            for p in s['event_research']['ledger']))
+        before=web.clean(s);r.advance(60);r.reset()
+        self.assertEqual(before,web.clean(r.snapshot()))
+
+    def test_showcase_history_and_prefilled_ledger_remain_causal(self):
+        a=DemoReplay('demo','showcase');b=DemoReplay('demo','showcase')
+        cutoff=a.snapshot()['data_cutoff']
+        b.glucose.loc[b.glucose.index>cutoff]=900.
+        b.reset()
+        self.assertEqual(web.clean(a.snapshot()),web.clean(b.snapshot()))
+        self.assertFalse(DemoReplay('demo','rise').snapshot()['demo_prefill'])
+
     def test_no_files_required(self):
         with patch.object(web,'catalog',side_effect=AssertionError('private manifest read')),patch.object(web,'models',side_effect=AssertionError('artifact read')):
             service=web.Service();key,s=service.create('demo','rise')

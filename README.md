@@ -69,6 +69,9 @@ Operational alerts, calibrated risk probabilities and treatment advice are disab
 Requires Python 3.10+ and the dependencies below. The synthetic demonstration
 runs immediately after installation, using fictional patients and an illustrative
 trend rule. Its scores are **not** the development results reported above.
+The default worked example opens with two weeks of fictional history, replayed
+forecast outcomes, and labeled sample notes and a three-day plan. Sample entries
+can be edited or removed; they are never added to research or imported patients.
 The research cohorts require locally prepared datasets and trusted model
 artifacts; follow the [reproduction guide](project/docs/REPRODUCTION.md).
 

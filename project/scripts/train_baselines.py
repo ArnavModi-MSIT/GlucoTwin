@@ -18,6 +18,7 @@ from threadpoolctl import threadpool_limits
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from glucotwin.features import STATIC, HR
+from glucotwin.artifacts import save_model_artifact
 
 def metrics(actual,prediction):
     return {'rows':len(actual),'mae_mg_dl':float(mean_absolute_error(actual,prediction)),
@@ -52,9 +53,9 @@ def run():
             predictions[name]=model.predict(val[columns])
         timings[name]=round(time.perf_counter()-begun,4)
         # These files are locally generated trusted artifacts, not third-party pickles.
-        joblib.dump({'model':model,'features':columns,'target':target,'horizon_minutes':60,
+        save_model_artifact(ROOT,artifacts/f'{name}.joblib',{'model':model,'features':columns,'target':target,'horizon_minutes':60,
                      'dataset':'CGMacros reconstructed grid','version':'baseline-v0.1',
-                     'sklearn_version':sklearn.__version__},artifacts/f'{name}.joblib')
+                     'sklearn_version':sklearn.__version__})
     scores,patient_rows={},[]
     for name,pred in predictions.items():
         scores[name]=metrics(val[target],pred)

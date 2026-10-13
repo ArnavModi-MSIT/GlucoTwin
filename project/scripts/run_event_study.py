@@ -11,6 +11,7 @@ from sklearn.metrics import average_precision_score
 from threadpoolctl import threadpool_limits
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
 from glucotwin.features import make_features,profile_features
+from glucotwin.artifacts import save_model_artifact
 from glucotwin.episodes import onsets
 from glucotwin.event_study import onset_labels,summarize,gate,assess_scores,choose_event_threshold
 DEVICE='cpu'
@@ -142,7 +143,7 @@ def run(study='gpu_v2',device='cpu'):
             threshold,tuning,tuning_pass=choose_event_threshold(threshold_records,threshold_scores,protocol['engineering_gate'],protocol['threshold_quantiles'])
             # Freeze cutoff before reading evaluation labels or onsets for scoring.
             artifact={'model':model,'features':used,'threshold':threshold,'method':method,'protocol_sha256':protocol_hash,'input_manifest_sha256':sha(input_path),'roles':role,'probability_display_approved':False,'operational_alerts_approved':False,'score_kind':'uncalibrated ranking score' if model is not None else 'trend extrapolation mg/dL','sklearn_version':sklearn.__version__}
-            joblib.dump(artifact,artifacts/f'cgmacros_onset_{study}_fold{fold+1}_{method}.joblib')
+            save_model_artifact(ROOT,artifacts/f'cgmacros_onset_{study}_fold{fold+1}_{method}.joblib',artifact)
             evaluation_rows=assess_scores({p:records[p] for p in role['evaluation']},{p:scores[p] for p in role['evaluation']},threshold)
             output_rows[method].extend(evaluation_rows)
             report['methods'][method]={'threshold':threshold,'threshold_gate_passed':tuning_pass,'threshold_setting':tuning,'outer_evaluation':summarize(evaluation_rows)}

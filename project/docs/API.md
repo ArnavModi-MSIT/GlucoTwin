@@ -49,6 +49,17 @@ have no exact observation. RBG inputs/outcomes have a five-minute availability
 delay; hidden future observations are never included in snapshots. Neither
 cohort exposes operational alerts or risk probabilities.
 
+Withheld numerical attempts always have outcome `Not evaluated`, with null
+actual/error values even after their nominal target time. They never contribute
+to session accuracy statistics. Issued forecasts retain the delayed reveal rules.
+
+Numerical/event input calculations use the available trailing 120-minute source
+window, preserving the original RBG warm-up boundary. No future sensor values
+enter inputs. CGMacros accepts whole-minute source timestamps and explicitly
+rejects second-level clock drift; its one-minute heart-rate rows and selected
+five-minute glucose phase are retained as before. This optimization does not
+change fitted models, feature definitions or forecast horizons.
+
 CGMacros snapshots additionally include `event_research`: optional availability,
 setup error, fold metadata, the current fixed score/cutoff/decision and a separate
 event ledger. The selected model's evaluation fold excludes this patient from

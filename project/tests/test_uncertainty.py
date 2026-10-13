@@ -40,3 +40,18 @@ class UncertaintyTests(unittest.TestCase):
         self.assertEqual(revealed.actual,999.);self.assertEqual(revealed.interval_upper,50.)
         self.assertNotIn('interval_lower',attach_interval({'prediction':None},interval))
         self.assertNotIn('interval_lower',attach_interval({'prediction':10.},None))
+
+    def test_horizons_fail_independently_and_bad_horizon_is_logged(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);(root/'artifacts').mkdir()
+            model=root/'artifacts/model.joblib';model.write_bytes(b'fixture')
+            item=dict(horizon=30,radius=20.,nominal=.9,calibration_patients=['c'],assessment_patients=['a'],model_path='artifacts/model.joblib',model_sha256=fingerprint(model),assessment=dict(coverage=.85,patients=1))
+            path=root/'artifacts/forecast_intervals.json'
+            def write(second):path.write_text(json.dumps(dict(version='residual-interval-v1',cohorts=dict(rbg=[item,second]))))
+            write({**item,'horizon':60,'assessment_patients':['other']})
+            result,note=load_intervals(root,'rbg','a');self.assertEqual(set(result),{30});self.assertIn('60-minute',note)
+            write({**item,'horizon':60,'model_sha256':'bad'})
+            with self.assertLogs(level='ERROR'):result,note=load_intervals(root,'rbg','a')
+            self.assertEqual(set(result),{30});self.assertIn('failed verification',note)
+            write(item)
+            with self.assertLogs(level='ERROR'):self.assertEqual(load_intervals(root,'rbg','a')[0],{})

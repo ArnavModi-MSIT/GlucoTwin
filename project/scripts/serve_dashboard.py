@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'src'))
 from glucotwin.features import profile_features
 from glucotwin.replay import issue_forecast,reveal_outcomes
 from glucotwin.rbg_replay import issue_rbg_forecasts,reveal_rbg_outcomes
-from glucotwin.artifacts import validate_replay_artifact
+from glucotwin.artifacts import validate_replay_artifact,load_model_artifact
 from glucotwin.event_replay import load_event_artifact,issue_event,reveal_events
 from glucotwin.demo import DemoReplay,SCENARIOS
 from glucotwin.reporting import csv_report,html_report,history_csv_report,excursion_csv_report
@@ -39,12 +39,12 @@ def models(cohort):
         selection=json.loads((ROOT/'configs/rbg_model_selection.json').read_text())
         if any(selection['horizons'][str(h)].get('replay_selected',selection['horizons'][str(h)]['selected'])!='ridge_cgm_profile' for h in (30,60)):
             raise ValueError('Unsupported replay model selection')
-        return {h:validate_replay_artifact(joblib.load(ROOT/f'artifacts/rbg_ridge_cgm_profile_{h}.joblib'),cohort,h,profile_fusion=True) for h in (30,60)}
+        return {h:validate_replay_artifact(load_model_artifact(ROOT,f'artifacts/rbg_ridge_cgm_profile_{h}.joblib'),cohort,h,profile_fusion=True) for h in (30,60)}
     if cohort!='cgmacros':raise ValueError('Unknown cohort')
     selection=json.loads((ROOT/'configs/model_selection.json').read_text())
     if selection.get('artifact')!='artifacts/ridge_cgm_clinical_hr.joblib' or selection.get('horizon_minutes')!=60:
         raise ValueError('Unsupported replay model selection')
-    return {60:validate_replay_artifact(joblib.load(ROOT/'artifacts/ridge_cgm_clinical_hr.joblib'),cohort,60)}
+    return {60:validate_replay_artifact(load_model_artifact(ROOT,'artifacts/ridge_cgm_clinical_hr.joblib'),cohort,60)}
 
 @lru_cache(maxsize=4)
 def records(cohort,pid):
@@ -192,9 +192,10 @@ class Handler(BaseHTTPRequestHandler):
         return cookie['glucotwin_session'].value if 'glucotwin_session' in cookie else ''
     def do_GET(self):
         if not self.local_host():return self.respond(403,{'error':'Local host required'})
-        if self.path=='/api/health':
+        route=urlsplit(self.path).path
+        if route=='/api/health':
             return self.respond(200,{'app':'GlucoTwin','workspace_id':hashlib.sha256(str(ROOT.resolve()).encode()).hexdigest()})
-        if self.path=='/api/catalog':
+        if route=='/api/catalog':
             cohorts={'demo':[{'id':pid,'label':name} for pid,name in SCENARIOS.items()]};errors={}
             for cohort in ['rbg','cgmacros']:
                 try:
@@ -202,7 +203,7 @@ class Handler(BaseHTTPRequestHandler):
                     cohorts[cohort]=[{'id':pid,'label':label(pid)} for pid in catalog(cohort)]
                 except (FileNotFoundError,ValueError,ImportError,KeyError):errors[cohort]='Local dataset/model preparation required. Synthetic demo is available.'
             return self.respond(200,{'cohorts':cohorts,'errors':errors})
-        if self.path=='/api/snapshot':return self.action('snapshot',{})
+        if route=='/api/snapshot':return self.action('snapshot',{})
         if urlsplit(self.path).path=='/api/export':
             format_=parse_qs(urlsplit(self.path).query).get('format',['json'])[0]
             if format_ not in ('json','csv','html','history','excursions'):return self.respond(400,{'error':'Use json, csv, html, history or excursions'})
@@ -216,13 +217,16 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_header('Content-Disposition',f'{"inline" if format_=="html" else "attachment"}; filename="{filename}"')
                 self.send_header('Cache-Control','no-store');self.send_header('Content-Length',str(len(data)))
                 self.end_headers();self.wfile.write(data)
-            except (ValueError,KeyError):return self.respond(400,{'error':'Session expired; select a patient again'})
+            except ValueError:return self.respond(400,{'error':'Session expired; select a patient again'})
+            except Exception:
+                logging.exception('Replay export failed')
+                return self.respond(500,{'error':'Export failed; check the local server log'})
             return
         files={'/':'index.html','/style.css':'style.css','/app.js':'app.js','/care.js':'care.js','/report_charts.js':'report_charts.js','/history.js':'history.js'}
-        if self.path not in files:return self.respond(404,{'error':'Not found'})
-        path=ROOT/'web'/files[self.path];data=path.read_bytes();self.send_response(200)
+        if route not in files:return self.respond(404,{'error':'Not found'})
+        path=ROOT/'web'/files[route];data=path.read_bytes();self.send_response(200)
         self.send_header('Content-Type',{'html':'text/html; charset=utf-8','css':'text/css','js':'text/javascript'}[path.suffix[1:]])
-        self.send_header('X-Content-Type-Options','nosniff');self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
+        self.send_header('Content-Length',str(len(data)));self.end_headers();self.wfile.write(data)
     def do_POST(self):
         if not self.local_host():return self.respond(403,{'error':'Local host required'})
         origin=self.headers.get('Origin')
@@ -254,6 +258,9 @@ class Handler(BaseHTTPRequestHandler):
         except FileNotFoundError:self.respond(400,{'error':'Prepare the local RBG models before choosing transfer mode. History baseline works without them.'})
         except (ValueError,TypeError,TimeoutError) as exc:
             self.respond(400,{'error':str(exc) if self.path in ('/api/import/preview','/api/import/session') and isinstance(exc,ValueError) else 'Invalid request'})
+        except Exception:
+            logging.exception('Dashboard request failed')
+            self.respond(500,{'error':'Request failed; check the local server log'})
     def action(self,action,body):
         try:
             if action=='create':

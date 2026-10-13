@@ -16,6 +16,17 @@ def payload(count=40,phase=0):
 
 
 class ImportTests(unittest.TestCase):
+    def test_blank_lines_are_skipped_but_blank_measurements_and_bad_rows_are_not(self):
+        original=payload()
+        for newline in ['\n','\r\n']:
+            text=(newline*2).join(original['csv_text'].splitlines())+newline*3
+            parsed=parse_patient({**original,'csv_text':text})
+            self.assertEqual(parsed['quality']['input_rows'],40)
+            self.assertEqual(parsed['quality']['blank_rows'],0)
+        blank={**original,'csv_text':original['csv_text'].replace(',100',',',1)+'\n\n'}
+        self.assertEqual(parse_patient(blank)['quality']['blank_rows'],1)
+        with self.assertRaises(ValueError):parse_patient({**original,'csv_text':original['csv_text']+'\n,'})
+
     def test_units_phase_and_missing_slots_preserved(self):
         body=payload(phase=3);lines=body['csv_text'].splitlines();lines.pop(6);lines[8]=lines[8].split(',')[0]+','
         body['csv_text']='\n'.join(lines)

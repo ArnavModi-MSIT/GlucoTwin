@@ -80,6 +80,12 @@ class LauncherTests(unittest.TestCase):
                 with self.assertRaisesRegex(launcher.LaunchError, 'python -m pip install -r requirements.txt'):
                     launcher.check_dependencies(root)
 
+    def test_version_drift_warns_for_demo_instead_of_blocking_launch(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);(root/'requirements.txt').write_text('numpy==2.2.6\npandas==2.3.3\nscikit-learn==1.7.2\njoblib==1.5.3\n')
+            with patch.object(launcher.importlib.metadata,'version',return_value='9.9.9'),patch.object(launcher.importlib.util,'find_spec',return_value=object()):
+                with self.assertWarns(RuntimeWarning):launcher.check_dependencies(root)
+
     def test_preflight_fails_before_service_import(self):
         with patch.object(launcher, 'matching_server', return_value=False), \
                 patch.object(launcher, 'check_dependencies', side_effect=launcher.LaunchError('dependencies missing')), \

@@ -40,6 +40,8 @@ def parse_patient(body):
         if next(reader,None)!=['timestamp','glucose']:raise ValueError('CSV header must be exactly timestamp,glucose.')
         times=[];values=[]
         for row in reader:
+            if not row or (len(row)==1 and not row[0].strip()):
+                continue
             if len(row)!=2:raise ValueError('Each CSV row must contain exactly timestamp and glucose.')
             t,v=(c.strip() for c in row)
             if not re.fullmatch(r'\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:00)?',t):

@@ -1,0 +1,12 @@
+{
+  "version": "replay-artifact-hashes-v1",
+  "note": "Fingerprints of the trusted active checkpoint. Fresh training writes a private artifacts/replay_hashes.json; neither file makes untrusted pickle sources safe.",
+  "models": {
+    "artifacts/ridge_cgm_clinical_hr.joblib": "60fec420354401eb964521f5d7b0c0a95ced431060cb83a4bd195b00fbda6f54",
+    "artifacts/rbg_ridge_cgm_profile_30.joblib": "a2bbc56ef6472e08c58614f2f627364fae49d40c8656a7c30821f61fd2241dbf",
+    "artifacts/rbg_ridge_cgm_profile_60.joblib": "5218b2bd1a6e81beeb93160de31604d4828075de121636c73a6593cbea1a56c1",
+    "artifacts/cgmacros_onset_gpu_v2_fold1_fused.joblib": "cbbebca0cd27ece3f3b9eec81a8b4cc29df3fc7185f641bdfd985e3bd2fee999",
+    "artifacts/cgmacros_onset_gpu_v2_fold2_fused.joblib": "61b7020eb3d8759342b7b3bc758ebcc73b8cca18abdfd5b6e4f614aaf582e9ab",
+    "artifacts/cgmacros_onset_gpu_v2_fold3_fused.joblib": "9a326c5695f44bc7d472fffbaf052d271510dcf6240f13f01ffe2f5e554eaee8"
+  }
+}

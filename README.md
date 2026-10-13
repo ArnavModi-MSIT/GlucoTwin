@@ -102,14 +102,14 @@ sensor interruption. **Play replay** advances every five minutes; larger jumps
 also record each intermediate issue. Export buttons include only information
 revealed by the current replay time.
 
-Run tests from `project/`:
+Run Python and JavaScript checks from `project/` (Node.js 22+ required):
 
 ```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe scripts/run_tests.py
 ```
 
-Synthetic tests run without data. Set `GLUCOTWIN_INTEGRATION=1` to include
-prepared local-data and artifact checks.
+Synthetic tests run without data. Add `--integration` for prepared local-data
+and artifact checks, or `--node PATH` when Node is not on PATH.
 
 ## Documentation
 

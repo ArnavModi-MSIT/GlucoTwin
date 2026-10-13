@@ -28,6 +28,32 @@ class FeatureTests(unittest.TestCase):
         self.assertAlmostEqual(original.cgm_change_60m,30)
         self.assertEqual(original.cgm_count_60m,13)
 
+    def test_clock_drift_is_rejected_without_dropping_minute_rate_hr_rows(self):
+        drift=self.frame.copy()
+        drift.loc[0,'Timestamp']+=pd.Timedelta(seconds=1)
+        with self.assertRaisesRegex(ValueError,'whole minutes'):make_features(drift,PROFILE,0)
+        for phase in range(5):
+            built=make_features(self.frame,PROFILE,phase)
+            self.assertEqual(len(built),37 if phase==0 else 36)
+            self.assertGreater(built.hr_fraction_60m.iloc[-1],.99)
+
+    def test_bounded_replay_window_matches_full_features_with_gaps_and_all_phases(self):
+        from glucotwin.replay import issue_forecast
+        class Capture:
+            def predict(self,values):self.row=values.iloc[0].copy();return np.array([150.])
+        times=pd.date_range('2026-01-01',periods=14*1440,freq='min')
+        rng=np.random.default_rng(11)
+        frame=pd.DataFrame({'Timestamp':times,'Dexcom GL':100+np.sin(np.arange(len(times))/40)*30+rng.normal(0,.5,len(times)),'HR':60+rng.normal(0,3,len(times))})
+        frame.loc[frame.index%37==0,['Dexcom GL','HR']]=np.nan
+        for phase in range(5):
+            now=times[-60+phase]
+            full=make_features(frame.loc[frame.Timestamp<=now],PROFILE,phase).loc[now]
+            features=[c for c in full.index if c!='history_eligible'];model=Capture()
+            patient=dict(split='validation',phase_utc_minutes_mod_5=phase,minimum_forecast_time=str(times[1440]))
+            result=issue_forecast(frame,PROFILE,patient,dict(model=model,features=features),now)
+            self.assertEqual(result['status'],'Forecast issued')
+            pd.testing.assert_series_equal(model.row,full[features],check_dtype=False,rtol=1e-8,atol=1e-8)
+
     def test_missing_current_abstains(self):
         self.frame.loc[self.frame.Timestamp.eq(self.times[120]),'Dexcom GL'] = np.nan
         row = make_features(self.frame,PROFILE,0).loc[self.times[120]]

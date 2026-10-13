@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from glucotwin.features import make_features, STATIC, HR
 from glucotwin.episodes import onsets
+from glucotwin.artifacts import load_model_artifact
 
 
 def sha(path):
@@ -42,7 +43,6 @@ def validate_event_artifact(artifact, patient, role, protocol_hash, input_hash, 
 
 def load_event_artifact(root, patient):
     """Load a trusted local model after validating the frozen study and sources."""
-    import joblib
     root = Path(root)
     protocol_path = root / 'configs/event_study_gpu_v2.json'
     protocol = json.loads(protocol_path.read_text())
@@ -77,7 +77,7 @@ def load_event_artifact(root, patient):
     fold_report = report['folds'][fold]
     if fold_report['fold'] != fold + 1:
         raise ValueError('Event fold order changed')
-    artifact = joblib.load(root / f'artifacts/cgmacros_onset_gpu_v2_fold{fold+1}_fused.joblib')
+    artifact = load_model_artifact(root, f'artifacts/cgmacros_onset_gpu_v2_fold{fold+1}_fused.joblib')
     validate_event_artifact(artifact, patient, role, protocol_hash, sha(input_path),
                             inputs['columns'], fold_report['methods']['fused']['threshold'])
     return artifact, {'fold': fold + 1, 'version': protocol['version'],
@@ -95,7 +95,7 @@ def issue_event(frame, profile, patient, artifact, now, ledger):
     pid = patient['patient_id']
     if pid not in roles['evaluation'] or pid in roles['fit'] + roles['threshold']:
         raise ValueError('Event model requires an outer-evaluation patient')
-    features = make_features(frame.loc[pd.to_datetime(frame.Timestamp) <= now], profile,
+    features = make_features(frame.loc[pd.to_datetime(frame.Timestamp).between(now-pd.Timedelta(minutes=120),now)], profile,
                              patient['phase_utc_minutes_mod_5'])
     row = {'issued_at': now, 'window_start': now + pd.Timedelta(minutes=5),
            'window_end': now + pd.Timedelta(minutes=30), 'available_at': now + pd.Timedelta(minutes=45),

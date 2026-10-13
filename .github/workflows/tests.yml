@@ -17,10 +17,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: python -m pip install -r requirements-event.txt
       - run: python -m pip install -e .
-      - run: python -m unittest discover -s tests -v
-      - run: node --check web/app.js
-      - run: node tests/frontend_info_unit.js
-      - run: node tests/care_unit.js
-      - run: node --check web/history.js
-      - run: node tests/history_unit.js
+      - run: python scripts/run_tests.py

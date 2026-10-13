@@ -23,3 +23,10 @@ Overlapping residuals are temporally dependent, patients differ, and these valid
 The local JSON calibration artifact contains patient assignments and model fingerprints and remains ignored. Only assessment patients receive ranges in replay; calibration patients explicitly show ranges as unavailable. Missing or mismatched artifacts fail closed. Bounds are attached at issue time and remain fixed when outcomes mature; no clipping, future readings or replay outcomes are used to adjust them. Synthetic forecasts have no calibrated ranges.
 
 CSV/JSON session exports and HTML reports retain available bounds and measured coverage. These exploratory ranges support inspection of model limitations; they do not support dosing or treatment decisions.
+
+Runtime checks are independent by horizon. An unavailable assessment assignment
+or failed model fingerprint at 60 minutes does not discard a valid 30-minute
+range. Duplicate horizon definitions fail closed for that horizon. Verification
+failures are logged locally; browser notices retain a generic reason without
+private paths. Calibration methods, assignments and published coverage values
+are unchanged.

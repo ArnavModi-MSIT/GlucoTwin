@@ -11,10 +11,18 @@ import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import serve_dashboard as web
 from glucotwin.demo import DemoReplay
-from glucotwin.reporting import csv_report,html_report,history_csv_report,excursion_csv_report
+from glucotwin.reporting import csv_report,html_report,history_csv_report,excursion_csv_report,safe_csv_cells
 
 
 class DemoTests(unittest.TestCase):
+    def test_csv_exports_escape_whitespace_formulas_and_control_characters(self):
+        for label in [' =1+1','\t=1+1','\r=1+1','\n=1+1','\tplain text']:
+            s=web.clean(DemoReplay('demo','showcase').snapshot());s['patient_label']=label
+            for report in [csv_report,history_csv_report,excursion_csv_report]:
+                rows=list(csv.DictReader(io.StringIO(report(s))))
+                self.assertTrue(all(r['patient']=="'"+label for r in rows))
+        self.assertEqual(safe_csv_cells({'number':-1.25,'text':'ordinary'}),{'number':-1.25,'text':'ordinary'})
+
     def test_feed_stores_only_received_samples(self):
         r=DemoReplay('demo','feed');s=r.snapshot()
         self.assertEqual(len(r.glucose),73)

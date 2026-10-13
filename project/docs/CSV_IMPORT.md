@@ -14,7 +14,7 @@ timestamp,glucose
 - Exact two-column header `timestamp,glucose`; no identifiers or extra columns.
 - At most 1 MB, 10,000 rows and 31 days. At least one hour, 13 timestamped rows and ten numeric readings.
 - Strictly increasing ISO study timestamps with optional zero seconds, without timezone suffixes. Every timestamp shares one five-minute phase. Duplicates, unsorted rows and off-phase samples are rejected; timestamps are not rounded or shifted.
-- Blank glucose means missing. Absent five-minute slots are explicitly inserted as missing. No interpolation, stale-value carrying or dropped difficult rows.
+- Empty physical lines are ignored. A blank glucose cell remains a missing measurement; malformed two-column records are rejected. Absent five-minute slots are explicitly inserted as missing. No interpolation, stale-value carrying or dropped difficult rows.
 - Units are declared as mg/dL or mmol/L; mmol/L converts using a factor of 18. Positive values up to 1000 mg/dL are accepted after conversion as a parsing bound, not a clinical validity claim. Nonfinite and nonnumeric values are rejected.
 - Optional anonymized age/recorded sex fields are context in history mode. Only adult ages 18–100 and F/M encodings are accepted by this prototype; other profiles are unsupported.
 

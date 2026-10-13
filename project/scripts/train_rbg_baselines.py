@@ -2,14 +2,16 @@
 from pathlib import Path
 import os
 os.environ.setdefault('OMP_NUM_THREADS','4')
-import json,time,threading
-import numpy as np,pandas as pd,joblib,psutil
+import json,time,threading,sys
+import numpy as np,pandas as pd,joblib,psutil,sklearn
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge
 from threadpoolctl import threadpool_limits
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'src'))
+from glucotwin.artifacts import save_model_artifact
 
 def run():
     start=time.monotonic();stop=threading.Event();rss=[]
@@ -30,7 +32,7 @@ def run():
             with threadpool_limits(limits=4):model.fit(X[:,indices],y)
             fitted[name]=(model,indices)
             (ROOT/'artifacts').mkdir(exist_ok=True)
-            joblib.dump({'model':model,'features':[columns[i] for i in indices],'horizon_minutes':horizon,'sensor_delay_minutes':5,'version':'rbg-baseline-v0.1'},ROOT/f'artifacts/rbg_{name}_{horizon}.joblib')
+            save_model_artifact(ROOT,f'artifacts/rbg_{name}_{horizon}.joblib',{'model':model,'features':[columns[i] for i in indices],'horizon_minutes':horizon,'sensor_delay_minutes':5,'version':'rbg-baseline-v0.1','sklearn_version':sklearn.__version__})
         accum={name:{} for name in ['persistence','slope',*fitted]}
         for file in sorted((base/str(horizon)/'validation').glob('*.npz')):
             with np.load(file) as data:V=data['X'];actual=data['y']

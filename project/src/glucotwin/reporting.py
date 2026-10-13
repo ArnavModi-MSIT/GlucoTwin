@@ -5,6 +5,13 @@ from datetime import datetime
 from html import escape
 
 
+def safe_csv_cells(row):
+    """Preserve text literally, including leading whitespace/control characters."""
+    return {key:"'"+value if isinstance(value,str) and
+            (value.startswith(('\t','\r','\n')) or value.lstrip().startswith(('=','+','-','@')))
+            else value for key,value in row.items()}
+
+
 def history_csv_report(snapshot):
     """Export the available hourly summaries; no raw records or user notes."""
     history = snapshot.get('historical_patterns') or {}
@@ -24,7 +31,7 @@ def history_csv_report(snapshot):
         if datetime.fromisoformat(row['last_checkpoint']) > cutoff:
             continue
         values = dict(row,**base)
-        writer.writerow({k:"'"+v if isinstance(v,str) and v.lstrip().startswith(('=','+','-','@')) else v for k,v in values.items()})
+        writer.writerow(safe_csv_cells(values))
     return output.getvalue()
 
 
@@ -47,8 +54,7 @@ def excursion_csv_report(snapshot):
                ['first_observed','last_observed','confirmed_at','extreme_at','next_observed_at'] if row.get(key)):
             continue
         values = dict(row,**base)
-        writer.writerow({k:"'"+v if isinstance(v,str) and v.lstrip().startswith(('=','+','-','@')) else v
-                         for k,v in values.items() if k in fields})
+        writer.writerow(safe_csv_cells({k:v for k,v in values.items() if k in fields}))
     return output.getvalue()
 
 
@@ -64,8 +70,7 @@ def csv_report(snapshot):
     base = dict(cohort=snapshot['cohort'], synthetic=bool(snapshot.get('synthetic')),
                 patient=snapshot['patient_label'], model=snapshot['model_name'], replay_time=snapshot['issue_time'])
     def safe(row):
-        # Prevent spreadsheet formula execution in exported text cells.
-        return {k: "'"+v if isinstance(v, str) and v.startswith(('=', '+', '-', '@')) else v for k,v in row.items()}
+        return safe_csv_cells(row)
     for row in snapshot['ledger']:
         writer.writerow(safe(dict(base, **row, record_type='forecast', model_absolute_error=row['ridge_error'],
                                   baseline_absolute_error=row['persistence_error'])))

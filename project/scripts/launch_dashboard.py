@@ -12,6 +12,7 @@ import sys
 import urllib.error
 import urllib.request
 import webbrowser
+import warnings
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_PACKAGES = {'numpy': 'numpy', 'pandas': 'pandas',
@@ -95,7 +96,8 @@ def check_dependencies(root=ROOT):
             if importlib.util.find_spec(module) is None:
                 problems.append(f'{name}: package cannot be imported')
             elif actual != expected:
-                problems.append(f'{name}: found {actual}, requires {expected}')
+                warnings.warn(f'{name}: found {actual}; reproducible research uses {expected}. '
+                              'The synthetic demo can run; model loading still enforces pinned research dependencies.',RuntimeWarning)
         except (importlib.metadata.PackageNotFoundError, ImportError, ValueError):
             problems.append(f'{name}: not installed')
     if problems:

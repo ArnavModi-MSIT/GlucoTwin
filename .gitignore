@@ -21,6 +21,7 @@
 /project/configs/*
 !/project/configs/model_selection.json
 !/project/configs/rbg_model_selection.json
+!/project/configs/replay_artifact_hashes.json
 !/project/configs/event_study_gpu_v2.json
 !/project/configs/event_comparison_v3.json
 !/project/docs/
@@ -60,6 +61,7 @@
 !/project/scripts/prepare_rbg_replay.py
 !/project/scripts/launch_dashboard.py
 !/project/scripts/serve_dashboard.py
+!/project/scripts/run_tests.py
 !/project/scripts/run_event_study.py
 !/project/scripts/audit_high_events.py
 !/project/scripts/compare_event_models.py
@@ -92,6 +94,8 @@
 !/project/tests/test_rbg_import.py
 !/project/tests/test_http_unit.py
 !/project/tests/test_launcher.py
+!/project/tests/test_test_runner.py
+!/project/tests/test_pipeline_smoke.py
 !/project/tests/test_episodes.py
 !/project/tests/test_event_replay.py
 !/project/tests/test_event_replay_artifacts.py

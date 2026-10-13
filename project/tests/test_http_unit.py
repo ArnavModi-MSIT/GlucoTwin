@@ -75,6 +75,22 @@ class HttpUnitTests(unittest.TestCase):
             with self.assertLogs(level='ERROR'):
                 status,value=self.post({'cohort':'rbg','patient_id':'P-012'})
         self.assertEqual(status,500);self.assertNotIn('private path',value['error'])
+
+    def test_import_unexpected_errors_are_logged_and_return_generic_json(self):
+        for path in ['/api/import/preview','/api/import/session']:
+            with patch.object(web,'parse_patient',side_effect=KeyError('private path')),patch.object(web.service,'create_imported',side_effect=KeyError('private path')):
+                with self.assertLogs(level='ERROR'):status,value=self.post({},path)
+            self.assertEqual(status,500);self.assertNotIn('private path',value['error'])
+
+    def test_export_unexpected_error_returns_json_and_static_queries_work(self):
+        with patch.object(web.service,'operate',side_effect=KeyError('private path')):
+            with self.assertLogs(level='ERROR'),self.assertRaises(urllib.error.HTTPError) as error:
+                urllib.request.urlopen(self.url+'/api/export?format=json')
+            self.assertEqual(error.exception.code,500)
+            self.assertNotIn('private path',json.load(error.exception)['error'])
+        with urllib.request.urlopen(self.url+'/?cache=1') as response:
+            self.assertIn(b'GlucoTwin',response.read())
+            self.assertEqual(response.headers.get_all('X-Content-Type-Options'),['nosniff'])
     def test_catalog_missing_data_and_headers(self):
         with patch.object(web,'catalog',side_effect=FileNotFoundError):
             with urllib.request.urlopen(self.url+'/api/catalog') as response:

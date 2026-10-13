@@ -7,8 +7,8 @@ from glucotwin.explain import explain_ridge
 def issue_rbg_forecasts(frame,patient,artifacts,now):
     if patient['split']=='test':raise ValueError('Reserved test patients cannot be replayed')
     now=pd.Timestamp(now);cutoff=now-pd.Timedelta(minutes=5)
-    visible=frame.loc[pd.to_datetime(frame.ts)<=cutoff]
-    features=rbg_features(visible,patient) if len(visible) else pd.DataFrame()
+    visible=frame.loc[pd.to_datetime(frame.ts).between(cutoff-pd.Timedelta(minutes=120),cutoff)]
+    features=rbg_features(visible,patient,history_start=frame.ts.iloc[0]) if len(visible) else pd.DataFrame()
     row=features.loc[now] if now in features.index else None
     eligible=row is not None and bool(row.history_eligible) and now>=pd.Timestamp(patient['minimum_forecast_time'])
     output=[]
@@ -34,8 +34,9 @@ def reveal_rbg_outcomes(ledger,frame,now):
     rows=[]
     for issued in ledger:
         row=dict(issued);due=row['available_at']<=now
-        actual=source.get(row['target_time'],np.nan) if due else np.nan
-        row.update(actual=float(actual),outcome='Observed' if due and pd.notna(actual) else ('Missing observation' if due else 'Pending'),
+        withheld=row['prediction'] is None
+        actual=source.get(row['target_time'],np.nan) if due and not withheld else np.nan
+        row.update(actual=float(actual),outcome='Not evaluated' if withheld else 'Observed' if due and pd.notna(actual) else ('Missing observation' if due else 'Pending'),
                    ridge_error=abs(actual-row['prediction']) if pd.notna(actual) and row['prediction'] is not None else np.nan,
                    persistence_error=abs(actual-row['persistence']) if pd.notna(actual) and row['persistence'] is not None else np.nan)
         rows.append(row)

@@ -4,13 +4,14 @@ import pandas as pd
 from glucotwin.features import make_features, STATIC
 
 
-def rbg_features(frame, patient):
+def rbg_features(frame, patient, history_start=None):
     source=pd.DataFrame({'Timestamp':pd.to_datetime(frame.ts),'Dexcom GL':pd.to_numeric(frame.GlucoseCGM,errors='coerce'),'HR':np.nan})
     profile={c:np.nan for c in STATIC}
     base=make_features(source,profile,0,include_hr=False)
     result=base[[c for c in base if c.startswith('cgm_')]+['history_eligible']].copy()
     # Feature time s is shifted to its availability/issue time t=s+5.
-    complete=(base.index>=source.Timestamp.iloc[0]+pd.Timedelta(minutes=60))
+    first=source.Timestamp.iloc[0] if history_start is None else pd.Timestamp(history_start)
+    complete=(base.index>=first+pd.Timedelta(minutes=60))
     result['history_eligible'] &= complete
     result.index=result.index+pd.Timedelta(minutes=5)
     result.index.name='issue_time'

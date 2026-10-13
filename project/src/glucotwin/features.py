@@ -10,6 +10,8 @@ def make_features(frame, profile, phase, include_hr=True):
     data = frame.copy()
     data.columns = data.columns.str.strip()
     data['Timestamp'] = pd.to_datetime(data['Timestamp'])
+    if data.Timestamp.isna().any() or not data.Timestamp.eq(data.Timestamp.dt.floor('min')).all():
+        raise ValueError('Timestamps must be exact whole minutes; drift is not rounded or silently dropped')
     if data.Timestamp.duplicated().any() or not data.Timestamp.is_monotonic_increasing:
         raise ValueError('Timestamps must be unique and sorted')
     data = data.set_index('Timestamp')

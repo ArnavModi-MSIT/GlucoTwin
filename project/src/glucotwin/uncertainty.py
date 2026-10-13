@@ -2,6 +2,7 @@
 import hashlib
 import json
 import math
+import logging
 from pathlib import Path
 import numpy as np
 
@@ -32,10 +33,23 @@ def load_intervals(root, cohort, patient_id):
         payload = json.loads(path.read_text(encoding='utf-8'))
         if payload['version'] != 'residual-interval-v1':
             raise ValueError('Unsupported interval version')
-        result = {}
-        for item in payload['cohorts'][cohort]:
+        items = payload['cohorts'][cohort]
+        if not isinstance(items,list):
+            raise ValueError('Invalid interval horizon list')
+    except (ValueError, KeyError, TypeError, OSError):
+        logging.exception('Interval manifest verification failed for %s',cohort)
+        return {}, 'Interval verification failed; ranges are unavailable.'
+    result = {}; notes = []; seen = set()
+    for item in items:
+        try:
+            horizon = item['horizon']
+            if horizon in seen:
+                result.pop(horizon,None)
+                raise ValueError('Duplicate interval horizon')
+            seen.add(horizon)
             if str(patient_id) not in item['assessment_patients']:
-                return {}, 'Intervals withheld: this patient belongs to calibration, not assessment.'
+                notes.append(f'{horizon}-minute intervals withheld: patient is not in assessment.')
+                continue
             if set(item['assessment_patients']) & set(item['calibration_patients']):
                 raise ValueError('Calibration and assessment overlap')
             artifact = Path(root)/item['model_path']
@@ -43,14 +57,17 @@ def load_intervals(root, cohort, patient_id):
                 raise ValueError('Interval model fingerprint mismatch')
             if not math.isfinite(item['radius']) or item['radius'] < 0:
                 raise ValueError('Invalid interval radius')
-            if item['horizon'] not in ([30,60] if cohort=='rbg' else [60]) or item['nominal']!=.90:
+            if horizon not in ([30,60] if cohort=='rbg' else [60]) or item['nominal']!=.90:
                 raise ValueError('Interval protocol mismatch')
             if not 0<=item['assessment']['coverage']<=1 or item['assessment']['patients']<1:
                 raise ValueError('Invalid assessment metrics')
-            result[item['horizon']] = item
-        return result, 'Exploratory residual ranges; assessment coverage is measured, not guaranteed.'
-    except (ValueError, KeyError, TypeError, OSError):
-        return {}, 'Interval verification failed; ranges are unavailable.'
+            result[horizon] = item
+        except (ValueError, KeyError, TypeError, OSError):
+            logging.exception('Interval horizon verification failed for %s',cohort)
+            notes.append('An interval horizon failed verification and is unavailable.')
+    message = 'Exploratory residual ranges; assessment coverage is measured, not guaranteed.'
+    return result, ' '.join(([message] if result else [])+notes) or 'Intervals unavailable for this patient.'
+
 
 
 def attach_interval(row, interval):

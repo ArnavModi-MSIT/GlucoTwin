@@ -8,7 +8,7 @@ def issue_forecast(frame, profile, patient, artifact, now):
     now = pd.Timestamp(now)
     if patient['split'] == 'test':
         raise ValueError('Reserved test patients cannot be replayed')
-    visible = frame.loc[pd.to_datetime(frame.Timestamp) <= now]
+    visible = frame.loc[pd.to_datetime(frame.Timestamp).between(now-pd.Timedelta(minutes=120),now)]
     features = make_features(visible, profile, patient['phase_utc_minutes_mod_5'])
     result = {'issued_at': now, 'target_time': now + pd.Timedelta(minutes=60),
               'model_inputs':list(artifact['features']),
@@ -36,9 +36,10 @@ def reveal_outcomes(ledger, frame, now):
     for issued in ledger:
         row = dict(issued)
         due = row['target_time'] <= pd.Timestamp(now)
-        actual = source.get(row['target_time'], float('nan')) if due else float('nan')
+        withheld = row['prediction'] is None
+        actual = source.get(row['target_time'], float('nan')) if due and not withheld else float('nan')
         row['actual'] = float(actual)
-        row['outcome'] = 'Pending' if not due else ('Observed' if pd.notna(actual) else 'Missing observation')
+        row['outcome'] = 'Not evaluated' if withheld else 'Pending' if not due else ('Observed' if pd.notna(actual) else 'Missing observation')
         row['absolute_error'] = abs(actual-row['prediction']) if pd.notna(actual) and row['prediction'] is not None else float('nan')
         rows.append(row)
     return pd.DataFrame(rows)

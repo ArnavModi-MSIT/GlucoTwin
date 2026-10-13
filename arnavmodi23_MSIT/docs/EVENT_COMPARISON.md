@@ -83,7 +83,7 @@ patient-bootstrap intervals do not account for all prior research choices.
 
 The [protocol](../configs/event_comparison_v3.json) pins the original protocol
 by SHA-256. After preparing the original event study and installing
-`requirements-event.txt`, run from `project/`:
+`requirements-event.txt`, run from `arnavmodi23_MSIT/`:
 
 ```powershell
 python scripts/compare_event_models.py

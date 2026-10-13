@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: project
+        working-directory: arnavmodi23_MSIT
     strategy:
       matrix:
         python: ['3.10', '3.12']

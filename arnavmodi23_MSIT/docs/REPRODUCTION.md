@@ -1,6 +1,6 @@
 # Setup and model preparation
 
-Run commands from `project/` with Python 3.10 and the pinned requirements.
+Run commands from `arnavmodi23_MSIT/` with Python 3.10 and the pinned requirements.
 Datasets, generated patient manifests and trusted model binaries stay local.
 The launcher does not download data or train missing models.
 
@@ -8,6 +8,24 @@ For a first run, install `requirements.txt` and launch the dashboard. The built-
 **Synthetic demo** requires no patient files or saved models. It is a fictional
 workflow demonstration with a deterministic trend rule, not a benchmark or a
 substitute for the research model. The instructions below enable research cohorts.
+
+## Evaluation walkthrough
+
+1. Use the synthetic worked example to inspect the interface immediately.
+2. Prepare the CGMacros numerical and event models with the commands below.
+   This is the primary demonstration of linked historical profile, CGM and
+   heart-rate inputs and advance high-glucose onset prediction.
+3. Launch the dashboard and select **CGMacros**, then a development patient.
+   Review the profile, model-input explanation and separate event research panel.
+4. Advance replay in five-minute steps. Issued forecasts and event scores remain
+   fixed; outcomes appear only after their specified availability time. A score
+   is an uncalibrated model output, and a research flag is not a clinical alert.
+5. Compare the revealed outcomes with persistence and inspect the aggregate
+   [development results](RESULTS.md). A single patient session does not reproduce
+   population-level performance. Reserved-test patients stay excluded.
+
+RBG preparation is optional for this walkthrough. It enables the separate type 1
+diabetes numerical benchmark; its results are not pooled with CGMacros.
 
 ## CGMacros numerical model
 

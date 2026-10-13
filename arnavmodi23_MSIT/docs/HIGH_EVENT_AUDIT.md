@@ -64,7 +64,7 @@ its original counts remain unchanged.
 
 ## Reproduce
 
-After the existing event study has been prepared, run from `project/`:
+After the existing event study has been prepared, run from `arnavmodi23_MSIT/`:
 
 ```powershell
 python scripts/audit_high_events.py

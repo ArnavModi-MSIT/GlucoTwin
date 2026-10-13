@@ -1,6 +1,6 @@
 # Local replay API
 
-Double-click `StartGlucoTwin.cmd` in the repository's outer folder, or run `python scripts/launch_dashboard.py` from `project/`. The service uses `http://127.0.0.1:8000`.
+Double-click `StartGlucoTwin.cmd` in the repository's outer folder, or run `python scripts/launch_dashboard.py` from `arnavmodi23_MSIT/`. The service uses `http://127.0.0.1:8000`.
 
 `GET /api/health` returns the application name and an opaque workspace identifier so the launcher can safely reuse this dashboard when its port is already occupied.
 The service binds to loopback. It is a local research interface.

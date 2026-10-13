@@ -2,7 +2,7 @@
 
 The point models and MAEs are unchanged. Optional frozen residual ranges describe uncertainty around each issued numerical forecast. They are not calibrated event probabilities or clinical confidence claims.
 
-Run from `project/` after preparing the active Ridge models:
+Run from `arnavmodi23_MSIT/` after preparing the active Ridge models:
 
 ```powershell
 python scripts/prepare_intervals.py

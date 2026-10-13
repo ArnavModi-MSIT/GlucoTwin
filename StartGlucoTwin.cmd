@@ -1,7 +1,7 @@
 @echo off
 setlocal
 title GlucoTwin local dashboard
-cd /d "%~dp0project"
+cd /d "%~dp0arnavmodi23_MSIT"
 if errorlevel 1 goto missing_project
 if not exist "scripts\launch_dashboard.py" goto missing_project
 
@@ -35,7 +35,7 @@ goto finished
 goto finished
 
 :missing_project
-echo Project files were not found. Keep this launcher beside the project folder.
+echo Project files were not found. Keep this launcher beside the arnavmodi23_MSIT folder.
 goto failed
 
 :finished

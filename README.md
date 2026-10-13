@@ -5,6 +5,15 @@ with continuous glucose monitoring (CGM) and heart-rate data. It investigates
 glucose forecasting and advance detection of sustained high-glucose episodes,
 with a local dashboard for clinicians to review patient history and outcomes.
 
+## Problem and healthcare use case
+
+**Condition:** diabetes. **Target outcome:** a new sustained high-glucose episode.
+The prototype links a patient's historical profile to recent sensor readings so
+a clinician can review advance estimates, data coverage and observed outcomes.
+The primary fusion and event study uses CGMacros, a mixed cohort including
+people with prediabetes and type 2 diabetes. RBG is a separate type 1 diabetes
+forecasting benchmark. Results do not establish type 2-specific performance.
+
 ## Features
 
 - Linked clinical and sensor inputs in the fitted models.
@@ -55,14 +64,14 @@ Mean absolute error (MAE), in mg/dL; lower is better:
 | RBG | 60 min | 32.53 | 28.89 |
 
 RBG values describe the original CGM-only benchmark; profile-fused replay has
-the same rounded MAEs. See [fusion details](project/docs/FUSION.md). Cohorts and
+the same rounded MAEs. See [fusion details](arnavmodi23_MSIT/docs/FUSION.md). Cohorts and
 protocols differ, so these rows are not a controlled dataset comparison.
 
 The separate CGMacros event study detected **229/336 episodes (68.2% recall)**,
 with **52.8% conservative precision**, **0.98 false alarms per eligible day** and a
 **10-minute median lead**. Recall requiring at least ten minutes warning was
 **36.6%**. Cutoff-setting folds did not consistently pass; see the
-[current results](project/docs/RESULTS.md).
+[current results](arnavmodi23_MSIT/docs/RESULTS.md).
 
 **Research use only.** Low-glucose errors remain a weakness, and useful clinical
 fusion gains are not established. Reserved-test performance remains unscored.
@@ -81,12 +90,12 @@ reminders and follow-up. Sensor gaps and forecast errors can be inspected, with
 separate results by horizon. A simulated feed generates fictional readings on
 arrival. Review reports can be previewed with charts and downloaded for printing.
 The research cohorts require locally prepared datasets and trusted model
-artifacts; follow the [reproduction guide](project/docs/REPRODUCTION.md).
+artifacts; follow the [reproduction guide](arnavmodi23_MSIT/docs/REPRODUCTION.md).
 
 From the repository root:
 
 ```powershell
-cd project
+cd arnavmodi23_MSIT
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe scripts/launch_dashboard.py
@@ -95,14 +104,14 @@ python -m venv .venv
 After installing dependencies, Windows users can double-click
 [StartGlucoTwin.cmd](StartGlucoTwin.cmd) to open `http://127.0.0.1:8000`.
 Press **Ctrl+C** in the server window to stop it. Optional event-model setup is
-documented in [event replay](project/docs/EVENT_REPLAY.md).
+documented in [event replay](arnavmodi23_MSIT/docs/EVENT_REPLAY.md).
 
 Select **Synthetic demo** to explore a rising trajectory, stable readings or a
 sensor interruption. **Play replay** advances every five minutes; larger jumps
 also record each intermediate issue. Export buttons include only information
 revealed by the current replay time.
 
-Run Python and JavaScript checks from `project/` (Node.js 22+ required):
+Run Python and JavaScript checks from `arnavmodi23_MSIT/` (Node.js 22+ required):
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/run_tests.py
@@ -111,17 +120,21 @@ Run Python and JavaScript checks from `project/` (Node.js 22+ required):
 Synthetic tests run without data. Add `--integration` for prepared local-data
 and artifact checks, or `--node PATH` when Node is not on PATH.
 
+All application code, preparation scripts and project materials are inside
+`arnavmodi23_MSIT/` (registered team name plus college abbreviation). The README
+and Windows launcher remain at the repository root for direct access.
+
 ## Documentation
 
-- [Architecture and workflow diagrams (PDF)](project/docs/delivery/GlucoTwin_Architecture.pdf)
-- [Presentation (PPTX)](project/docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](project/docs/delivery/GlucoTwin_Presentation.pdf)
+- [Architecture and workflow diagrams (PDF)](arnavmodi23_MSIT/docs/delivery/GlucoTwin_Architecture.pdf)
+- [Presentation (PPTX)](arnavmodi23_MSIT/docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](arnavmodi23_MSIT/docs/delivery/GlucoTwin_Presentation.pdf)
 - [Diagram source (Figma)](https://www.figma.com/design/hrTQZOj6fL2W2cu9ghWN7Y)
-- [API](project/docs/API.md) · [Data contract](project/DATA_CONTRACT.md) · [Evaluation protocol](project/EVALUATION_PROTOCOL.md)
-- [Model results](project/docs/RESULTS.md) · [Model preparation](project/docs/REPRODUCTION.md)
-- [CSV import](project/docs/CSV_IMPORT.md)
-- [Patient review features](project/docs/PATIENT_REVIEW.md)
-- [Forecast uncertainty](project/docs/UNCERTAINTY.md)
-- [Best-results checkpoint](project/docs/BEST_RESULTS.md)
+- [API](arnavmodi23_MSIT/docs/API.md) · [Data contract](arnavmodi23_MSIT/DATA_CONTRACT.md) · [Evaluation protocol](arnavmodi23_MSIT/EVALUATION_PROTOCOL.md)
+- [Model results](arnavmodi23_MSIT/docs/RESULTS.md) · [Model preparation](arnavmodi23_MSIT/docs/REPRODUCTION.md)
+- [CSV import](arnavmodi23_MSIT/docs/CSV_IMPORT.md)
+- [Patient review features](arnavmodi23_MSIT/docs/PATIENT_REVIEW.md)
+- [Forecast uncertainty](arnavmodi23_MSIT/docs/UNCERTAINTY.md)
+- [Best-results checkpoint](arnavmodi23_MSIT/docs/BEST_RESULTS.md)
 
 Demonstration video preparation is deferred.
 
@@ -137,7 +150,7 @@ Demonstration video preparation is deferred.
 
 ## License and data
 
-Original code is licensed under [MIT](project/LICENSE). Datasets and dependencies retain
+Original code is licensed under [MIT](arnavmodi23_MSIT/LICENSE). Datasets and dependencies retain
 their own terms: [CGMacros](https://physionet.org/content/cgmacros/1.0.0/) uses
 CC BY-NC-SA 4.0; [DiaData v3](https://zenodo.org/records/17285631) uses CC BY-NC 4.0
 with original-source attribution. Raw records and model binaries stay local.

@@ -113,8 +113,9 @@ and artifact checks, or `--node PATH` when Node is not on PATH.
 
 ## Documentation
 
-- [Architecture (PDF)](project/docs/delivery/GlucoTwin_Architecture.pdf)
+- [Architecture and workflow diagrams (PDF)](project/docs/delivery/GlucoTwin_Architecture.pdf)
 - [Presentation (PPTX)](project/docs/delivery/GlucoTwin_Presentation.pptx) · [PDF](project/docs/delivery/GlucoTwin_Presentation.pdf)
+- [Diagram source (Figma)](https://www.figma.com/design/hrTQZOj6fL2W2cu9ghWN7Y)
 - [API](project/docs/API.md) · [Data contract](project/DATA_CONTRACT.md) · [Evaluation protocol](project/EVALUATION_PROTOCOL.md)
 - [Model results](project/docs/RESULTS.md) · [Model preparation](project/docs/REPRODUCTION.md)
 - [CSV import](project/docs/CSV_IMPORT.md)

@@ -27,3 +27,26 @@ comparison.pairs[0].a=999;available[0].mean=999;assert.equal(rows[0].mean,100);
 const rewound={...snapshot,data_cutoff:'2024-01-01T00:30:00',issue_time:'2024-01-01T00:35:00'};
 assert.equal(history.availableHours(rewound).length,0);
 console.log('Hourly history checks passed: cutoff/identity consistency, boundaries, partial hours, matched coverage, gaps, immutable source and rewind.');
+
+const run=(kind,start='2024-01-02T02:00:00',extra={})=>{
+ const date=new Date(start+'Z'),stamp=minutes=>new Date(date.getTime()+minutes*60000).toISOString().slice(0,19),value=kind==='high'?200:60;
+ return {id:kind+'-'+start,kind,first_observed:start,last_observed:stamp(15),confirmed_at:stamp(15),extreme_at:start,samples:4,observed_span_minutes:15,minimum:value,maximum:value,mean:value,start_boundary:'observed_crossing',end_boundary:'observed_exit',next_observed_at:stamp(20),points:[{time:stamp(-5),glucose:100},...[0,5,10,15].map(n=>({time:stamp(n),glucose:value})),{time:stamp(20),glucose:100}],...extra};
+};
+const runRows=[run('high'),run('low','2024-01-02T03:00:00',{start_boundary:'gap',points:[0,5,10,15,20].map(n=>({time:`2024-01-02T03:${String(n).padStart(2,'0')}:00`,glucose:n===20?100:60}))}),run('high','2024-01-03T08:15:00',{end_boundary:'cutoff',next_observed_at:null,points:[{time:'2024-01-03T08:10:00',glucose:100},...[15,20,25,30].map(n=>({time:`2024-01-03T08:${n}:00`,glucose:200}))]})];
+const runSnapshot={...snapshot,historical_patterns:{through:cutoff,excursions:runRows}};
+const availableRuns=history.availableExcursions(runSnapshot);
+assert.equal(availableRuns.length,3);
+assert.deepEqual(history.excursionSummary(availableRuns),{high:2,low:1,cutoff:1,gaps:1});
+assert.equal(history.filterExcursions(availableRuns,'low').length,1);
+assert.equal(history.filterExcursions(availableRuns,'all','bounded').length,1);
+assert.equal(history.filterExcursions(availableRuns,'all','gap').length,1);
+assert.equal(history.filterExcursions(availableRuns,'all','cutoff')[0].first_observed,'2024-01-03T08:15:00');
+assert.equal(history.filterExcursions(availableRuns)[0].end_boundary,'cutoff');
+const badRuns=[run('high','2024-01-03T08:15:00'),run('high',undefined,{confirmed_at:'2024-01-03T09:00:00'}),run('high',undefined,{samples:3}),run('high',undefined,{observed_span_minutes:20}),run('high',undefined,{points:[]}),run('low',undefined,{points:run('high').points})];
+assert.equal(history.availableExcursions({...runSnapshot,historical_patterns:{through:cutoff,excursions:badRuns}}).length,0);
+assert.equal(history.availableExcursions({...runSnapshot,historical_patterns:{through:cutoff,excursions:[...runRows,runRows[0]]}}).length,3);
+assert.equal(history.availableExcursions({...runSnapshot,historical_patterns:{through:'2024-01-03T09:00:00',excursions:runRows}}).length,0);
+const restored=history.availableExcursions({...runSnapshot,data_cutoff:'2024-01-02T02:15:00',historical_patterns:{through:'2024-01-02T02:15:00',excursions:runRows}});
+assert.equal(restored.length,0); // The exported exit/context had not arrived yet; require a matching snapshot.
+availableRuns[0].points[0].glucose=999;assert.equal(runRows[0].points[0].glucose,100);
+console.log('Observed run checks passed: timing, future context, qualification, bands, filters, gaps, rewind and source immutability.');

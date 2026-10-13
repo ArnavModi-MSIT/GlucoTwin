@@ -55,6 +55,21 @@ class HttpUnitTests(unittest.TestCase):
             self.assertIn('mean,minimum,maximum',text)
             self.assertIn(snapshot['patient_label'],text)
             self.assertNotIn('prediction',text)
+    def test_observed_run_csv_is_available_and_isolated_from_other_sessions(self):
+        import csv,io
+        key,snapshot=web.service.create('demo','showcase')
+        snapshot=web.clean(snapshot)
+        web.service.create('demo','stable')
+        request=urllib.request.Request(self.url+'/api/export?format=excursions',headers={'X-GlucoTwin-Session':key})
+        with urllib.request.urlopen(request) as response:
+            self.assertEqual(response.headers['Content-Type'],'text/csv; charset=utf-8')
+            self.assertIn('excursions.csv',response.headers['Content-Disposition'])
+            rows=list(csv.DictReader(io.StringIO(response.read().decode())))
+        self.assertEqual(len(rows),len(snapshot['historical_patterns']['excursions']))
+        self.assertTrue(all(r['patient']==snapshot['patient_label'] for r in rows))
+        self.assertTrue(all(r['last_observed']<=snapshot['data_cutoff'] for r in rows))
+        self.assertNotIn('prediction',rows[0])
+
     def test_failed_inference_is_controlled(self):
         with patch.object(web,'catalog',return_value={'P-012':{}}),patch.object(web.service,'create',side_effect=RuntimeError('private path')):
             with self.assertLogs(level='ERROR'):

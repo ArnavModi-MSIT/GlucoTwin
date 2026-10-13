@@ -28,6 +28,30 @@ def history_csv_report(snapshot):
     return output.getvalue()
 
 
+def excursion_csv_report(snapshot):
+    """Export available observed-run summaries, separate from prediction labels."""
+    history = snapshot.get('historical_patterns') or {}
+    cutoff = datetime.fromisoformat(snapshot['data_cutoff'])
+    if history.get('through') != snapshot['data_cutoff'] or cutoff > datetime.fromisoformat(snapshot['issue_time']):
+        raise ValueError('Historical summary does not match the current data cutoff')
+    output = io.StringIO(newline='')
+    fields = ['cohort','synthetic','patient','replay_time','data_cutoff','kind',
+              'first_observed','last_observed','confirmed_at','samples','observed_span_minutes',
+              'minimum','maximum','mean','extreme_at','start_boundary','end_boundary','next_observed_at']
+    writer = csv.DictWriter(output,fieldnames=fields,extrasaction='ignore')
+    writer.writeheader()
+    base = dict(cohort=snapshot['cohort'],synthetic=bool(snapshot.get('synthetic')),
+                patient=snapshot['patient_label'],replay_time=snapshot['issue_time'],data_cutoff=snapshot['data_cutoff'])
+    for row in history.get('excursions',[]):
+        if any(datetime.fromisoformat(row[key]) > cutoff for key in
+               ['first_observed','last_observed','confirmed_at','extreme_at','next_observed_at'] if row.get(key)):
+            continue
+        values = dict(row,**base)
+        writer.writerow({k:"'"+v if isinstance(v,str) and v.lstrip().startswith(('=','+','-','@')) else v
+                         for k,v in values.items() if k in fields})
+    return output.getvalue()
+
+
 def csv_report(snapshot):
     output = io.StringIO(newline='')
     fields = ['record_type', 'cohort', 'synthetic', 'patient', 'model', 'replay_time',

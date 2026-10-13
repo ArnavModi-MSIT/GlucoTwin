@@ -22,3 +22,5 @@ jobs:
       - run: node --check web/app.js
       - run: node tests/frontend_info_unit.js
       - run: node tests/care_unit.js
+      - run: node --check web/history.js
+      - run: node tests/history_unit.js

@@ -11,7 +11,7 @@ import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
 import serve_dashboard as web
 from glucotwin.demo import DemoReplay
-from glucotwin.reporting import csv_report,html_report,history_csv_report
+from glucotwin.reporting import csv_report,html_report,history_csv_report,excursion_csv_report
 
 
 class DemoTests(unittest.TestCase):
@@ -77,6 +77,20 @@ class DemoTests(unittest.TestCase):
         b.reset()
         self.assertEqual(web.clean(a.snapshot()),web.clean(b.snapshot()))
         self.assertFalse(DemoReplay('demo','rise').snapshot()['demo_prefill'])
+
+    def test_observed_run_export_preserves_cutoff_and_escapes_text(self):
+        s=web.clean(DemoReplay('demo','showcase').snapshot())
+        s['patient_label']='   =HYPERLINK("example")'
+        rows=list(csv.DictReader(io.StringIO(excursion_csv_report(s))))
+        self.assertGreater(len(rows),0)
+        self.assertTrue(all(r['patient'].startswith("'   =") for r in rows))
+        self.assertTrue(all(r['last_observed']<=s['data_cutoff'] and r['confirmed_at']<=s['data_cutoff'] for r in rows))
+        self.assertNotIn('prediction',rows[0]);self.assertNotIn('points',rows[0])
+        future=pd.Timestamp(s['data_cutoff'])+pd.Timedelta(minutes=5)
+        s['historical_patterns']['excursions'][0]['next_observed_at']=future.isoformat()
+        self.assertEqual(len(list(csv.DictReader(io.StringIO(excursion_csv_report(s))))),len(rows)-1)
+        s['historical_patterns']['through']=future.isoformat()
+        with self.assertRaises(ValueError):excursion_csv_report(s)
 
     def test_no_files_required(self):
         with patch.object(web,'catalog',side_effect=AssertionError('private manifest read')),patch.object(web,'models',side_effect=AssertionError('artifact read')):

@@ -15,6 +15,7 @@ The service binds to loopback. It is a local research interface.
 | `/api/snapshot` | GET | None | Current snapshot without advancing |
 | `/api/export?format=csv` | GET | Session cookie | Forecast and event ledger download |
 | `/api/export?format=history` | GET | Session cookie or tab header | Available hourly history CSV; separate from the forecast ledger |
+| `/api/export?format=excursions` | GET | Session cookie or tab header | Observed high/low run summaries CSV; separate from warning labels |
 | `/api/export?format=json` | GET | Session cookie | Revealed snapshot download |
 | `/api/export?format=html` | GET | Session cookie | Printable session report; browser Print can save PDF |
 | `/api/feed/sample` | POST | Session cookie or tab header; optional `missing` boolean | Receive one fictional five-minute slot in the simulated feed only |
@@ -107,6 +108,26 @@ whose final checkpoint is after the cutoff. Text starting with spreadsheet
 formula characters is escaped. No raw readings, predictions or browser care
 notes are included. The interactive heatmap and two-day comparison are dashboard
 views; they are not added to the existing printable reports.
+
+`historical_patterns.excursions` describes contiguous available five-minute runs
+below 70 or above 180 mg/dL. At least four consecutive readings are required;
+`confirmed_at` is the fourth checkpoint, and `observed_span_minutes` is the
+first-to-last span, not an estimated physiological duration. Each row includes
+`kind`, first/last times, sample count, mean/minimum/maximum, `extreme_at` and
+`points` for the run plus at most one available context reading on each side.
+
+`start_boundary` is `observed_crossing`, `history_boundary` or `gap`.
+`end_boundary` is `observed_exit`, `cutoff` or `gap`. Crossing/exit means an
+adjacent finite reading outside the selected band, including the opposite band;
+it does not imply recovery into an individual target range. Missing readings
+split runs, which may cross midnight. Unknown boundaries stay unknown. Only
+the last seven study dates through the cutoff enter this view; these labels are
+independent of trained warning-model labels and scores.
+
+The excursions CSV exports these summaries with identity and replay/cutoff
+timestamps, omitting chart points and browser notes. Future run or context
+timestamps are excluded and formula-like text is escaped. No predictions are
+included. JSON includes available points; existing HTML reports are unchanged.
 
 ## Restore care notes
 

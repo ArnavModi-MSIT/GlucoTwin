@@ -3,6 +3,41 @@ import numpy as np
 import pandas as pd
 
 
+def observed_excursions(readings):
+    """Describe contiguous out-of-band runs on an available five-minute grid.
+
+    Four consecutive readings span at least 15 observed minutes. Unknown
+    boundary readings censor a run rather than proving its onset or recovery.
+    This descriptive rule is independent of prediction/event evaluation labels.
+    """
+    values = readings.to_numpy(dtype=float)
+    if not len(values):
+        return []
+    kinds = np.where(np.isfinite(values), np.where(values < 70, -1, np.where(values > 180, 1, 0)), 0)
+    boundaries = np.flatnonzero(np.r_[True, kinds[1:] != kinds[:-1], True])
+    rows = []
+    for first, stop in zip(boundaries[:-1], boundaries[1:]):
+        if kinds[first] == 0 or stop-first < 4:
+            continue
+        part = readings.iloc[first:stop]
+        kind = 'low' if kinds[first] == -1 else 'high'
+        before = first > 0 and np.isfinite(values[first-1])
+        after = stop < len(values) and np.isfinite(values[stop])
+        left = 'observed_crossing' if before else 'history_boundary' if first == 0 else 'gap'
+        right = 'observed_exit' if after else 'cutoff' if stop == len(values) else 'gap'
+        extreme_at = part.idxmin() if kind == 'low' else part.idxmax()
+        context = readings.iloc[first-int(before):stop+int(after)]
+        rows.append(dict(id=kind+'-'+part.index[0].isoformat(), kind=kind,
+            first_observed=part.index[0].isoformat(), last_observed=part.index[-1].isoformat(),
+            confirmed_at=part.index[3].isoformat(), samples=len(part),
+            observed_span_minutes=int((part.index[-1]-part.index[0]).total_seconds()/60),
+            minimum=float(part.min()), maximum=float(part.max()), mean=float(part.mean()),
+            extreme_at=extreme_at.isoformat(), start_boundary=left, end_boundary=right,
+            next_observed_at=readings.index[stop].isoformat() if after else None,
+            points=[dict(time=t.isoformat(),glucose=float(v)) for t,v in context.items()]))
+    return rows
+
+
 def descriptive_profile(times, values, cutoff):
     """Fourteen study dates, hourly distributions across covered past days."""
     cutoff=pd.Timestamp(cutoff);times=pd.DatetimeIndex(times)
@@ -51,7 +86,7 @@ def historical_patterns(times, values, cutoff):
     if source.index.has_duplicates:
         raise ValueError('Duplicate historical timestamps')
     if source.empty:
-        return dict(through=cutoff.isoformat(), daily=[], hourly=[], periods=[], observed_samples=0,
+        return dict(through=cutoff.isoformat(), daily=[], hourly=[], excursions=[], periods=[], observed_samples=0,
                     note='No available historical readings.',profile=descriptive_profile(times,values,cutoff))
     first = max(start, source.index.min())
     first = cutoff - ((cutoff-first)//pd.Timedelta(minutes=5))*pd.Timedelta(minutes=5)
@@ -100,7 +135,7 @@ def historical_patterns(times, values, cutoff):
                             eligible_days=n, high_days=high, low_days=low,
                             description='; '.join(recurring) if recurring else
                             'Insufficient comparable days' if n < 2 else 'No repeated pattern under this rule'))
-    return dict(through=cutoff.isoformat(), daily=daily, hourly=hourly, periods=periods,
+    return dict(through=cutoff.isoformat(), daily=daily, hourly=hourly, excursions=observed_excursions(g), periods=periods,
                 observed_samples=int(g.notna().sum()),
                 profile=descriptive_profile(times,values,cutoff),
                 note='Last seven study dates through data cutoff. Five-minute samples; gaps stay missing. Reference bands: below 70, 70–180 and above 180 mg/dL. Descriptive history, not a future forecast or individualized target.')
